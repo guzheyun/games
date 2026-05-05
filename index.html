@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>俄罗斯方块</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0a0a1a;color:#e0e0e0;font-family:'Segoe UI',sans-serif;display:flex;justify-content:center;align-items:center;min-height:100vh;overflow:hidden}
+#menu{text-align:center;position:absolute;z-index:10}
+#menu h1{font-size:3.5rem;background:linear-gradient(135deg,#ff6ec4,#7873f5,#4aeadc);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:2rem;text-shadow:0 0 40px rgba(120,115,245,.3)}
+#menu button{display:block;margin:.8rem auto;padding:1rem 3rem;font-size:1.3rem;border:2px solid #7873f5;background:transparent;color:#e0e0e0;border-radius:12px;cursor:pointer;transition:all .3s;min-width:260px}
+#menu button:hover{background:#7873f5;color:#fff;box-shadow:0 0 25px rgba(120,115,245,.5)}
+#game{display:none;justify-content:center;align-items:flex-start;gap:40px;padding:20px}
+.player-area{display:flex;gap:12px;align-items:flex-start}
+.side-panel{display:flex;flex-direction:column;gap:14px;min-width:150px}
+.panel-box{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:16px;text-align:center}
+.panel-box h3{font-size:.85rem;text-transform:uppercase;letter-spacing:2px;color:#888;margin-bottom:10px}
+.panel-box .value{font-size:1.8rem;font-weight:bold;color:#4aeadc}
+.mini-canvas{display:block;margin:0 auto}
+canvas.board{border:2px solid rgba(255,255,255,.15);border-radius:4px;box-shadow:0 0 30px rgba(120,115,245,.15)}
+.keys-panel{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:18px;font-size:.9rem;line-height:2.2}
+.keys-panel h3{font-size:.85rem;text-transform:uppercase;letter-spacing:2px;color:#888;margin-bottom:10px}
+.keys-panel div{display:flex;justify-content:space-between;gap:12px}
+.keys-panel span.key{background:rgba(255,255,255,.1);padding:1px 8px;border-radius:4px;font-family:monospace;font-size:.8rem}
+.player-label{text-align:center;font-size:1.1rem;font-weight:bold;margin-bottom:8px;background:linear-gradient(90deg,#ff6ec4,#7873f5);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+#overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.7);display:none;justify-content:center;align-items:center;z-index:20;font-size:2.5rem;color:#fff;flex-direction:column;gap:20px}
+#overlay button{padding:.8rem 2rem;font-size:1.1rem;border:2px solid #4aeadc;background:transparent;color:#e0e0e0;border-radius:10px;cursor:pointer;transition:all .3s}
+#overlay button:hover{background:#4aeadc;color:#0a0a1a}
+</style>
+</head>
+<body>
+<div id="menu">
+  <h1>俄罗斯方块</h1>
+  <button onclick="startGame(1)">单人模式</button>
+  <button onclick="startGame(2)">双人对战</button>
+</div>
+<div id="game"></div>
+<div id="overlay"><span id="overlay-text"></span><button onclick="backToMenu()">返回菜单</button></div>
+
+<script>
+const COLS=10,ROWS=20,CELL=48;
+const SHAPES=[
+  [[1,1,1,1]],
+  [[1,1],[1,1]],
+  [[0,1,0],[1,1,1]],
+  [[1,0,0],[1,1,1]],
+  [[0,0,1],[1,1,1]],
+  [[1,1,0],[0,1,1]],
+  [[0,1,1],[1,1,0]]
+];
+const COLORS=['#00f0f0','#f0f000','#a000f0','#0000f0','#f0a000','#00f000','#f00000'];
+const GHOST_ALPHA=0.25;
+const LOCK_DELAY=800;
+const KEYS_P1={left:'ArrowLeft',right:'ArrowRight',rotate:'ArrowUp',soft:'ArrowDown',hard:' ',hold:'m'};
+const KEYS_P2={left:'a',right:'d',rotate:'w',soft:'s',hard:'q',hold:'e'};
+const LABELS_P1={'左移':'← 左','右移':'→ 右','旋转':'↑ 上','加速下落':'↓ 下','硬降':'空格','暂存':'M','暂停':'P'};
+const LABELS_P2={'左移':'A','右移':'D','旋转':'W','加速下落':'S','硬降':'Q','暂存':'E','暂停':'P'};
+
+let players=[],mode=0,paused=false,gameOver=false,rafId=null;
+
+class Particle{
+  constructor(x,y,color){
+    this.x=x;this.y=y;this.color=color;
+    let angle=Math.random()*Math.PI*2;
+    let speed=1.5+Math.random()*3;
+    this.vx=Math.cos(angle)*speed;
+    this.vy=Math.sin(angle)*speed-2;
+    this.life=1;this.decay=0.015+Math.random()*0.02;
+    this.size=3+Math.random()*4;
+  }
+  update(){this.x+=this.vx;this.y+=this.vy;this.vy+=0.08;this.life-=this.decay;}
+  draw(ctx){
+    ctx.globalAlpha=this.life;
+    ctx.shadowColor=this.color;ctx.shadowBlur=8;
+    ctx.fillStyle=this.color;
+    ctx.fillRect(this.x-this.size/2,this.y-this.size/2,this.size,this.size);
+    ctx.shadowBlur=0;ctx.globalAlpha=1;
+  }
+}
+
+class Player{
+  constructor(id,keys){
+    this.id=id;this.keys=keys;
+    this.board=Array.from({length:ROWS},()=>Array(COLS).fill(0));
+    this.score=0;this.lines=0;this.level=1;
+    this.bag=[];this.cur=null;this.hold=null;this.holdUsed=false;
+    this.lockTimer=0;this.locking=false;
+    this.dropInterval=1000;this.dropTimer=0;
+    this.alive=true;this.canvas=null;this.ctx=null;
+    this.nextCanvas=null;this.nextCtx=null;
+    this.holdCanvas=null;this.holdCtx=null;
+    this.scoreEl=null;this.levelEl=null;this.linesEl=null;
+    this.next=null;
+    this.particles=[];
+    this.clearAnim=null;
+    this.spawn();
+  }
+  refillBag(){
+    let a=[0,1,2,3,4,5,6];
+    for(let i=a.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}
+    this.bag.push(...a);
+  }
+  spawn(){
+    if(this.bag.length<7)this.refillBag();
+    if(this.bag.length<7)this.refillBag();
+    let idx=this.bag.shift();
+    this.cur={shape:SHAPES[idx].map(r=>[...r]),color:COLORS[idx],x:Math.floor((COLS-SHAPES[idx][0].length)/2),y:0,idx};
+    this.next=this.bag[0];
+    this.locking=false;this.lockTimer=0;this.holdUsed=false;
+    if(this.collides(this.cur.shape,this.cur.x,this.cur.y)){this.alive=false;}
+  }
+  collides(shape,x,y){
+    for(let r=0;r<shape.length;r++)for(let c=0;c<shape[r].length;c++){
+      if(!shape[r][c])continue;
+      let nx=x+c,ny=y+r;
+      if(nx<0||nx>=COLS||ny>=ROWS)return true;
+      if(ny>=0&&this.board[ny][nx])return true;
+    }
+    return false;
+  }
+  rotate(){
+    let s=this.cur.shape,rows=s.length,cols=s[0].length;
+    let ns=Array.from({length:cols},(_,c)=>Array.from({length:rows},(_,r)=>s[rows-1-r][c]));
+    let kicks=[[0,0],[-1,0],[1,0],[0,-1],[-1,-1],[1,-1],[0,-2]];
+    for(let[dx,dy]of kicks){
+      if(!this.collides(ns,this.cur.x+dx,this.cur.y+dy)){
+        this.cur.shape=ns;this.cur.x+=dx;this.cur.y+=dy;
+        if(this.locking)this.lockTimer=0;
+        return;
+      }
+    }
+  }
+  move(dx){
+    if(!this.collides(this.cur.shape,this.cur.x+dx,this.cur.y)){
+      this.cur.x+=dx;
+      if(this.locking){
+        if(!this.collides(this.cur.shape,this.cur.x,this.cur.y+1)){
+          this.locking=false;this.lockTimer=0;
+          this.cur.y++;
+        }else{
+          this.lockTimer=0;
+        }
+      }
+    }
+  }
+  softDrop(){
+    if(!this.collides(this.cur.shape,this.cur.x,this.cur.y+1)){
+      this.cur.y++;this.score+=1;
+    }
+  }
+  hardDrop(){
+    let dist=0;
+    while(!this.collides(this.cur.shape,this.cur.x,this.cur.y+dist+1))dist++;
+    this.cur.y+=dist;this.score+=dist*2;
+    this.locking=true;this.lockTimer=0;
+  }
+  ghostY(){
+    let gy=this.cur.y;
+    while(!this.collides(this.cur.shape,this.cur.x,gy+1))gy++;
+    return gy;
+  }
+  lock(){
+    let s=this.cur.shape;
+    for(let r=0;r<s.length;r++)for(let c=0;c<s[r].length;c++){
+      if(!s[r][c])continue;
+      let ny=this.cur.y+r;
+      if(ny<0){this.alive=false;return 0;}
+      this.board[ny][this.cur.x+c]=this.cur.color;
+    }
+    let clearedRows=[];
+    for(let r=0;r<ROWS;r++){
+      if(this.board[r].every(c=>c))clearedRows.push(r);
+    }
+    if(clearedRows.length>0){
+      for(let r of clearedRows){
+        for(let c=0;c<COLS;c++){
+          let color=this.board[r][c];
+          let px=c*CELL+CELL/2,py=r*CELL+CELL/2;
+          for(let i=0;i<6;i++)this.particles.push(new Particle(px,py,color));
+        }
+      }
+      this.cur=null;
+      this.clearAnim={rows:clearedRows,timer:0,duration:300};
+      return clearedRows.length;
+    }
+    return 0;
+  }
+  finishClear(){
+    let cleared=this.clearAnim.rows.length;
+    let rows=this.clearAnim.rows.sort((a,b)=>b-a);
+    for(let r of rows){
+      this.board.splice(r,1);
+      this.board.unshift(Array(COLS).fill(0));
+    }
+    this.clearAnim=null;
+    this.lines+=cleared;
+    this.score+=[0,100,300,500,800][cleared]*this.level;
+    this.level=Math.floor(this.lines/10)+1;
+    this.dropInterval=Math.max(100,1000-((this.level-1)*80));
+    return cleared;
+  }
+  doHold(){
+    if(this.holdUsed)return;
+    this.holdUsed=true;
+    let idx=this.cur.idx;
+    if(this.hold===null){
+      this.hold=idx;this.spawn();
+    }else{
+      let old=this.hold;this.hold=idx;
+      this.cur={shape:SHAPES[old].map(r=>[...r]),color:COLORS[old],x:Math.floor((COLS-SHAPES[old][0].length)/2),y:0,idx:old};
+      this.locking=false;this.lockTimer=0;
+    }
+  }
+  addGarbage(n){
+    let hole=Math.floor(Math.random()*COLS);
+    for(let i=0;i<n;i++){
+      this.board.shift();
+      let row=Array(COLS).fill('#555');
+      row[hole]=0;
+      this.board.push(row);
+    }
+  }
+  update(dt){
+    if(!this.alive)return;
+    this.particles=this.particles.filter(p=>{p.update();return p.life>0;});
+    if(this.clearAnim){
+      this.clearAnim.timer+=dt;
+      if(this.clearAnim.timer>=this.clearAnim.duration){
+        let cleared=this.finishClear();
+        if(mode===2&&cleared>=2){
+          let other=players.find(p=>p.id!==this.id);
+          if(other&&other.alive)other.addGarbage(cleared-1);
+        }
+        if(this.alive)this.spawn();
+      }
+      return;
+    }
+    if(!this.cur)return;
+    if(this.locking){
+      this.lockTimer+=dt;
+      if(this.lockTimer>=LOCK_DELAY){
+        let cleared=this.lock();
+        if(!this.clearAnim&&this.alive)this.spawn();
+      }
+      return;
+    }
+    this.dropTimer+=dt;
+    if(this.dropTimer>=this.dropInterval){
+      this.dropTimer=0;
+      if(!this.collides(this.cur.shape,this.cur.x,this.cur.y+1)){
+        this.cur.y++;
+      }else{
+        this.locking=true;this.lockTimer=0;
+      }
+    }
+  }
+  draw(){
+    let ctx=this.ctx,W=COLS*CELL,H=ROWS*CELL;
+    ctx.clearRect(0,0,W,H);
+    ctx.fillStyle='#111122';ctx.fillRect(0,0,W,H);
+    for(let r=0;r<ROWS;r++)for(let c=0;c<COLS;c++){
+      if(this.board[r][c]){
+        ctx.fillStyle=this.board[r][c];
+        ctx.fillRect(c*CELL,r*CELL,CELL-1,CELL-1);
+        ctx.fillStyle='rgba(255,255,255,.15)';
+        ctx.fillRect(c*CELL,r*CELL,CELL-1,3);
+        ctx.fillRect(c*CELL,r*CELL,3,CELL-1);
+      }else{
+        ctx.fillStyle='rgba(255,255,255,.02)';
+        ctx.fillRect(c*CELL,r*CELL,CELL-1,CELL-1);
+      }
+    }
+    if(this.cur){
+      let gy=this.ghostY(),s=this.cur.shape;
+      for(let r=0;r<s.length;r++)for(let c=0;c<s[r].length;c++){
+        if(!s[r][c])continue;
+        let gx=this.cur.x+c,gyy=gy+r;
+        if(gyy>=0){
+          ctx.fillStyle=this.cur.color;ctx.globalAlpha=GHOST_ALPHA;
+          ctx.fillRect(gx*CELL,gyy*CELL,CELL-1,CELL-1);
+          ctx.globalAlpha=1;
+        }
+      }
+      for(let r=0;r<s.length;r++)for(let c=0;c<s[r].length;c++){
+        if(!s[r][c])continue;
+        let px=(this.cur.x+c)*CELL,py=(this.cur.y+r)*CELL;
+        if(this.cur.y+r>=0){
+          ctx.fillStyle=this.cur.color;
+          ctx.fillRect(px,py,CELL-1,CELL-1);
+          ctx.fillStyle='rgba(255,255,255,.2)';
+          ctx.fillRect(px,py,CELL-1,3);
+          ctx.fillRect(px,py,3,CELL-1);
+        }
+      }
+    }
+    this.scoreEl.textContent=this.score;
+    this.levelEl.textContent=this.level;
+    this.linesEl.textContent=this.lines;
+    if(this.clearAnim){
+      let progress=this.clearAnim.timer/this.clearAnim.duration;
+      let flash=Math.sin(progress*Math.PI*3);
+      for(let r of this.clearAnim.rows){
+        ctx.fillStyle=`rgba(255,255,255,${0.6*Math.max(0,flash)})`;
+        ctx.fillRect(0,r*CELL,COLS*CELL,CELL);
+        ctx.fillStyle=`rgba(120,115,245,${0.3*(1-progress)})`;
+        ctx.fillRect(0,r*CELL,COLS*CELL,CELL);
+      }
+    }
+    this.particles.forEach(p=>p.draw(ctx));
+    this.drawMini(this.nextCtx,this.next!==undefined?this.next:null);
+    this.drawMini(this.holdCtx,this.hold);
+  }
+  drawMini(ctx,idx){
+    ctx.clearRect(0,0,120,80);
+    if(idx===null||idx===undefined)return;
+    let s=SHAPES[idx],col=COLORS[idx],sz=24;
+    let ox=(120-s[0].length*sz)/2,oy=(80-s.length*sz)/2;
+    for(let r=0;r<s.length;r++)for(let c=0;c<s[r].length;c++){
+      if(s[r][c]){ctx.fillStyle=col;ctx.fillRect(ox+c*sz,oy+r*sz,sz-1,sz-1);}
+    }
+  }
+}
+
+function buildUI(){
+  let g=document.getElementById('game');
+  g.innerHTML='';g.style.display='flex';
+  players.forEach(p=>{
+    let area=document.createElement('div');area.className='player-area';
+    let leftPanel=document.createElement('div');leftPanel.className='side-panel';
+    let holdBox=mkBox('暂存');
+    let hc=document.createElement('canvas');hc.className='mini-canvas';hc.width=120;hc.height=80;
+    holdBox.appendChild(hc);p.holdCanvas=hc;p.holdCtx=hc.getContext('2d');
+    let nextBox=mkBox('下一个');
+    let nc=document.createElement('canvas');nc.className='mini-canvas';nc.width=120;nc.height=80;
+    nextBox.appendChild(nc);p.nextCanvas=nc;p.nextCtx=nc.getContext('2d');
+    let scoreBox=mkBox('分数');let sv=document.createElement('div');sv.className='value';sv.textContent='0';scoreBox.appendChild(sv);p.scoreEl=sv;
+    let levelBox=mkBox('等级');let lv=document.createElement('div');lv.className='value';lv.textContent='1';levelBox.appendChild(lv);p.levelEl=lv;
+    let linesBox=mkBox('消行');let lnv=document.createElement('div');lnv.className='value';lnv.textContent='0';linesBox.appendChild(lnv);p.linesEl=lnv;
+    leftPanel.append(holdBox,nextBox,scoreBox,levelBox,linesBox);
+
+    let mid=document.createElement('div');
+    if(mode===2){let lb=document.createElement('div');lb.className='player-label';lb.textContent='玩家'+p.id;mid.appendChild(lb);}
+    let cv=document.createElement('canvas');cv.className='board';cv.width=COLS*CELL;cv.height=ROWS*CELL;
+    mid.appendChild(cv);p.canvas=cv;p.ctx=cv.getContext('2d');
+
+    let labels=p.id===1?LABELS_P1:LABELS_P2;
+    let kp=document.createElement('div');kp.className='keys-panel';
+    let kh=document.createElement('h3');kh.textContent='操作按键';kp.appendChild(kh);
+    for(let[act,key]of Object.entries(labels)){
+      let row=document.createElement('div');
+      let l=document.createElement('span');l.textContent=act;
+      let k=document.createElement('span');k.className='key';k.textContent=key;
+      row.append(l,k);kp.appendChild(row);
+    }
+
+    area.append(leftPanel,mid,kp);g.appendChild(area);
+  });
+}
+function mkBox(title){let d=document.createElement('div');d.className='panel-box';let h=document.createElement('h3');h.textContent=title;d.appendChild(h);return d;}
+
+function startGame(m){
+  mode=m;paused=false;gameOver=false;
+  document.getElementById('menu').style.display='none';
+  document.getElementById('overlay').style.display='none';
+  players=[new Player(1,KEYS_P1)];
+  if(m===2)players.push(new Player(2,KEYS_P2));
+  buildUI();
+  lastTime=performance.now();
+  if(rafId)cancelAnimationFrame(rafId);
+  rafId=requestAnimationFrame(loop);
+}
+
+let lastTime=0;
+function loop(t){
+  let dt=t-lastTime;lastTime=t;
+  if(!paused&&!gameOver){
+    players.forEach(p=>p.update(dt));
+    players.forEach(p=>p.draw());
+    if(mode===1&&!players[0].alive){
+      gameOver=true;showOverlay('游戏结束！\n最终分数：'+players[0].score);
+    }
+    if(mode===2){
+      let alive=players.filter(p=>p.alive);
+      if(alive.length<=1){
+        gameOver=true;
+        if(alive.length===1)showOverlay('玩家'+alive[0].id+' 获胜！');
+        else showOverlay('平局！');
+      }
+    }
+  }
+  rafId=requestAnimationFrame(loop);
+}
+
+function showOverlay(txt){
+  let o=document.getElementById('overlay');
+  document.getElementById('overlay-text').textContent=txt;
+  o.style.display='flex';
+}
+function backToMenu(){
+  if(rafId)cancelAnimationFrame(rafId);rafId=null;
+  document.getElementById('game').style.display='none';
+  document.getElementById('overlay').style.display='none';
+  document.getElementById('menu').style.display='block';
+  players=[];
+}
+
+document.addEventListener('keydown',e=>{
+  if(e.key==='p'||e.key==='P'){
+    if(!gameOver){paused=!paused;if(paused)showOverlay('暂停中');else document.getElementById('overlay').style.display='none';}
+    return;
+  }
+  if(paused||gameOver)return;
+  players.forEach(p=>{
+    if(!p.alive||!p.cur)return;
+    let k=e.key;
+    if(k===p.keys.left)p.move(-1);
+    else if(k===p.keys.right)p.move(1);
+    else if(k===p.keys.rotate)p.rotate();
+    else if(k===p.keys.soft)p.softDrop();
+    else if(k===p.keys.hard)p.hardDrop();
+    else if(k===p.keys.hold||k===p.keys.hold.toUpperCase())p.doHold();
+  });
+  if([' ','ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.key))e.preventDefault();
+});
+</script>
+</body>
+</html>
