@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>靶场射击</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{overflow:hidden;background:#000;font-family:'Segoe UI',sans-serif}
+canvas{display:block}
+#hud{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:10}
+#crosshair{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:30px;height:30px}
+#crosshair::before,#crosshair::after{content:'';position:absolute;background:rgba(255,255,255,.8)}
+#crosshair::before{width:2px;height:30px;left:14px;top:0}
+#crosshair::after{width:30px;height:2px;top:14px;left:0}
+#score{position:absolute;top:20px;left:20px;color:#4aeadc;font-size:1.5rem;font-weight:bold;text-shadow:0 2px 4px rgba(0,0,0,.5)}
+#timer{position:absolute;top:20px;right:20px;color:#f5c542;font-size:1.5rem;font-weight:bold;text-shadow:0 2px 4px rgba(0,0,0,.5)}
+#reaction{position:absolute;top:55%;left:50%;transform:translateX(-50%);font-size:1.2rem;color:#4aeadc;opacity:0;transition:opacity .15s;text-shadow:0 1px 3px rgba(0,0,0,.5)}
+#avg-time{position:absolute;top:55px;left:20px;color:#aaa;font-size:1rem;text-shadow:0 1px 3px rgba(0,0,0,.5)}
+#overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:linear-gradient(135deg,#0f0c29,#302b63,#24243e);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:20;color:#fff}
+#overlay h1{font-size:3rem;margin-bottom:1rem;background:linear-gradient(135deg,#ff6ec4,#7873f5,#4aeadc);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+#overlay p{font-size:1.2rem;color:#aaa;margin-bottom:.5rem}
+#overlay button{padding:1rem 3rem;font-size:1.2rem;border:2px solid #7873f5;background:rgba(120,115,245,.1);color:#e0e0e0;border-radius:12px;cursor:pointer;margin-top:1rem;pointer-events:auto;transition:all .3s}
+#overlay button:hover{background:rgba(120,115,245,.4);box-shadow:0 0 20px rgba(120,115,245,.4)}
+#result{display:none}
+#result .final-score{font-size:4rem;color:#4aeadc;margin:1rem 0}
+#result .stats{font-size:1rem;color:#aaa;margin:.5rem 0}
+</style>
+</head>
+<body>
+<div id="hud">
+  <div id="crosshair"></div>
+  <div id="score">得分: 0</div>
+  <div id="timer">60s</div>
+  <div id="reaction"></div>
+  <div id="avg-time"></div>
+</div>
+<div id="overlay">
+  <div id="start-screen">
+    <h1>靶场射击</h1>
+    <p>点击开始游戏，鼠标瞄准射击小球</p>
+    <p style="font-size:.85rem;color:#666">鼠标瞄准 | 左键射击</p>
+    <div style="display:flex;gap:1rem;flex-wrap:wrap;justify-content:center;margin-top:1rem">
+      <button id="start-btn">开始游戏</button>
+      <button id="reflex-btn">反射弧训练</button>
+    </div>
+    <div style="display:flex;gap:1rem;flex-wrap:wrap;justify-content:center;margin-top:.5rem">
+      <button id="lb-btn">射击排行榜</button>
+      <button id="rx-lb-btn">反射弧排行榜</button>
+    </div>
+  </div>
+  <div id="result">
+    <h1>时间到！</h1>
+    <div class="final-score" id="final-score">0</div>
+    <p>最终得分</p>
+    <div class="stats" id="result-stats"></div>
+    <button id="restart-btn">再来一局</button>
+    <button id="result-lb-btn" style="margin-top:.5rem">最高分榜</button>
+    <button id="result-back-btn" style="margin-top:.5rem">返回主菜单</button>
+  </div>
+  <div id="leaderboard" style="display:none">
+    <h1>最高分榜</h1>
+    <div id="lb-list" style="margin:1rem 0;font-size:1.2rem;line-height:2"></div>
+    <button id="lb-back-btn">返回</button>
+  </div>
+</div>
+<div id="reflex-screen" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;z-index:30;cursor:pointer;user-select:none">
+  <div id="reflex-bg" style="width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#22aa44">
+    <div id="reflex-text" style="font-size:2.5rem;font-weight:bold;color:#fff;text-shadow:0 2px 8px rgba(0,0,0,.3)">等待变红后点击...</div>
+    <div id="reflex-sub" style="font-size:1rem;color:rgba(255,255,255,.7);margin-top:1rem"></div>
+    <div id="reflex-history" style="margin-top:2rem;font-size:1rem;color:rgba(255,255,255,.8);line-height:2"></div>
+    <button id="reflex-exit" style="position:absolute;top:20px;right:20px;padding:.5rem 1.5rem;font-size:1rem;border:2px solid rgba(255,255,255,.4);background:rgba(0,0,0,.2);color:#fff;border-radius:10px;cursor:pointer">退出</button>
+  </div>
+</div>
+<div id="rx-lb-screen" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;z-index:30;background:linear-gradient(135deg,#0f0c29,#302b63,#24243e);flex-direction:column;align-items:center;justify-content:center;color:#fff">
+  <h1 style="font-size:2.5rem;margin-bottom:1rem;background:linear-gradient(135deg,#ff6ec4,#7873f5,#4aeadc);-webkit-background-clip:text;-webkit-text-fill-color:transparent">反射弧排行榜</h1>
+  <div id="rx-lb-list" style="margin:1rem 0;font-size:1.2rem;line-height:2.2"></div>
+  <button id="rx-lb-back" style="padding:1rem 3rem;font-size:1.2rem;border:2px solid #7873f5;background:rgba(120,115,245,.1);color:#e0e0e0;border-radius:12px;cursor:pointer;margin-top:1rem">返回</button>
+</div>
+
+<script type="importmap">{"imports":{"three":"https://unpkg.com/three@0.160.0/build/three.module.js","three/addons/":"https://unpkg.com/three@0.160.0/examples/jsm/"}}</script>
+<script type="module">
+import*as THREE from'three';
+import{PointerLockControls}from'three/addons/controls/PointerLockControls.js';
+
+const scene=new THREE.Scene();
+scene.background=new THREE.Color(0x2a2a3e);
+
+const camera=new THREE.PerspectiveCamera(75,innerWidth/innerHeight,0.1,100);
+camera.position.set(0,3,0);
+
+const renderer=new THREE.WebGLRenderer({antialias:true});
+renderer.setSize(innerWidth,innerHeight);
+document.body.appendChild(renderer.domElement);
+
+const controls=new PointerLockControls(camera,document.body);
+
+// Lighting
+scene.add(new THREE.AmbientLight(0xaaaacc,1.5));
+const dirL=new THREE.DirectionalLight(0xffffff,1.5);
+dirL.position.set(2,8,-6);scene.add(dirL);
+const dirL2=new THREE.DirectionalLight(0xffffff,1);
+dirL2.position.set(-2,6,-10);scene.add(dirL2);
+
+// Balls
+const balls=[];
+const GRID_COLS=5,GRID_ROWS=3;
+const GRID_X_START=-3,GRID_X_STEP=1.5;
+const GRID_Y_START=1.5,GRID_Y_STEP=1.5;
+const GRID_Z=-8;
+const allSlots=[];
+for(let r=0;r<GRID_ROWS;r++)for(let c=0;c<GRID_COLS;c++){
+  allSlots.push(new THREE.Vector3(GRID_X_START+c*GRID_X_STEP,GRID_Y_START+r*GRID_Y_STEP,GRID_Z));
+}
+const usedSlots=new Set();
+
+function randomBallPos(excludeSlot){
+  const avail=[];
+  for(let i=0;i<allSlots.length;i++){if(!usedSlots.has(i)&&i!==excludeSlot)avail.push(i);}
+  if(avail.length===0)return{pos:allSlots[0].clone(),slot:0};
+  const idx=avail[Math.floor(Math.random()*avail.length)];
+  usedSlots.add(idx);
+  return{pos:allSlots[idx].clone(),slot:idx};
+}
+
+for(let i=0;i<3;i++){
+  const ball=new THREE.Mesh(
+    new THREE.SphereGeometry(0.35,32,32),
+    new THREE.MeshPhongMaterial({color:0x2299ff,emissive:0x114488,specular:0x88ccff,shininess:80})
+  );
+  // 更大的隐形碰撞球
+  const hitbox=new THREE.Mesh(
+    new THREE.SphereGeometry(0.55,8,8),
+    new THREE.MeshBasicMaterial({visible:false})
+  );
+  ball.add(hitbox);
+  const sp=randomBallPos();
+  ball.position.copy(sp.pos);
+  ball.userData.slot=sp.slot;
+  scene.add(ball);balls.push(ball);
+}
+
+// Pistol
+const gunGroup=new THREE.Group();
+const dm=new THREE.MeshStandardMaterial({color:0x1a1a1a,metalness:0.9,roughness:0.25});
+const gm=new THREE.MeshStandardMaterial({color:0x2a2a2a,metalness:0.85,roughness:0.3});
+const gp=new THREE.MeshStandardMaterial({color:0x111111,roughness:0.7,metalness:0.3});
+const sl=new THREE.Mesh(new THREE.BoxGeometry(0.06,0.08,0.42),dm);sl.position.set(0,0.04,0);gunGroup.add(sl);
+const bl=new THREE.Mesh(new THREE.CylinderGeometry(0.015,0.018,0.15,8),dm);bl.rotation.x=Math.PI/2;bl.position.set(0,0.02,-0.28);gunGroup.add(bl);
+const bh=new THREE.Mesh(new THREE.CylinderGeometry(0.012,0.012,0.02,8),new THREE.MeshBasicMaterial({color:0}));bh.rotation.x=Math.PI/2;bh.position.set(0,0.02,-0.35);gunGroup.add(bh);
+const fr=new THREE.Mesh(new THREE.BoxGeometry(0.055,0.06,0.3),gm);fr.position.set(0,-0.03,0.05);gunGroup.add(fr);
+const tg=new THREE.Mesh(new THREE.TorusGeometry(0.03,0.005,6,12,Math.PI),gm);tg.rotation.y=Math.PI/2;tg.rotation.z=Math.PI;tg.position.set(0,-0.06,-0.02);gunGroup.add(tg);
+const tr=new THREE.Mesh(new THREE.BoxGeometry(0.008,0.03,0.015),gm);tr.position.set(0,-0.045,-0.01);tr.rotation.x=0.3;gunGroup.add(tr);
+const gr=new THREE.Mesh(new THREE.BoxGeometry(0.052,0.16,0.07),gp);gr.position.set(0,-0.14,0.1);gr.rotation.x=0.2;gunGroup.add(gr);
+for(let i=0;i<4;i++){const ln=new THREE.Mesh(new THREE.BoxGeometry(0.054,0.003,0.072),new THREE.MeshBasicMaterial({color:0x222222}));ln.position.set(0,-0.08-i*0.025,0.1);ln.rotation.x=0.2;gunGroup.add(ln);}
+const fs=new THREE.Mesh(new THREE.BoxGeometry(0.015,0.025,0.01),gm);fs.position.set(0,0.1,-0.18);gunGroup.add(fs);
+const rs1=new THREE.Mesh(new THREE.BoxGeometry(0.01,0.02,0.01),gm);rs1.position.set(-0.015,0.09,0.1);gunGroup.add(rs1);
+const rs2=new THREE.Mesh(new THREE.BoxGeometry(0.01,0.02,0.01),gm);rs2.position.set(0.015,0.09,0.1);gunGroup.add(rs2);
+const dtm=new THREE.MeshBasicMaterial({color:0x44ff44});
+const fd=new THREE.Mesh(new THREE.SphereGeometry(0.004,6,6),dtm);fd.position.set(0,0.113,-0.18);gunGroup.add(fd);
+const rd1=new THREE.Mesh(new THREE.SphereGeometry(0.003,6,6),dtm);rd1.position.set(-0.015,0.1,0.1);gunGroup.add(rd1);
+const rd2=new THREE.Mesh(new THREE.SphereGeometry(0.003,6,6),dtm);rd2.position.set(0.015,0.1,0.1);gunGroup.add(rd2);
+const mb=new THREE.Mesh(new THREE.BoxGeometry(0.04,0.015,0.05),gm);mb.position.set(0,-0.22,0.1);gunGroup.add(mb);
+gunGroup.position.set(0.35,-0.35,-0.5);gunGroup.rotation.y=-0.1;
+camera.add(gunGroup);scene.add(camera);
+
+// Game state
+let score=0,timeLeft=60,gameRunning=false,gunRecoil=0;
+let lastHitTime=0,reactionTimes=[];
+const raycaster=new THREE.Raycaster();
+
+function shoot(){
+  if(!gameRunning)return;
+  gunRecoil=1;
+  raycaster.setFromCamera(new THREE.Vector2(0,0),camera);
+  const hits=raycaster.intersectObjects(balls,true);
+  if(hits.length>0){
+    let ball=hits[0].object;
+    if(ball.parent&&balls.includes(ball.parent))ball=ball.parent;
+    score++;
+    document.getElementById('score').textContent='得分: '+score;
+
+    // Reaction time
+    const now=performance.now();
+    if(lastHitTime>0){
+      const rt=Math.round(now-lastHitTime);
+      reactionTimes.push(rt);
+      const el=document.getElementById('reaction');
+      el.textContent=rt+'ms';el.style.opacity='1';
+      setTimeout(()=>el.style.opacity='0',800);
+      const avg=Math.round(reactionTimes.reduce((a,b)=>a+b,0)/reactionTimes.length);
+      document.getElementById('avg-time').textContent='平均: '+avg+'ms';
+    }
+    lastHitTime=now;
+
+    // Respawn
+    ball.visible=false;
+    const oldSlot=ball.userData.slot;
+    usedSlots.delete(oldSlot);
+    const sp=randomBallPos(oldSlot);ball.position.copy(sp.pos);ball.userData.slot=sp.slot;ball.visible=true;
+  }
+}
+
+function startGame(){
+  score=0;timeLeft=60;gameRunning=true;lastHitTime=0;reactionTimes=[];
+  document.getElementById('score').textContent='得分: 0';
+  document.getElementById('timer').textContent='60s';
+  document.getElementById('avg-time').textContent='';
+  document.getElementById('reaction').style.opacity='0';
+  document.getElementById('overlay').style.display='none';
+  document.getElementById('start-screen').style.display='block';
+  document.getElementById('result').style.display='none';
+  usedSlots.clear();
+  balls.forEach(b=>{const sp=randomBallPos();b.position.copy(sp.pos);b.userData.slot=sp.slot;b.visible=true;});
+  controls.lock();
+}
+document.getElementById('start-btn').addEventListener('click',startGame);
+document.getElementById('restart-btn').addEventListener('click',startGame);
+
+// 最高分榜 (localStorage)
+function getScores(){try{return JSON.parse(localStorage.getItem('shooting-scores')||'[]');}catch(e){return[];}}
+function saveScore(s,avg,best){
+  const list=getScores();
+  list.push({score:s,avg:avg,best:best,date:new Date().toLocaleDateString()});
+  list.sort((a,b)=>b.score-a.score);
+  if(list.length>10)list.length=10;
+  localStorage.setItem('shooting-scores',JSON.stringify(list));
+}
+function showLeaderboard(){
+  const list=getScores();
+  document.getElementById('start-screen').style.display='none';
+  document.getElementById('result').style.display='none';
+  document.getElementById('leaderboard').style.display='block';
+  document.getElementById('overlay').style.display='flex';
+  let html='';
+  if(list.length===0)html='<div style="color:#888">暂无记录</div>';
+  else list.forEach((r,i)=>{
+    html+=`<div style="color:${i<3?'#f5c542':'#aaa'}">${i+1}. ${r.score}分 | 平均${r.avg}ms | 最快${r.best}ms <span style="color:#555;font-size:.8rem">${r.date}</span></div>`;
+  });
+  document.getElementById('lb-list').innerHTML=html;
+}
+document.getElementById('lb-btn').addEventListener('click',showLeaderboard);
+document.getElementById('result-lb-btn').addEventListener('click',showLeaderboard);
+document.getElementById('lb-back-btn').addEventListener('click',()=>{
+  document.getElementById('leaderboard').style.display='none';
+  document.getElementById('start-screen').style.display='block';
+});
+
+controls.addEventListener('lock',()=>{if(!gameRunning)startGame();lastHitTime=performance.now();});
+controls.addEventListener('unlock',()=>{
+  if(gameRunning){
+    document.getElementById('overlay').style.display='flex';
+    document.getElementById('start-screen').querySelector('p').textContent='点击继续游戏';
+  }
+});
+
+document.addEventListener('click',()=>{
+  if(controls.isLocked)shoot();
+  else if(gameRunning)controls.lock();
+});
+
+// Timer
+setInterval(()=>{
+  if(!gameRunning||!controls.isLocked)return;
+  timeLeft--;
+  document.getElementById('timer').textContent=timeLeft+'s';
+  if(timeLeft<=0){
+    gameRunning=false;controls.unlock();
+    document.getElementById('final-score').textContent=score;
+    const avg=reactionTimes.length>0?Math.round(reactionTimes.reduce((a,b)=>a+b,0)/reactionTimes.length):'--';
+    const best=reactionTimes.length>0?Math.min(...reactionTimes):'--';
+    document.getElementById('result-stats').textContent='平均反应: '+avg+'ms | 最快: '+best+'ms';
+    saveScore(score,avg,best);
+    document.getElementById('start-screen').style.display='none';
+    document.getElementById('result').style.display='block';
+    document.getElementById('overlay').style.display='flex';
+  }
+},1000);
+
+addEventListener('resize',()=>{
+  camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);
+});
+
+const clock=new THREE.Clock();
+function animate(){
+  requestAnimationFrame(animate);
+  const dt=clock.getDelta();
+  camera.position.y=3;
+  // 限制视角幅度
+  const euler=new THREE.Euler().setFromQuaternion(camera.quaternion,'YXZ');
+  euler.y=Math.max(-Math.PI/3,Math.min(Math.PI/3,euler.y));
+  euler.x=Math.max(-Math.PI/4,Math.min(Math.PI/4,euler.x));
+  camera.quaternion.setFromEuler(euler);
+  if(gunRecoil>0){gunRecoil=Math.max(0,gunRecoil-dt*8);gunGroup.rotation.x=-gunRecoil*0.3;gunGroup.position.y=-0.35+gunRecoil*0.05;gunGroup.position.z=-0.5-gunRecoil*0.05;}
+  balls.forEach(b=>{if(b.visible)b.rotation.y+=dt*0.5;});
+  renderer.render(scene,camera);
+}
+animate();
+
+// ===== 反射弧训练 =====
+let rxState='idle',rxTimer=null,rxRedTime=0,rxResults=[],rxRound=0;
+const RX_ROUNDS=5;
+const rxScreen=document.getElementById('reflex-screen');
+const rxBg=document.getElementById('reflex-bg');
+const rxText=document.getElementById('reflex-text');
+const rxSub=document.getElementById('reflex-sub');
+const rxHistory=document.getElementById('reflex-history');
+
+function rxStart(){
+  rxResults=[];rxRound=0;
+  document.getElementById('overlay').style.display='none';
+  document.getElementById('hud').style.display='none';
+  renderer.domElement.style.display='none';
+  rxScreen.style.display='block';
+  rxNextRound();
+}
+
+function rxNextRound(){
+  rxState='waiting';rxRound++;
+  rxBg.style.background='#22aa44';
+  rxText.textContent='等待变红后点击...';
+  rxSub.textContent='第 '+rxRound+'/'+RX_ROUNDS+' 轮';
+  rxUpdateHistory();
+  const delay=1500+Math.random()*3000;
+  rxTimer=setTimeout(()=>{
+    rxState='ready';rxRedTime=performance.now();
+    rxBg.style.background='#dd2222';
+    rxText.textContent='点击！';
+  },delay);
+}
+
+function rxClick(){
+  if(rxState==='waiting'){
+    clearTimeout(rxTimer);
+    rxState='idle';
+    rxBg.style.background='#cc8800';
+    rxText.textContent='太早了！';
+    rxSub.textContent='点击重试本轮';
+    rxState='tooEarly';
+  }else if(rxState==='tooEarly'){
+    rxNextRound();
+  }else if(rxState==='ready'){
+    const rt=Math.round(performance.now()-rxRedTime);
+    rxResults.push(rt);
+    rxState='idle';
+    rxBg.style.background='#2266cc';
+    rxText.textContent=rt+'ms';
+    rxSub.textContent=rxRound<RX_ROUNDS?'点击继续下一轮':'训练结束！点击查看结果';
+    rxUpdateHistory();
+    rxState=rxRound<RX_ROUNDS?'next':'done';
+  }else if(rxState==='next'){
+    rxNextRound();
+  }else if(rxState==='done'){
+    rxShowResult();
+  }
+}
+
+function rxUpdateHistory(){
+  let h='';
+  rxResults.forEach((r,i)=>h+=`<div>第${i+1}轮: ${r}ms</div>`);
+  rxHistory.innerHTML=h;
+}
+
+function rxShowResult(){
+  const avg=Math.round(rxResults.reduce((a,b)=>a+b,0)/rxResults.length);
+  const best=Math.min(...rxResults);
+  const worst=Math.max(...rxResults);
+  saveRxScore(avg,best,worst);
+  rxBg.style.background='#1a1a2e';
+  rxText.textContent='平均: '+avg+'ms';
+  rxSub.textContent='最快: '+best+'ms | 最慢: '+worst+'ms';
+  rxHistory.innerHTML+='<div style="margin-top:1rem;color:#4aeadc;font-size:1.2rem">点击返回主菜单</div>';
+  rxState='exit';
+}
+
+function rxExit(){
+  clearTimeout(rxTimer);
+  rxState='idle';
+  rxScreen.style.display='none';
+  renderer.domElement.style.display='block';
+  document.getElementById('hud').style.display='block';
+  document.getElementById('overlay').style.display='flex';
+  document.getElementById('start-screen').style.display='block';
+}
+
+rxScreen.addEventListener('click',e=>{if(e.target.id==='reflex-exit')rxExit();else if(rxState==='exit')rxExit();else rxClick();});
+document.getElementById('reflex-btn').addEventListener('click',rxStart);
+document.getElementById('reflex-exit').addEventListener('click',e=>{e.stopPropagation();rxExit();});
+
+// 返回主菜单按钮
+document.getElementById('result-back-btn').addEventListener('click',()=>{
+  gameRunning=false;
+  document.getElementById('result').style.display='none';
+  document.getElementById('start-screen').style.display='block';
+});
+
+// 反射弧排行榜
+function getRxScores(){try{return JSON.parse(localStorage.getItem('reflex-scores')||'[]');}catch(e){return[];}}
+function saveRxScore(avg,best,worst){
+  const list=getRxScores();
+  list.push({avg,best,worst,date:new Date().toLocaleDateString()});
+  list.sort((a,b)=>a.avg-b.avg);
+  if(list.length>10)list.length=10;
+  localStorage.setItem('reflex-scores',JSON.stringify(list));
+}
+function showRxLeaderboard(){
+  const list=getRxScores();
+  document.getElementById('overlay').style.display='none';
+  renderer.domElement.style.display='none';
+  document.getElementById('hud').style.display='none';
+  const s=document.getElementById('rx-lb-screen');
+  s.style.display='flex';
+  let html='';
+  if(list.length===0)html='<div style="color:#888">暂无记录</div>';
+  else list.forEach((r,i)=>{
+    html+=`<div style="color:${i<3?'#4aeadc':'#aaa'}">${i+1}. 平均${r.avg}ms | 最快${r.best}ms | 最慢${r.worst}ms <span style="color:#555;font-size:.8rem">${r.date}</span></div>`;
+  });
+  document.getElementById('rx-lb-list').innerHTML=html;
+}
+document.getElementById('rx-lb-btn').addEventListener('click',showRxLeaderboard);
+document.getElementById('rx-lb-back').addEventListener('click',()=>{
+  document.getElementById('rx-lb-screen').style.display='none';
+  renderer.domElement.style.display='block';
+  document.getElementById('hud').style.display='block';
+  document.getElementById('overlay').style.display='flex';
+  document.getElementById('start-screen').style.display='block';
+});
+</script>
+</body>
+</html>
