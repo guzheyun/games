@@ -52,10 +52,10 @@ const SHAPES=[
 const COLORS=['#00f0f0','#f0f000','#a000f0','#0000f0','#f0a000','#00f000','#f00000'];
 const GHOST_ALPHA=0.25;
 const LOCK_DELAY=800;
-const KEYS_P1={left:'ArrowLeft',right:'ArrowRight',rotate:'ArrowUp',soft:'ArrowDown',hard:' ',hold:'m'};
-const KEYS_P2={left:'a',right:'d',rotate:'w',soft:'s',hard:'q',hold:'e'};
-const LABELS_P1={'左移':'← 左','右移':'→ 右','旋转':'↑ 上','加速下落':'↓ 下','硬降':'空格','暂存':'M','暂停':'P'};
-const LABELS_P2={'左移':'A','右移':'D','旋转':'W','加速下落':'S','硬降':'Q','暂存':'E','暂停':'P'};
+const KEYS_P1={left:'a',right:'d',rotate:'w',soft:'s',hard:'g',hold:'h',softCode:'',holdCode:''};
+const KEYS_P2={left:'ArrowLeft',right:'ArrowRight',rotate:'ArrowUp',soft:'1',hard:'ArrowDown',hold:'2',softCode:'Numpad1',holdCode:'Numpad2'};
+const LABELS_P1={'左移':'A','右移':'D','旋转':'W','加速下落':'S','硬降':'G','暂存':'H','暂停':'P'};
+const LABELS_P2={'左移':'← 左','右移':'→ 右','旋转':'↑ 上','加速下落':'小1','硬降':'↓ 下','暂存':'小2','暂停':'P'};
 
 let players=[],mode=0,paused=false,gameOver=false,rafId=null;
 
@@ -126,7 +126,13 @@ class Player{
     for(let[dx,dy]of kicks){
       if(!this.collides(ns,this.cur.x+dx,this.cur.y+dy)){
         this.cur.shape=ns;this.cur.x+=dx;this.cur.y+=dy;
-        if(this.locking)this.lockTimer=0;
+        if(this.locking){
+          if(!this.collides(this.cur.shape,this.cur.x,this.cur.y+1)){
+            this.locking=false;this.lockTimer=0;
+          }else{
+            this.lockTimer=0;
+          }
+        }
         return;
       }
     }
@@ -192,6 +198,16 @@ class Player{
     for(let r of rows){
       this.board.splice(r,1);
       this.board.unshift(Array(COLS).fill(0));
+    }
+    // 消除2行以上时，额外清除底部垃圾行
+    if(cleared>=2){
+      for(let r=ROWS-1;r>=0;r--){
+        if(this.board[r].includes('#555')){
+          this.board.splice(r,1);
+          this.board.unshift(Array(COLS).fill(0));
+          break;
+        }
+      }
     }
     this.clearAnim=null;
     this.lines+=cleared;
@@ -411,10 +427,13 @@ document.addEventListener('keydown',e=>{
     return;
   }
   if(paused||gameOver)return;
+  let k=e.key;
+  let code=e.code;
   players.forEach(p=>{
     if(!p.alive||!p.cur)return;
-    let k=e.key;
-    if(k===p.keys.left)p.move(-1);
+    if(code===p.keys.holdCode){p.doHold();}
+    else if(code===p.keys.softCode){p.softDrop();}
+    else if(k===p.keys.left)p.move(-1);
     else if(k===p.keys.right)p.move(1);
     else if(k===p.keys.rotate)p.rotate();
     else if(k===p.keys.soft)p.softDrop();
