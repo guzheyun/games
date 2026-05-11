@@ -85,7 +85,7 @@ class Player{
     this.board=Array.from({length:ROWS},()=>Array(COLS).fill(0));
     this.score=0;this.lines=0;this.level=1;
     this.bag=[];this.cur=null;this.hold=null;this.holdUsed=false;
-    this.lockTimer=0;this.locking=false;
+    this.lockTimer=0;this.locking=false;this.lockMoves=0;
     this.dropInterval=1000;this.dropTimer=0;
     this.alive=true;this.canvas=null;this.ctx=null;
     this.nextCanvas=null;this.nextCtx=null;
@@ -107,7 +107,7 @@ class Player{
     let idx=this.bag.shift();
     this.cur={shape:SHAPES[idx].map(r=>[...r]),color:COLORS[idx],x:Math.floor((COLS-SHAPES[idx][0].length)/2),y:0,idx};
     this.next=this.bag[0];
-    this.locking=false;this.lockTimer=0;this.holdUsed=false;
+    this.locking=false;this.lockTimer=0;this.lockMoves=0;this.holdUsed=false;
     if(this.collides(this.cur.shape,this.cur.x,this.cur.y)){this.alive=false;}
   }
   collides(shape,x,y){
@@ -128,9 +128,9 @@ class Player{
         this.cur.shape=ns;this.cur.x+=dx;this.cur.y+=dy;
         if(this.locking){
           if(!this.collides(this.cur.shape,this.cur.x,this.cur.y+1)){
-            this.locking=false;this.lockTimer=0;
-          }else{
-            this.lockTimer=0;
+            this.locking=false;this.lockTimer=0;this.lockMoves=0;
+          }else if(this.lockMoves<15){
+            this.lockTimer=0;this.lockMoves++;
           }
         }
         return;
@@ -142,10 +142,10 @@ class Player{
       this.cur.x+=dx;
       if(this.locking){
         if(!this.collides(this.cur.shape,this.cur.x,this.cur.y+1)){
-          this.locking=false;this.lockTimer=0;
+          this.locking=false;this.lockTimer=0;this.lockMoves=0;
           this.cur.y++;
-        }else{
-          this.lockTimer=0;
+        }else if(this.lockMoves<15){
+          this.lockTimer=0;this.lockMoves++;
         }
       }
     }
@@ -159,7 +159,7 @@ class Player{
     let dist=0;
     while(!this.collides(this.cur.shape,this.cur.x,this.cur.y+dist+1))dist++;
     this.cur.y+=dist;this.score+=dist*2;
-    this.locking=true;this.lockTimer=0;
+    this.locking=true;this.lockTimer=0;this.lockMoves=0;
   }
   ghostY(){
     let gy=this.cur.y;
@@ -225,7 +225,7 @@ class Player{
     }else{
       let old=this.hold;this.hold=idx;
       this.cur={shape:SHAPES[old].map(r=>[...r]),color:COLORS[old],x:Math.floor((COLS-SHAPES[old][0].length)/2),y:0,idx:old};
-      this.locking=false;this.lockTimer=0;
+      this.locking=false;this.lockTimer=0;this.lockMoves=0;
     }
   }
   addGarbage(n){
