@@ -1,0 +1,5 @@
+node_modules/
+*.log
+fishing/assets/gen*.log
+fishing/assets/hands.backup.png
+.claude/
