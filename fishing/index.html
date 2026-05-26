@@ -6,6 +6,7 @@
 <title>钓鱼大师</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;user-select:none}
+input,textarea{user-select:text!important;-webkit-user-select:text!important}
 body{background:#0a1628;color:#e8eef5;font-family:'Segoe UI','Microsoft YaHei',sans-serif;overflow:hidden;height:100vh;width:100vw}
 #app{width:100vw;height:100vh;position:relative}
 canvas{display:block;position:absolute;top:0;left:0}
@@ -33,13 +34,15 @@ canvas{display:block;position:absolute;top:0;left:0}
 #mainMenu .credit{position:absolute;bottom:20px;color:rgba(255,255,255,.4);font-size:.85rem}
 
 /* 通用面板 */
-.panel{position:absolute;top:0;left:0;width:100%;height:100%;background:rgba(10,22,40,.97);z-index:50;display:none;flex-direction:column;overflow:hidden}
-.panel.active{display:flex}
-.panel-header{display:flex;justify-content:space-between;align-items:center;padding:16px 24px;border-bottom:1px solid rgba(255,255,255,.1);flex-shrink:0}
-.panel-header h2{font-size:1.5rem;color:#4aeadc}
-.panel-body{flex:1;overflow-y:auto;padding:20px 24px}
-.panel-body::-webkit-scrollbar{width:6px}
-.panel-body::-webkit-scrollbar-thumb{background:rgba(74,234,220,.3);border-radius:3px}
+.panel{position:absolute;top:0;left:0;width:100%;height:100%;background:radial-gradient(ellipse at top,rgba(20,40,70,.97),rgba(8,16,30,.98));z-index:50;display:none;flex-direction:column;overflow:hidden;backdrop-filter:blur(10px)}
+.panel.active{display:flex;animation:fadeInPanel .25s ease-out}
+@keyframes fadeInPanel{from{opacity:0;transform:scale(.98)}to{opacity:1;transform:scale(1)}}
+.panel-header{display:flex;justify-content:space-between;align-items:center;padding:20px 32px;border-bottom:1px solid rgba(74,234,220,.2);flex-shrink:0;background:linear-gradient(180deg,rgba(74,234,220,.08),transparent)}
+.panel-header h2{font-size:1.7rem;background:linear-gradient(135deg,#4aeadc,#7fd8ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;font-weight:800;letter-spacing:.05em}
+.panel-body{flex:1;overflow-y:auto;padding:24px 32px}
+.panel-body::-webkit-scrollbar{width:8px}
+.panel-body::-webkit-scrollbar-track{background:rgba(0,0,0,.2);border-radius:4px}
+.panel-body::-webkit-scrollbar-thumb{background:linear-gradient(180deg,#4aeadc,#3aa);border-radius:4px}
 
 /* HUD - 分布在屏幕四角 */
 #hud{position:absolute;top:0;left:0;width:100%;height:100%;z-index:10;pointer-events:none}
@@ -58,8 +61,8 @@ canvas{display:block;position:absolute;top:0;left:0}
 .gold-display{font-size:1.4rem;color:#ffd700;font-weight:bold;text-shadow:0 0 12px rgba(255,215,0,.5),0 2px 6px #000;padding:8px 14px;background:rgba(0,0,0,.5);border:2px solid rgba(255,215,0,.5);border-radius:12px}
 
 /* 通知 */
-#notification{position:absolute;top:80px;left:50%;transform:translateX(-50%);padding:12px 30px;background:rgba(0,0,0,.8);border:1px solid #4aeadc;border-radius:10px;font-size:1.1rem;z-index:60;display:none;text-align:center;animation:fadeInUp .3s}
-@keyframes fadeInUp{from{opacity:0;transform:translateX(-50%) translateY(10px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+#notification{position:absolute;top:100px;left:50%;transform:translateX(-50%);padding:14px 36px;background:linear-gradient(135deg,rgba(8,18,32,.95),rgba(20,40,70,.95));border:2px solid #4aeadc;border-radius:14px;font-size:1.15rem;z-index:60;display:none;text-align:center;animation:fadeInUp .3s;box-shadow:0 8px 30px rgba(74,234,220,.4);color:#fff;text-shadow:0 1px 2px #000}
+@keyframes fadeInUp{from{opacity:0;transform:translateX(-50%) translateY(-15px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
 
 /* 钓鱼结果弹窗 */
 #catchResult{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);padding:36px 48px;background:linear-gradient(160deg,rgba(20,40,70,.97),rgba(10,22,40,.97));border:3px solid #4aeadc;border-radius:24px;z-index:55;display:none;text-align:center;min-width:420px;box-shadow:0 0 60px rgba(74,234,220,.4),0 20px 60px rgba(0,0,0,.7)}
@@ -92,27 +95,30 @@ canvas{display:block;position:absolute;top:0;left:0}
 #fishingTip{position:absolute;bottom:100px;left:50%;transform:translateX(-50%);font-size:1.4rem;color:#4aeadc;z-index:15;display:none;text-shadow:0 0 20px rgba(74,234,220,.8),0 2px 6px #000;font-weight:bold;padding:12px 24px;background:rgba(0,0,0,.55);border-radius:14px;border:2px solid rgba(74,234,220,.5)}
 
 /* 背包物品网格 */
-.item-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px}
-.item-card{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:12px;text-align:center;cursor:pointer;transition:all .2s}
-.item-card:hover{border-color:#4aeadc;background:rgba(74,234,220,.08)}
-.item-card .emoji{font-size:2rem}
-.item-card .name{font-size:.9rem;margin-top:4px}
-.item-card .detail{font-size:.75rem;color:#888;margin-top:2px}
+.item-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:14px}
+.item-card{background:linear-gradient(160deg,rgba(255,255,255,.06),rgba(255,255,255,.02));border:1px solid rgba(255,255,255,.12);border-radius:14px;padding:14px;text-align:center;cursor:pointer;transition:all .25s;position:relative;overflow:hidden}
+.item-card::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,transparent,rgba(74,234,220,.08));opacity:0;transition:opacity .25s}
+.item-card:hover{border-color:#4aeadc;transform:translateY(-3px);box-shadow:0 8px 25px rgba(74,234,220,.25)}
+.item-card:hover::before{opacity:1}
+.item-card .emoji{font-size:2.2rem;filter:drop-shadow(0 3px 6px rgba(0,0,0,.4))}
+.item-card .name{font-size:.95rem;margin-top:6px;font-weight:600}
+.item-card .detail{font-size:.78rem;color:#9ab;margin-top:3px}
 
 /* 市场 */
-.shop-section{margin-bottom:24px}
-.shop-section h3{color:#ffd700;margin-bottom:12px;font-size:1.1rem}
-.shop-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px}
-.shop-item{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:14px;display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;transition:all .2s}
-.shop-item:hover{border-color:#ffd700;background:rgba(255,215,0,.08)}
-.shop-item .price{color:#ffd700;font-weight:bold}
+.shop-section{margin-bottom:28px}
+.shop-section h3{color:#ffd700;margin-bottom:14px;font-size:1.2rem;text-shadow:0 0 12px rgba(255,215,0,.4);padding-bottom:8px;border-bottom:1px solid rgba(255,215,0,.2)}
+.shop-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:12px}
+.shop-item{background:linear-gradient(160deg,rgba(255,255,255,.06),rgba(255,255,255,.02));border:1px solid rgba(255,255,255,.12);border-radius:14px;padding:16px;display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;transition:all .25s}
+.shop-item:hover{border-color:#ffd700;background:linear-gradient(160deg,rgba(255,215,0,.12),rgba(255,215,0,.02));transform:translateY(-2px);box-shadow:0 8px 22px rgba(255,215,0,.25)}
+.shop-item .price{color:#ffd700;font-weight:bold;font-size:1.05rem;text-shadow:0 0 8px rgba(255,215,0,.4)}
 
 /* 水族馆 */
-.aquarium-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px}
-.aquarium-card{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:16px;text-align:center;position:relative}
-.aquarium-card.collected{border-color:rgba(74,234,220,.3);background:rgba(74,234,220,.05)}
-.aquarium-card.empty{opacity:.3}
-.aquarium-card .rarity-badge{position:absolute;top:6px;right:6px;font-size:.7rem;padding:2px 8px;border-radius:4px}
+.aquarium-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:14px}
+.aquarium-card{background:linear-gradient(160deg,rgba(255,255,255,.05),rgba(255,255,255,.01));border:1px solid rgba(255,255,255,.1);border-radius:14px;padding:18px;text-align:center;position:relative;transition:all .25s}
+.aquarium-card.collected{border-color:rgba(74,234,220,.5);background:linear-gradient(160deg,rgba(74,234,220,.1),rgba(74,234,220,.02));box-shadow:0 4px 15px rgba(74,234,220,.15)}
+.aquarium-card.collected:hover{transform:translateY(-2px);box-shadow:0 8px 25px rgba(74,234,220,.3)}
+.aquarium-card.empty{opacity:.35}
+.aquarium-card .rarity-badge{position:absolute;top:8px;right:8px;font-size:.7rem;padding:3px 10px;border-radius:6px;font-weight:bold;box-shadow:0 2px 6px rgba(0,0,0,.3)}
 
 /* 对战 */
 .battle-arena{display:flex;justify-content:center;align-items:center;gap:40px;padding:40px}
@@ -124,12 +130,14 @@ canvas{display:block;position:absolute;top:0;left:0}
 .battle-log{max-height:200px;overflow-y:auto;padding:10px;background:rgba(0,0,0,.3);border-radius:8px;font-size:.85rem;line-height:1.8}
 
 /* 场景选择 */
-.scene-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px;padding:20px}
-.scene-card{background:rgba(255,255,255,.05);border:2px solid rgba(255,255,255,.1);border-radius:14px;padding:20px;text-align:center;cursor:pointer;transition:all .3s}
-.scene-card:hover{border-color:#4aeadc;transform:translateY(-3px);box-shadow:0 8px 25px rgba(74,234,220,.2)}
-.scene-card .scene-emoji{font-size:3rem;margin-bottom:8px}
-.scene-card h4{font-size:1.1rem;margin-bottom:4px}
-.scene-card p{font-size:.8rem;color:#888}
+.scene-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:18px;padding:20px}
+.scene-card{background:linear-gradient(160deg,rgba(74,234,220,.08),rgba(255,255,255,.02));border:2px solid rgba(74,234,220,.25);border-radius:18px;padding:24px;text-align:center;cursor:pointer;transition:all .3s;position:relative;overflow:hidden}
+.scene-card::after{content:'';position:absolute;inset:0;background:radial-gradient(circle at center,rgba(74,234,220,.15),transparent 70%);opacity:0;transition:opacity .3s}
+.scene-card:hover{border-color:#4aeadc;transform:translateY(-4px) scale(1.02);box-shadow:0 12px 35px rgba(74,234,220,.35)}
+.scene-card:hover::after{opacity:1}
+.scene-card .scene-emoji{font-size:3.5rem;margin-bottom:10px;filter:drop-shadow(0 4px 10px rgba(0,0,0,.5))}
+.scene-card h4{font-size:1.2rem;margin-bottom:6px;color:#4aeadc}
+.scene-card p{font-size:.85rem;color:#9ab}
 
 /* 联机 */
 #onlinePanel .status{padding:10px;background:rgba(255,255,255,.05);border-radius:8px;margin-bottom:16px;text-align:center}
@@ -164,7 +172,7 @@ canvas{display:block;position:absolute;top:0;left:0}
     <div class="hud-corner hud-tl">
       <div class="gold-display">💰 <span id="hudGold">0</span></div>
       <div class="hud-stats">
-        <div class="hud-stat"><span class="icon">⭐</span><div class="bar"><div class="bar-fill" id="hudExp" style="width:0%;background:#fc6;color:#fc6"></div></div><span class="val">Lv.<span id="hudLevel">1</span></span></div>
+        <div class="hud-stat"><span class="icon">⭐</span><div class="bar"><div class="bar-fill" id="hudExp" style="width:0%;background:#ffcc33;color:#ffcc33"></div></div><span class="val" style="color:#ffd700;font-weight:bold;font-size:1.05rem;text-shadow:0 0 8px rgba(255,215,0,.6)">Lv.<span id="hudLevel">1</span></span></div>
       </div>
     </div>
     <!-- 右上：背包/市场 -->
@@ -179,8 +187,9 @@ canvas{display:block;position:absolute;top:0;left:0}
       <button class="hud-btn" onclick="showPanel('aquarium')"><span class="hb-icon">🐠</span><span class="hb-label">水族馆</span></button>
       <button class="hud-btn" onclick="showPanel('scenes')"><span class="hb-icon">🗺️</span><span class="hb-label">场景</span></button>
     </div>
-    <!-- 左下：联机/保存/主菜单 -->
+    <!-- 左下：联机/保存/主菜单/饵料 -->
     <div class="hud-corner hud-bl">
+      <button class="hud-btn" onclick="showBaitPicker()" id="hudBaitBtn"><span class="hb-icon" id="hudBaitIcon">🪱</span><span class="hb-label">饵料<br><span id="hudBaitCount" style="color:#ffd700">x0</span></span></button>
       <button class="hud-btn" onclick="showPanel('online')"><span class="hb-icon">🌐</span><span class="hb-label">联机</span></button>
       <button class="hud-btn" onclick="saveGame()"><span class="hb-icon">💾</span><span class="hb-label">保存</span></button>
       <button class="hud-btn" onclick="backToMainMenu()"><span class="hb-icon">🏠</span><span class="hb-label">主菜单</span></button>
@@ -195,7 +204,7 @@ canvas{display:block;position:absolute;top:0;left:0}
     <div class="title">⚡ 鱼上钩了！与它角力！</div>
     <div id="reelBar"><div id="reelProgress" style="width:50%"></div></div>
     <div id="reelInfo"><span class="my">玩家 <span id="myForce">0</span></span><span>进度 <span id="reelPct">50</span>%</span><span class="fish">鱼 <span id="fishForce">0</span></span></div>
-    <div id="reelTip">疯狂按住空格 / 点击屏幕 拉它上来！</div>
+    <div id="reelTip">连按 空格 / 点击屏幕 拉它上来！　按 <b style="color:#ff0;text-shadow:0 0 8px #ff0">X 电击</b>（-5💰，进度+18）</div>
   </div>
 
   <div id="fishingTip"></div>
@@ -223,9 +232,32 @@ canvas{display:block;position:absolute;top:0;left:0}
       <button class="btn" onclick="newGame()">🆕 新游戏</button>
       <button class="btn" onclick="loadGame()">📂 继续游戏</button>
       <button class="btn" onclick="showPanel('help')">❓ 操作说明</button>
-      <button class="btn" onclick="showPanel('onlineMenu')">🌐 联机模式</button>
+      <button class="btn" onclick="showPanel('online')">🌐 联机模式</button>
     </div>
     <div class="credit">第一人称 · 200种鱼 · 5场景 · 5v5对战</div>
+  </div>
+
+  <!-- 饵料选择面板 -->
+  <div class="panel" id="baitPanel">
+    <div class="panel-header">
+      <h2>🪱 选择饵料</h2>
+      <button class="btn btn-small" onclick="hidePanel('bait')">✕ 关闭</button>
+    </div>
+    <div class="panel-body">
+      <p style="text-align:center;color:#aac;margin-bottom:16px">每次抛竿消耗 1 个饵料。当前选择会高亮，没库存可去 🏪 市场购买。</p>
+      <div id="baitList" class="item-grid"></div>
+    </div>
+  </div>
+
+  <!-- 存档管理面板 -->
+  <div class="panel" id="savesPanel">
+    <div class="panel-header">
+      <h2>📂 选择存档</h2>
+      <button class="btn btn-small" onclick="document.getElementById('savesPanel').classList.remove('active')">✕ 关闭</button>
+    </div>
+    <div class="panel-body">
+      <div id="savesList"></div>
+    </div>
   </div>
 
   <!-- 操作说明面板 -->
@@ -237,10 +269,11 @@ canvas{display:block;position:absolute;top:0;left:0}
     <div class="panel-body">
       <div class="help-section">
         <h3>🎣 钓鱼操作</h3>
-        <div class="key-row"><kbd>空格</kbd><span class="desc">按住蓄力 → 松开抛竿（蓄力越满抛得越远，越容易钓到大鱼）</span></div>
-        <div class="key-row"><kbd>空格</kbd><span class="desc">浮漂剧烈抖动时 <b>立即按下</b> 提竿（错过鱼就跑了）</span></div>
-        <div class="key-row"><kbd>连按空格</kbd><span class="desc">拉扯阶段：疯狂连按 / 长按 累积玩家力量，把鱼拉上岸</span></div>
-        <div class="key-row"><kbd>鼠标点击</kbd><span class="desc">替代空格：点击屏幕同样可以抛竿/提竿/拉扯</span></div>
+        <div class="key-row"><kbd>空格</kbd><span class="desc">按住蓄力 → 松开抛竿</span></div>
+        <div class="key-row"><kbd>空格</kbd><span class="desc">浮漂剧烈抖动时 <b>立即按下</b> 提竿</span></div>
+        <div class="key-row"><kbd>疯狂连按</kbd><span class="desc">拉扯阶段：<b>必须连按（长按无效）</b>，把鱼拉上岸</span></div>
+        <div class="key-row"><kbd>X 键</kbd><span class="desc"><b style="color:#ff0">⚡ 电击</b>：拉鱼时一键消耗 <b>5 💰</b>，进度直接 +18%</span></div>
+        <div class="key-row"><kbd>鼠标点击</kbd><span class="desc">替代键盘：点击屏幕同样可以抛竿/提竿/拉扯</span></div>
       </div>
       <div class="help-section">
         <h3>⚔️ 拉扯机制</h3>
@@ -251,9 +284,11 @@ canvas{display:block;position:absolute;top:0;left:0}
       </div>
       <div class="help-section">
         <h3>🌍 玩法系统</h3>
+        <div class="key-row"><span class="desc">🪱 <b>饵料系统</b>：HUD 左下切换饵料；不同饵料影响咬钩速度、稀有度、重量、品质；🏪 市场购买</span></div>
         <div class="key-row"><span class="desc">🗺️ 切换场景解锁新鱼种（池塘→河流→湖泊→近海→深海）</span></div>
-        <div class="key-row"><span class="desc">🐠 钓到的高品质鱼可以珍藏到水族馆收集图鉴</span></div>
-        <div class="key-row"><span class="desc">🌐 联机模式：钓鱼PK + 5v5鱼类竞技场</span></div>
+        <div class="key-row"><span class="desc">📖 图鉴自动记录所有钓获过的鱼</span></div>
+        <div class="key-row"><span class="desc">🐠 高品质鱼可珍藏到水族馆</span></div>
+        <div class="key-row"><span class="desc">🌐 联机模式：和其他玩家 1v1 钓鱼 PK</span></div>
       </div>
     </div>
   </div>
@@ -287,10 +322,6 @@ canvas{display:block;position:absolute;top:0;left:0}
       <button class="btn btn-small" onclick="hidePanel('backpack')">✕ 关闭</button>
     </div>
     <div class="panel-body">
-      <div style="display:flex;gap:20px;margin-bottom:16px">
-        <button class="btn btn-small" onclick="showBackpackTab('fish')" id="bpTabFish">鱼获</button>
-        <button class="btn btn-small" onclick="showBackpackTab('items')" id="bpTabItems">物品</button>
-      </div>
       <div id="backpackContent" class="item-grid"></div>
     </div>
   </div>
@@ -343,47 +374,56 @@ canvas{display:block;position:absolute;top:0;left:0}
   <!-- 联机面板 -->
   <div class="panel" id="onlinePanel">
     <div class="panel-header">
-      <h2>🌐 联机模式</h2>
+      <h2>🌐 联机模式 - 钓鱼 PK</h2>
       <button class="btn btn-small" onclick="hidePanel('online')">✕ 关闭</button>
     </div>
     <div class="panel-body">
       <div class="status" id="onlineStatus">未连接</div>
-      <div style="display:flex;gap:12px;justify-content:center;margin-bottom:20px">
-        <button class="btn" onclick="connectOnline()">连接服务器</button>
-        <button class="btn" onclick="startPK()">🎣 钓鱼PK</button>
-        <button class="btn btn-gold" onclick="start5v5()">⚔️ 5v5竞技场</button>
+      <div style="display:flex;gap:8px;align-items:center;justify-content:center;margin-bottom:14px;flex-wrap:wrap">
+        <label style="color:#aac">服务器:</label>
+        <input id="serverUrlInput" type="text" placeholder="ws://192.168.x.x:9001 (留空自动)" style="flex:1;min-width:240px;padding:8px 12px;border:1px solid rgba(74,234,220,.5);background:rgba(0,0,0,.5);color:#fff;border-radius:8px;font-family:inherit">
+        <button class="btn btn-small" onclick="saveServerUrl()">💾 保存</button>
       </div>
+      <p style="text-align:center;color:#aac;margin-bottom:16px">和其他玩家比拼钓鱼！限时 2 分钟，按钓获价值积分，<b>积分高者获胜！</b></p>
+      <div style="display:flex;gap:12px;justify-content:center;margin-bottom:20px;flex-wrap:wrap">
+        <button class="btn" onclick="connectOnline()">🔌 连接服务器</button>
+        <button class="btn btn-gold" onclick="showPKSetup()">🎣 开始钓鱼 PK</button>
+      </div>
+      <div id="pkStatsBox" style="background:rgba(74,234,220,.08);border:1px solid rgba(74,234,220,.4);border-radius:10px;padding:14px;margin-bottom:14px;text-align:center"></div>
       <div id="onlineContent"></div>
     </div>
   </div>
 
-  <!-- 5v5选鱼面板 -->
-  <div class="panel" id="battleSelectPanel">
+  <!-- PK 选场景 -->
+  <div class="panel" id="pkSetupPanel">
     <div class="panel-header">
-      <h2>⚔️ 选择出战的鱼 (5条)</h2>
-      <div style="display:flex;align-items:center;gap:16px">
-        <span id="battleSelectCount">已选: 0/5</span>
-        <button class="btn btn-small btn-gold" onclick="confirmBattleTeam()">确认出战</button>
-        <button class="btn btn-small" onclick="hidePanel('battleSelect')">✕ 取消</button>
-      </div>
+      <h2>🎣 钓鱼 PK - 选择地图</h2>
+      <button class="btn btn-small" onclick="hidePanel('pkSetup')">✕ 取消</button>
     </div>
     <div class="panel-body">
-      <div id="battleSelectContent" class="item-grid"></div>
+      <p style="text-align:center;color:#aac;margin-bottom:16px">2 分钟内尽可能多钓有价值的鱼！稀有度越高积分越多。</p>
+      <div id="pkSceneGrid" class="scene-grid"></div>
     </div>
   </div>
 
-  <!-- 5v5战斗面板 -->
-  <div class="panel" id="battlePanel">
-    <div class="panel-header">
-      <h2>⚔️ 5v5 竞技场</h2>
-      <span id="battleRound">第 1 / 5 局</span>
-    </div>
-    <div class="panel-body" style="display:flex;flex-direction:column;align-items:center;justify-content:center">
-      <div class="battle-arena" id="battleArena"></div>
-      <div class="battle-log" id="battleLog"></div>
-      <div id="battleActions" style="margin-top:16px;display:flex;gap:10px"></div>
-    </div>
+  <!-- PK 进行中 HUD -->
+  <div id="pkHud" style="display:none;position:absolute;top:20px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,rgba(74,234,220,.18),rgba(0,0,0,.85));border:2px solid #4aeadc;border-radius:18px;padding:12px 28px;z-index:20;box-shadow:0 6px 30px rgba(74,234,220,.4);align-items:center;gap:30px;font-size:1.05rem;color:#fff;text-shadow:0 2px 4px #000">
+    <div style="text-align:center"><div style="color:#4af;font-size:.85rem">你</div><div style="font-size:1.5rem;font-weight:bold;color:#4af">🏆 <span id="pkMyScore">0</span></div></div>
+    <div style="text-align:center"><div style="color:#4aeadc;font-size:.9rem">⏱️ 剩余</div><div style="font-size:1.8rem;font-weight:bold;color:#4aeadc"><span id="pkTimer">2:00</span></div></div>
+    <div style="text-align:center"><div style="color:#f66;font-size:.85rem">对手</div><div style="font-size:1.5rem;font-weight:bold;color:#f66">🏆 <span id="pkOpScore">0</span></div></div>
+    <button class="btn btn-small btn-danger" onclick="pkQuit()" style="margin-left:10px">🏳️ 放弃</button>
   </div>
+
+  <!-- PK 结果弹窗 -->
+  <div id="pkResult" style="display:none;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);padding:40px;background:linear-gradient(160deg,rgba(20,40,70,.97),rgba(10,22,40,.97));border:3px solid #4aeadc;border-radius:24px;z-index:56;min-width:400px;text-align:center;box-shadow:0 0 60px rgba(74,234,220,.4)">
+    <h2 id="pkResultTitle" style="font-size:2rem;margin-bottom:14px"></h2>
+    <div id="pkResultBody" style="font-size:1.1rem;line-height:2;margin:16px 0"></div>
+    <button class="btn btn-gold" onclick="closePKResult()">返回</button>
+  </div>
+
+  <!-- 5v5选鱼面板 -->
+  <div class="panel" id="battleSelectPanel" style="display:none!important"></div>
+  <div class="panel" id="battlePanel" style="display:none!important"></div>
 
 </div>
 
@@ -593,6 +633,18 @@ const FISH_DATA = [
 ];
 
 // ============== 场景数据 ==============
+// ============== 饵料 ==============
+const BAITS = [
+  {id:'basic',   name:'蚯蚓',     emoji:'🪱', price:1,   desc:'最普通的饵料'},
+  {id:'fast',    name:'活虾',     emoji:'🦐', price:40,  desc:'鱼咬钩速度 +50%'},
+  {id:'lucky',   name:'幸运饵',   emoji:'🍀', price:50,  desc:'稀有鱼出现率 +100%'},
+  {id:'big',     name:'大鱼饵',   emoji:'🐛', price:80,  desc:'鱼的重量 +30%'},
+  {id:'quality', name:'珍品饵',   emoji:'💎', price:120, desc:'品质等级 +1 (最高5)'},
+  {id:'epic',    name:'极品饵',   emoji:'✨', price:200, desc:'极品鱼出现率 +200%'},
+  {id:'tame',    name:'安抚饵',   emoji:'🌿', price:150, desc:'鱼挣扎力量 -40%'},
+  {id:'legend',  name:'传说饵',   emoji:'🌟', price:500, desc:'有几率引出传说鱼'}
+];
+
 const SCENES = [
   {id:'pond',name:'池塘',emoji:'🌿',desc:'宁静的乡村池塘，适合新手',color1:'#2d5a27',color2:'#1a4a2e',waterColor:'#2a6b4f',skyColor1:'#87ceeb',skyColor2:'#e0f0ff',unlockLevel:0},
   {id:'river',name:'河流',emoji:'🏞️',desc:'湍急的山间河流，中型鱼出没',color1:'#3a5a3a',color2:'#2a4a2a',waterColor:'#1a5a6a',skyColor1:'#6ab7d4',skyColor2:'#c8e6f0',unlockLevel:3},
@@ -665,7 +717,7 @@ function getFishImg(id){
   return null;
 }
 
-// 处理鱼图：精细抠图（保留鱼身），并探测朝向
+// 处理鱼图：边缘 k-means 多色聚类 + flood-fill 抠图 + 朝向探测
 function processFishImg(img){
   let w = img.naturalWidth, h = img.naturalHeight;
   let cv = document.createElement('canvas');
@@ -675,51 +727,91 @@ function processFishImg(img){
   let imgd; try { imgd = c.getImageData(0,0,w,h); } catch(e){ cv.facingRight=true; return cv; }
   let d = imgd.data;
 
-  // 1) 用整圈采样确定背景主色（多数为白/淡色）
-  let bgR=0, bgG=0, bgB=0, n=0;
-  for(let x=0;x<w;x+=3){ for(let yy of [0, h-1]){ let i=(yy*w+x)*4; bgR+=d[i]; bgG+=d[i+1]; bgB+=d[i+2]; n++; }}
-  for(let y=0;y<h;y+=3){ for(let xx of [0, w-1]){ let i=(y*w+xx)*4; bgR+=d[i]; bgG+=d[i+1]; bgB+=d[i+2]; n++; }}
-  bgR/=n; bgG/=n; bgB/=n;
+  // 1) 边缘整圈采样
+  let samples = [];
+  for(let x=0;x<w;x+=2){ for(let y of [0,1,h-2,h-1]){ let i=(y*w+x)*4; samples.push([d[i],d[i+1],d[i+2]]); }}
+  for(let y=0;y<h;y+=2){ for(let x of [0,1,w-2,w-1]){ let i=(y*w+x)*4; samples.push([d[i],d[i+1],d[i+2]]); }}
 
-  // 2) 像素接近背景色 → 透明（color distance + 边缘羽化）
-  let TH = 60*60, SOFT = 95*95;
-  for(let i=0;i<d.length;i+=4){
-    let dr=d[i]-bgR, dg=d[i+1]-bgG, db=d[i+2]-bgB;
-    let dist = dr*dr+dg*dg+db*db;
-    if(dist < TH) d[i+3] = 0;
-    else if(dist < SOFT){
-      let a = (dist - TH) / (SOFT - TH);
-      d[i+3] = Math.min(d[i+3], Math.round(a*255));
+  // 2) k-means k=3，识别最多 3 种背景色（白+浅灰+其他）
+  let centers = [samples[0].slice(), samples[(samples.length/3)|0].slice(), samples[(samples.length*2/3)|0].slice()];
+  for(let iter=0;iter<6;iter++){
+    let s=[[0,0,0,0],[0,0,0,0],[0,0,0,0]];
+    for(let p of samples){
+      let bd=1e9, bi=0;
+      for(let k=0;k<3;k++){
+        let dr=p[0]-centers[k][0], dg=p[1]-centers[k][1], db=p[2]-centers[k][2];
+        let dist=dr*dr+dg*dg+db*db;
+        if(dist<bd){bd=dist;bi=k;}
+      }
+      s[bi][0]+=p[0]; s[bi][1]+=p[1]; s[bi][2]+=p[2]; s[bi][3]++;
     }
+    for(let k=0;k<3;k++) if(s[k][3]) centers[k]=[s[k][0]/s[k][3],s[k][1]/s[k][3],s[k][2]/s[k][3]];
+  }
+
+  let TH_HARD = 55*55, TH_SOFT = 90*90;
+  let bgScore = (r,g,b)=>{
+    let best = 1e9;
+    for(let k=0;k<3;k++){
+      let dr=r-centers[k][0], dg=g-centers[k][1], db=b-centers[k][2];
+      let dist=dr*dr+dg*dg+db*db;
+      if(dist < best) best = dist;
+    }
+    return best;
+  };
+
+  // 3) flood-fill 从整圈边缘：只移除与边缘相连的背景区域（鱼身上的浅色斑不会被吃）
+  let visited = new Uint8Array(w*h);
+  let stack = [];
+  for(let x=0;x<w;x++){ stack.push(x); stack.push((h-1)*w+x); }
+  for(let y=0;y<h;y++){ stack.push(y*w); stack.push(y*w+w-1); }
+  while(stack.length){
+    let p = stack.pop();
+    if(visited[p]) continue;
+    let idx = p*4;
+    let sc = bgScore(d[idx],d[idx+1],d[idx+2]);
+    if(sc > TH_SOFT) continue;
+    visited[p] = 1;
+    if(sc < TH_HARD) d[idx+3] = 0;
+    else d[idx+3] = Math.min(d[idx+3], Math.round(((sc-TH_HARD)/(TH_SOFT-TH_HARD))*255));
+    let x=p%w, y=(p/w)|0;
+    if(x>0) stack.push(p-1);
+    if(x<w-1) stack.push(p+1);
+    if(y>0) stack.push(p-w);
+    if(y<h-1) stack.push(p+w);
+  }
+
+  // 4) 边缘羽化
+  let snap = new Uint8Array(w*h);
+  for(let p=0;p<w*h;p++) snap[p] = d[p*4+3];
+  for(let y=1;y<h-1;y++) for(let x=1;x<w-1;x++){
+    let p = y*w+x;
+    if(visited[p]) continue;
+    let n = visited[p-1]+visited[p+1]+visited[p-w]+visited[p+w];
+    if(n>0) d[p*4+3] = Math.min(snap[p], 255 - n*45);
   }
   c.putImageData(imgd, 0, 0);
 
-  // 3) 朝向探测：找前景的左右两侧，比较"尖端"位置
-  // 鱼头通常更尖凸 — 检测哪一边的轮廓延伸点更窄
+  // 5) 朝向探测：鱼头通常更厚
   let leftTip = w, rightTip = 0;
-  let leftCount=0, rightCount=0;
-  for(let y=h*0.3|0;y<h*0.7;y++) for(let x=0;x<w;x++){
+  for(let y=(h*0.3)|0;y<h*0.7;y++) for(let x=0;x<w;x++){
     if(d[(y*w+x)*4+3] > 100){
       if(x<leftTip) leftTip = x;
       if(x>rightTip) rightTip = x;
     }
   }
-  // 用前景中线两侧的高度分布判断头朝向：头一侧的"轮廓"通常更扁
   let midX = (leftTip+rightTip)/2;
-  let leftHeights = 0, rightHeights = 0;
+  let leftH = 0, rightH = 0;
   for(let x=leftTip; x<midX; x++){
     let top=-1, bot=-1;
     for(let y=0;y<h;y++){ if(d[(y*w+x)*4+3]>100){ if(top<0)top=y; bot=y; }}
-    if(top>=0) leftHeights += bot-top;
+    if(top>=0) leftH += bot-top;
   }
   for(let x=midX; x<rightTip; x++){
     let top=-1, bot=-1;
     for(let y=0;y<h;y++){ if(d[(y*w+x)*4+3]>100){ if(top<0)top=y; bot=y; }}
-    if(top>=0) rightHeights += bot-top;
+    if(top>=0) rightH += bot-top;
   }
-  // 鱼头（更厚）vs 鱼尾（更窄/分叉但平均更薄）：头一侧 height 更大
-  // 默认 AI 生成多数朝右，所以右侧更厚 → facingRight
-  cv.facingRight = rightHeights >= leftHeights;
+  cv.facingRight = rightH >= leftH;
   return cv;
 }
 
@@ -747,7 +839,7 @@ function chromaKeyWhite(img){
   return cv;
 }
 
-// 抠主体（双手+鱼竿）：照片是 magenta chroma key 底，按颜色键控 + 裁剪到包围盒
+// 抠主体（双手+鱼竿）：magenta chroma key + 裁剪 + 自动探测鱼竿末端
 function extractSubject(img){
   let w = img.naturalWidth, h = img.naturalHeight;
   let cv = document.createElement('canvas');
@@ -757,24 +849,21 @@ function extractSubject(img){
   let imgd; try { imgd = c.getImageData(0,0,w,h); } catch(e){ return img; }
   let d = imgd.data;
 
-  // Chroma key: magenta = R/B 高、G 低。靠"magenta 度"判定
-  // mScore = (R + B - 2G) 越大 = 越像 magenta
-  let HARD = 180; // 强 magenta 直接透明
-  let SOFT = 80;  // 弱 magenta 软边
-
+  // 更激进的 magenta 检测：mScore + pink/紫红残留
+  let HARD = 130, SOFT = 50;
   for(let i=0;i<d.length;i+=4){
     let r=d[i], g=d[i+1], b=d[i+2];
     let mScore = (r + b) - 2*g;
-    if(mScore > HARD){
+    let isMagentaLike = (r > g + 20 && b > g + 10 && r > 120);
+    if(mScore > HARD || (isMagentaLike && mScore > HARD-30)){
       d[i+3] = 0;
-    } else if(mScore > SOFT){
-      // 渐进透明
-      let a = 1 - (mScore - SOFT)/(HARD - SOFT);
+    } else if(mScore > SOFT || (isMagentaLike && mScore > SOFT-20)){
+      let s = isMagentaLike ? Math.max(mScore, SOFT+10) : mScore;
+      let a = 1 - Math.min(1, (s - SOFT)/(HARD - SOFT));
       d[i+3] = Math.min(d[i+3], Math.round(a*255));
-      // 去除溢色：把 R/B 拉回 G 水平，避免边缘紫边
-      let target = g;
-      d[i]   = Math.round(d[i]*0.5 + target*0.5);
-      d[i+2] = Math.round(d[i+2]*0.5 + target*0.5);
+      // 去除溢色
+      d[i]   = Math.round(d[i]*0.4 + g*0.6);
+      d[i+2] = Math.round(d[i+2]*0.4 + g*0.6);
     }
   }
   c.putImageData(imgd, 0, 0);
@@ -791,7 +880,23 @@ function extractSubject(img){
   let cw = maxX-minX+1, ch = maxY-minY+1;
   let out = document.createElement('canvas');
   out.width = cw; out.height = ch;
-  out.getContext('2d').drawImage(cv, minX, minY, cw, ch, 0, 0, cw, ch);
+  let octx = out.getContext('2d');
+  octx.drawImage(cv, minX, minY, cw, ch, 0, 0, cw, ch);
+
+  // 探测鱼竿末端：扫描左上四分之一，找最靠近左上角且暗色的不透明像素
+  let outD = octx.getImageData(0,0,cw,ch).data;
+  let tipX = 0, tipY = 0, bestDist = Infinity;
+  for(let y=0;y<ch*0.6;y++) for(let x=0;x<cw*0.5;x++){
+    let i = (y*cw+x)*4;
+    if(outD[i+3] < 120) continue;
+    let r=outD[i], g=outD[i+1], b=outD[i+2];
+    // 暗色（鱼竿黑色）
+    if(r > 80 || g > 80 || b > 80) continue;
+    let dist = x*x + y*y;
+    if(dist < bestDist){ bestDist = dist; tipX = x; tipY = y; }
+  }
+  out.rodTipX = tipX;
+  out.rodTipY = tipY;
   return out;
 }
 
@@ -891,6 +996,9 @@ function defaultGameState(){
     items: [],           // [{type:'food'|'drink',idx,qty}...]
     aquarium: {},        // {fishId: {weight,quality,rarity,timestamp}}
     dex: {},             // {fishId: {count, maxWeight, maxQuality, firstCaught, lastCaught}}
+    arenaStats: {wins:0, losses:0, draws:0}, // 1v1 竞技战绩
+    baits: {basic: 20},  // 饵料库存 {baitId: 数量}
+    currentBait: 'basic',
     currentScene: 'pond',
     totalCaught: 0,
     fishingState: 'idle', // idle, casting, waiting, bite, reeling, caught, failed
@@ -1043,15 +1151,27 @@ function newGame(){
   startPlaying();
 }
 
-function loadGame(){
-  let data = localStorage.getItem('fishingGame');
-  if(!data){notify('没有找到存档！');return;}
-  try{game = JSON.parse(data);startPlaying();}
-  catch(e){notify('存档损坏！');return;}
-}
-
 function saveGame(silent){
   try{
+    // PK 期间不写存档（避免污染原存档）
+    if(typeof pkState !== 'undefined' && pkState && pkState.active){
+      if(!silent) notify('比赛中无法保存');
+      return;
+    }
+    if(!game.slotId) game.slotId = 'slot_'+Date.now();
+    game.savedAt = Date.now();
+    let slots = listSaves();
+    slots[game.slotId] = {
+      id: game.slotId,
+      savedAt: game.savedAt,
+      level: game.level,
+      gold: game.gold,
+      caught: game.totalCaught || 0,
+      scene: game.currentScene,
+      data: JSON.stringify(game)
+    };
+    localStorage.setItem('fishingSaves', JSON.stringify(slots));
+    // 兼容老存档键
     localStorage.setItem('fishingGame', JSON.stringify(game));
     if(!silent) notify('💾 游戏已保存！');
   }catch(e){
@@ -1059,10 +1179,81 @@ function saveGame(silent){
   }
 }
 
+function listSaves(){
+  try{ return JSON.parse(localStorage.getItem('fishingSaves')||'{}'); }
+  catch(e){ return {}; }
+}
+
+function loadGame(){
+  // 显示存档列表面板
+  renderSavesList();
+  document.getElementById('savesPanel').classList.add('active');
+}
+
+function loadGameFromSlot(slotId){
+  let slots = listSaves();
+  let s = slots[slotId];
+  if(!s){notify('存档不存在');return;}
+  try{
+    game = JSON.parse(s.data);
+    game.slotId = slotId;
+    document.getElementById('savesPanel').classList.remove('active');
+    startPlaying();
+  }catch(e){ notify('存档损坏！'); }
+}
+
+function deleteSave(slotId){
+  if(!confirm('确定删除这个存档？不可恢复。')) return;
+  let slots = listSaves();
+  delete slots[slotId];
+  localStorage.setItem('fishingSaves', JSON.stringify(slots));
+  renderSavesList();
+  notify('已删除');
+}
+
+function renderSavesList(){
+  let slots = listSaves();
+  let arr = Object.values(slots).sort((a,b)=>b.savedAt-a.savedAt);
+  let el = document.getElementById('savesList');
+  // 兼容老存档：如果 fishingSaves 空但 fishingGame 有，迁移
+  if(arr.length === 0){
+    let legacy = localStorage.getItem('fishingGame');
+    if(legacy){
+      try{
+        let g = JSON.parse(legacy);
+        g.slotId = 'slot_legacy';
+        g.savedAt = Date.now();
+        slots[g.slotId] = {id:g.slotId, savedAt:g.savedAt, level:g.level, gold:g.gold, caught:g.totalCaught||0, scene:g.currentScene, data:JSON.stringify(g)};
+        localStorage.setItem('fishingSaves', JSON.stringify(slots));
+        arr = [slots[g.slotId]];
+      }catch(e){}
+    }
+  }
+  if(arr.length === 0){
+    el.innerHTML = '<p style="text-align:center;color:#888;padding:40px">没有存档，请先开始新游戏</p>';
+    return;
+  }
+  el.innerHTML = arr.map(s=>{
+    let dt = new Date(s.savedAt);
+    let sceneObj = SCENES.find(x=>x.id===s.scene);
+    let sceneName = sceneObj ? sceneObj.emoji+sceneObj.name : (s.scene||'?');
+    return `<div style="display:flex;justify-content:space-between;align-items:center;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:14px 18px;margin-bottom:10px">
+      <div style="flex:1">
+        <div style="font-size:1.1rem;color:#4aeadc;font-weight:bold">Lv.${s.level||1} · ${sceneName}</div>
+        <div style="color:#aac;font-size:.9rem">💰 ${s.gold||0} · 钓获 ${s.caught||0} 条 · ${dt.toLocaleString()}</div>
+      </div>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-small btn-gold" onclick="loadGameFromSlot('${s.id}')">📂 加载</button>
+        <button class="btn btn-small btn-danger" onclick="deleteSave('${s.id}')">🗑️ 删除</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
 let autoSaveTimer = null;
 function startAutoSave(){
   if(autoSaveTimer) clearInterval(autoSaveTimer);
-  autoSaveTimer = setInterval(()=>{ if(game) saveGame(true); }, 30000); // 每30秒静默保存
+  autoSaveTimer = setInterval(()=>{ if(game) saveGame(true); }, 15000); // 每15秒静默保存
 }
 function stopAutoSave(){
   if(autoSaveTimer){clearInterval(autoSaveTimer); autoSaveTimer=null;}
@@ -1070,6 +1261,13 @@ function stopAutoSave(){
 window.addEventListener('beforeunload', ()=>{ if(game) saveGame(true); });
 
 function backToMainMenu(){
+  // 清理 PK 状态
+  if(typeof pkState !== 'undefined' && pkState && pkState.active){
+    if(pkState.timerId) clearInterval(pkState.timerId);
+    pkState.active = false;
+    if(ws && ws.readyState===WebSocket.OPEN) try{ws.close();}catch(e){}
+    document.getElementById('pkHud').style.display = 'none';
+  }
   if(game) saveGame(true);
   game = null;
   stopAutoSave();
@@ -1082,6 +1280,12 @@ function startPlaying(){
   if(menuAnimId){cancelAnimationFrame(menuAnimId);menuAnimId=null;}
   document.getElementById('mainMenu').style.display = 'none';
   document.getElementById('hud').style.display = 'flex';
+  // 兼容老存档：初始化新字段
+  if(!game.baits) game.baits = {basic:20};
+  if(!game.currentBait) game.currentBait = 'basic';
+  if(!game.dex) game.dex = {};
+  if(!game.arenaStats) game.arenaStats = {wins:0,losses:0,draws:0};
+  updateBaitHUD();
   lastTime = performance.now();
   if(animId) cancelAnimationFrame(animId);
   gameLoop(performance.now());
@@ -1532,9 +1736,11 @@ function drawHandsAndRod(w, h, waterY, t){
     ctx.shadowOffsetY = 8;
     ctx.drawImage(hImg, hx, hy, drawW, drawH);
     ctx.restore();
-    // 鱼竿尖端：照片的左上 ~ 15% 处
-    rodTipX = hx + drawW*0.12;
-    rodTipY = hy + drawH*0.18 + bend*0.3;
+    // 鱼线起点 = 自动探测到的鱼竿末端在裁剪图中的位置（兜底用左上 5%）
+    let relX = (hImg.rodTipX != null) ? hImg.rodTipX/hImg.width : 0.05;
+    let relY = (hImg.rodTipY != null) ? hImg.rodTipY/hImg.height : 0.05;
+    rodTipX = hx + drawW*relX;
+    rodTipY = hy + drawH*relY + bend*0.3;
   } else {
     // 回退：程序化双手
     drawArm(w*0.88, h*0.98, rodBaseX, rodBaseY, '#2a4a7a', '#1a3458', t, 1);
@@ -1563,15 +1769,29 @@ function drawHandsAndRod(w, h, waterY, t){
       else if(game.fishingState==='reeling') bobY += Math.sin(t*25)*4;
       else bobY += Math.sin(t*2)*2;
     }
-    ctx.strokeStyle='rgba(255,255,255,.7)'; ctx.lineWidth=1.3;
+    // 鱼线：更细、更弯（三次贝塞尔双下垂控制点）
+    let dx = bobX - rodTipX;
+    let dy = bobY - rodTipY;
+    let dist = Math.hypot(dx, dy);
+    let sag;
+    if(game.fishingState === 'reeling') sag = dist*0.15 + Math.sin(t*15)*4;
+    else if(game.fishingState === 'bite') sag = dist*0.22 + Math.sin(t*10)*3;
+    else if(game.fishingState === 'casting') sag = 10;
+    else sag = dist * 0.35; // 平静时大幅自然下垂
+    // 两个控制点（1/3 和 2/3 位置都向下偏）
+    let c1x = rodTipX + dx*0.33, c1y = rodTipY + dy*0.33 + sag;
+    let c2x = rodTipX + dx*0.66, c2y = rodTipY + dy*0.66 + sag*0.7;
+    // 线影
+    ctx.strokeStyle='rgba(0,0,0,.3)'; ctx.lineWidth=1.2;
+    ctx.beginPath();
+    ctx.moveTo(rodTipX+1, rodTipY+1);
+    ctx.bezierCurveTo(c1x+1, c1y+1, c2x+1, c2y+1, bobX+1, bobY+1);
+    ctx.stroke();
+    // 线本体（细）
+    ctx.strokeStyle='rgba(255,255,255,.75)'; ctx.lineWidth=0.7;
     ctx.beginPath();
     ctx.moveTo(rodTipX, rodTipY);
-    if(game.fishingState==='reeling'){
-      let midX=(rodTipX+bobX)/2, midY=(rodTipY+bobY)/2 + 35;
-      ctx.quadraticCurveTo(midX, midY, bobX, bobY);
-    } else {
-      ctx.lineTo(bobX, bobY);
-    }
+    ctx.bezierCurveTo(c1x, c1y, c2x, c2y, bobX, bobY);
     ctx.stroke();
 
     let bobGrad = ctx.createRadialGradient(bobX-2,bobY-2,1,bobX,bobY,8);
@@ -1600,6 +1820,30 @@ function drawHandsAndRod(w, h, waterY, t){
       ctx.globalAlpha = 0.7;
       drawFish(ctx, game.reelFishId, fishX, fishY, 30, Math.PI/2 + Math.sin(t*4)*0.3, t);
       ctx.globalAlpha = 1;
+      // 电击闪光（持续 0.4 秒）
+      if(game._shockTime && t - game._shockTime < 0.4){
+        let p = 1 - (t - game._shockTime)/0.4;
+        ctx.save();
+        ctx.strokeStyle = `rgba(255,255,80,${p})`;
+        ctx.lineWidth = 3 + p*2;
+        // 锯齿状电弧从杆尖到鱼
+        ctx.beginPath();
+        let steps = 8;
+        for(let i=0;i<=steps;i++){
+          let tt = i/steps;
+          let x = rodTipX + (fishX-rodTipX)*tt + (i>0&&i<steps?(Math.random()-0.5)*30:0);
+          let y = rodTipY + (fishY-rodTipY)*tt + (i>0&&i<steps?(Math.random()-0.5)*30:0);
+          i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+        }
+        ctx.stroke();
+        // 鱼周围光晕
+        let gg = ctx.createRadialGradient(fishX,fishY,5,fishX,fishY,60);
+        gg.addColorStop(0, `rgba(255,255,150,${p*0.7})`);
+        gg.addColorStop(1, 'rgba(255,255,150,0)');
+        ctx.fillStyle = gg;
+        ctx.fillRect(fishX-60, fishY-60, 120, 120);
+        ctx.restore();
+      }
     }
   }
 }
@@ -1811,9 +2055,12 @@ function startCasting(){
 
 function releaseCast(){
   if(game.fishingState !== 'casting') return;
+  let baitId = consumeBait();
+  game._castBait = baitId; // 记下本次抛竿用的饵
+  let fastMul = baitId==='fast' ? 0.5 : 1;
   game.fishingState = 'waiting';
-  game.biteTimer = 2 + Math.random()*5 - game.stats.bait*0.15;
-  if(game.biteTimer < 1) game.biteTimer = 1;
+  game.biteTimer = (2 + Math.random()*5 - game.stats.bait*0.15) * fastMul;
+  if(game.biteTimer < 0.5) game.biteTimer = 0.5;
   hidePowerBar();
   setTip('等待鱼上钩...');
 }
@@ -1839,8 +2086,11 @@ function startReeling(fish){
   game.reelMaxTime = 8 + (fish.rarity==='legendary'?7:fish.rarity==='epic'?4:fish.rarity==='rare'?2:0);
   // 玩家基础力 = strength + rod*1.2 + speed*0.5
   game.reelPlayerBase = 3 + game.stats.strength*1.5 + game.stats.rod*2 + game.stats.speed*0.5;
-  // 鱼力 = power 归一化到合理范围
-  game.reelFishForce = 4 + Math.sqrt(fish.power) * 1.2;
+  // 鱼力：稀有/极品/传说大幅加成；安抚饵减少
+  let bait = game._castBait || 'basic';
+  let tameMul = bait === 'tame' ? 0.6 : 1.0;
+  let rarityMul = {common:1, rare:1.8, epic:3.0, legendary:5.0}[fish.rarity] || 1;
+  game.reelFishForce = (4 + Math.sqrt(fish.power) * 1.2) * rarityMul * tameMul;
   game.reelTapBoost = 0; // 玩家按键累积
   game.reelHoldKey = false;
   hideTip(); hidePowerBar();
@@ -1853,11 +2103,21 @@ function reelTap(){
   game.reelTapBoost = Math.min(20, game.reelTapBoost + 3);
 }
 
+// 电击 X：消耗 5 金币，给鱼造成大伤害（reelProgress 直接 +18）
+function electricShock(){
+  if(game.fishingState !== 'reeling') return;
+  if(game.gold < 5){ notify('⚡ 金币不足！需要 5 💰'); return; }
+  game.gold -= 5;
+  game.reelProgress = Math.min(100, game.reelProgress + 18);
+  game._shockTime = performance.now()/1000;
+  notify('⚡ 电击！-5 💰');
+}
+
 function updateReeling(dt){
   game.reelTime += dt;
-  // 玩家持续力 = base + tapBoost (衰减) + 持续按住的小加成
-  let playerForce = game.reelPlayerBase + game.reelTapBoost + (game.reelHoldKey?2:0);
-  game.reelTapBoost = Math.max(0, game.reelTapBoost - dt*8);
+  // 玩家力 = base + tapBoost (衰减)；长按不再有加成，必须连按
+  let playerForce = game.reelPlayerBase + game.reelTapBoost;
+  game.reelTapBoost = Math.max(0, game.reelTapBoost - dt*12);
 
   // 鱼力波动（间歇式爆发，"鱼挣扎"）
   let burst = (Math.sin(game.reelTime*2.5)>0.6) ? 1.4 : 1;
@@ -1888,9 +2148,12 @@ function finishReeling(success){
   hideReelPanel();
   let fish = FISH_DATA[game.reelFishId];
   if(success){
+    let bait = game._castBait || 'basic';
     let weight = fish.minWeight + Math.random()*(fish.maxWeight-fish.minWeight);
+    if(bait === 'big') weight *= 1.3;
     weight = Math.round(weight*100)/100;
     let quality = rollQuality();
+    if(bait === 'quality') quality = Math.min(5, quality+1);
     game.caughtFish = {fishId:fish.id, weight, quality, rarity:fish.rarity};
     game.fishingState = 'caught';
     game.totalCaught++;
@@ -1905,6 +2168,7 @@ function finishReeling(success){
     gainExp(getExpForRarity(fish.rarity));
     showCatchResult(fish, weight, quality);
     saveGame(true);
+    reportPKCatch(fish, weight, quality);
   } else {
     game.fishingState = 'failed';
     setTip('😢 鱼挣脱逃跑了！');
@@ -1922,12 +2186,17 @@ function hideReelPanel(){document.getElementById('reelPanel').style.display='non
 function pickFish(){
   let sceneFish = FISH_DATA.filter(f=>f.scenes.includes(game.currentScene));
   let baitLv = game.stats.bait;
+  let bait = game._castBait || 'basic';
+  // 饵料权重修正
+  let rareMul = bait==='lucky' ? 2.0 : 1.0;
+  let epicMul = bait==='epic'  ? 3.0 : 1.0;
+  let legMul  = bait==='legend' ? 8.0 : 1.0;
   let weights = sceneFish.map(f=>{
     let w = 1;
     if(f.rarity==='common') w = 50;
-    else if(f.rarity==='rare') w = 15 + baitLv*2;
-    else if(f.rarity==='epic') w = 3 + baitLv*1.5;
-    else if(f.rarity==='legendary') w = 0.5 + baitLv*0.8;
+    else if(f.rarity==='rare') w = (15 + baitLv*2) * rareMul;
+    else if(f.rarity==='epic') w = (3 + baitLv*1.5) * epicMul;
+    else if(f.rarity==='legendary') w = (0.5 + baitLv*0.8) * legMul;
     return w;
   });
   let total = weights.reduce((a,b)=>a+b,0);
@@ -2037,9 +2306,11 @@ document.addEventListener('keydown', e=>{
     if(game.fishingState === 'idle') startCasting();
     else if(game.fishingState === 'bite') hookFish();
     else if(game.fishingState === 'reeling'){
-      if(!game.reelHoldKey) game.reelHoldKey=true;
       if(!e.repeat) reelTap();
     }
+  } else if(e.code === 'KeyX'){
+    e.preventDefault();
+    if(game.fishingState === 'reeling' && !e.repeat) electricShock();
   }
 });
 document.addEventListener('keyup', e=>{
@@ -2047,43 +2318,27 @@ document.addEventListener('keyup', e=>{
   if(e.code === 'Space'){
     e.preventDefault();
     if(game.fishingState === 'casting') releaseCast();
-    else if(game.fishingState === 'reeling') game.reelHoldKey=false;
   }
 });
 // 触屏支持 (在init中绑定)
 
 // ============== 背包 ==============
 let bpTab = 'fish';
-function showBackpackTab(tab){
-  bpTab = tab;
-  renderBackpack();
-}
+function showBackpackTab(tab){ bpTab=tab; renderBackpack(); }
 function renderBackpack(){
   let el = document.getElementById('backpackContent');
-  if(bpTab === 'fish'){
-    if(game.backpack.length === 0){el.innerHTML='<p style="color:#888">背包空空如也...</p>';return;}
-    el.innerHTML = game.backpack.map((f,i)=>{
-      let fish = FISH_DATA[f.fishId];
-      let stars = '★'.repeat(f.quality)+'☆'.repeat(5-f.quality);
-      let price = Math.round(fish.basePrice * (0.5+f.quality*0.3) * (f.weight/fish.minWeight));
-      return `<div class="item-card" onclick="sellFish(${i})">
-        <div class="emoji">${fish.emoji}</div>
-        <div class="name rarity-${f.rarity}">${fish.name}</div>
-        <div class="detail">${f.weight}kg ${stars}</div>
-        <div class="detail">💰${price} (点击出售)</div>
-      </div>`;
-    }).join('');
-  } else {
-    if(game.items.length === 0){el.innerHTML='<p style="color:#888">没有物品</p>';return;}
-    el.innerHTML = game.items.map((item,i)=>{
-      let data = item.type==='food'?SHOP_FOOD[item.idx]:SHOP_DRINK[item.idx];
-      return `<div class="item-card" onclick="useItem(${i})">
-        <div class="emoji">${data.emoji}</div>
-        <div class="name">${data.name} x${item.qty}</div>
-        <div class="detail">${data.desc} (点击使用)</div>
-      </div>`;
-    }).join('');
-  }
+  if(game.backpack.length === 0){el.innerHTML='<p style="color:#888">背包空空如也...</p>';return;}
+  el.innerHTML = game.backpack.map((f,i)=>{
+    let fish = FISH_DATA[f.fishId];
+    let stars = '★'.repeat(f.quality)+'☆'.repeat(5-f.quality);
+    let price = Math.round(fish.basePrice * (0.5+f.quality*0.3) * (f.weight/fish.minWeight));
+    return `<div class="item-card" onclick="sellFish(${i})">
+      <div class="emoji">${fish.emoji}</div>
+      <div class="name rarity-${f.rarity}">${fish.name}</div>
+      <div class="detail">${f.weight}kg ${stars}</div>
+      <div class="detail">💰${price} (点击出售)</div>
+    </div>`;
+  }).join('');
 }
 
 function sellFish(idx){
@@ -2094,6 +2349,7 @@ function sellFish(idx){
   game.backpack.splice(idx,1);
   notify('💰 卖出 '+fish.name+' 获得 '+price+' 金币');
   renderBackpack();
+  saveGame(true);
 }
 
 function useItem(idx){
@@ -2115,7 +2371,18 @@ function useItem(idx){
 // ============== 市场 ==============
 function renderMarket(){
   document.getElementById('marketGold').textContent = game.gold;
-  let html = '<div class="shop-section"><h3>⬆️ 升级</h3><div class="shop-grid">';
+  let html = '<div class="shop-section"><h3>🪱 饵料</h3><div class="shop-grid">';
+  BAITS.forEach(b=>{
+    let owned = (game.baits && game.baits[b.id]) || 0;
+    html+=`<div class="shop-item" onclick="buyBait('${b.id}')">
+      <span style="font-size:2rem">${b.emoji}</span>
+      <span><b>${b.name}</b> ${owned?`<span style="color:#aac">(库存 ${owned})</span>`:''}</span>
+      <span class="price">💰${b.price}</span>
+      <span style="font-size:.8rem;color:#888">${b.desc}</span>
+    </div>`;
+  });
+  html+='</div></div>';
+  html += '<div class="shop-section"><h3>⬆️ 升级</h3><div class="shop-grid">';
   SHOP_UPGRADES.forEach((u,i)=>{
     let lv = game.stats[u.stat];
     let cost = Math.round(u.baseCost * Math.pow(1.5, lv-1));
@@ -2155,6 +2422,18 @@ function buyDrink(idx){
   notify('购买了 '+d.name);
   renderMarket();
 }
+function buyBait(id){
+  let b = BAITS.find(x=>x.id===id);
+  if(!b) return;
+  if(game.gold < b.price){notify('金币不足！');return;}
+  game.gold -= b.price;
+  if(!game.baits) game.baits = {basic:0};
+  game.baits[id] = (game.baits[id]||0) + 1;
+  notify('购买了 '+b.emoji+' '+b.name);
+  renderMarket();
+  saveGame(true);
+}
+
 function buyUpgrade(idx){
   let u = SHOP_UPGRADES[idx];
   let lv = game.stats[u.stat];
@@ -2165,6 +2444,7 @@ function buyUpgrade(idx){
   game.stats[u.stat]++;
   notify(u.name+' 升级到 Lv.'+game.stats[u.stat]);
   renderMarket();
+  saveGame(true);
 }
 function sellFishMarket(idx){
   sellFish(idx);
@@ -2276,43 +2556,316 @@ let onlineState = {connected:false, inPK:false, in5v5:false, opponent:null, batt
 
 function connectOnline(){
   if(ws && ws.readyState === WebSocket.OPEN){notify('已连接');return;}
-  let host = location.hostname||'localhost';
-  ws = new WebSocket('ws://'+host+':9001');
-  ws.onopen = ()=>{onlineState.connected=true;document.getElementById('onlineStatus').textContent='✅ 已连接';document.getElementById('onlineStatus').style.borderColor='#4f4';};
+  // 优先用 localStorage 配置的服务器地址
+  let url = localStorage.getItem('fishingServerUrl');
+  if(!url){
+    let host = location.hostname || 'localhost';
+    url = (location.protocol === 'https:' ? 'wss://' : 'ws://') + host + ':9001';
+  }
+  ws = new WebSocket(url);
+  ws.onopen = ()=>{onlineState.connected=true;document.getElementById('onlineStatus').textContent='✅ 已连接 '+url;document.getElementById('onlineStatus').style.borderColor='#4f4';};
   ws.onclose = ()=>{onlineState.connected=false;document.getElementById('onlineStatus').textContent='❌ 已断开';document.getElementById('onlineStatus').style.borderColor='#f44';};
   ws.onmessage = e=>{handleServerMsg(JSON.parse(e.data));};
-  ws.onerror = ()=>{notify('连接失败，请确保服务器已启动');};
+  ws.onerror = ()=>{notify('连接失败：'+url);};
+}
+
+function setServerUrl(){
+  let cur = localStorage.getItem('fishingServerUrl') || '';
+  let url = prompt('输入服务器地址（如 wss://your-server.com 或留空恢复默认）:', cur);
+  if(url === null) return;
+  if(url.trim() === '') localStorage.removeItem('fishingServerUrl');
+  else localStorage.setItem('fishingServerUrl', url.trim());
+  notify('已保存，重新连接');
+  if(ws){ ws.close(); ws=null; }
+}
+
+function saveServerUrl(){
+  let v = document.getElementById('serverUrlInput').value.trim();
+  if(v === '') localStorage.removeItem('fishingServerUrl');
+  else localStorage.setItem('fishingServerUrl', v);
+  notify('✅ 已保存 '+(v||'(自动)'));
+  if(ws){ try{ws.close();}catch(e){} ws=null; }
 }
 
 function handleServerMsg(msg){
   switch(msg.type){
     case 'pk_start':
-      onlineState.inPK = true;
-      notify('🎣 钓鱼PK开始！限时'+msg.duration+'秒');
       startPKMode(msg.duration, msg.scene);
       break;
     case 'pk_opponent_catch':
-      notify('对手钓到了 '+msg.fishName+'！');
+      pkState.opScore += msg.score || 0;
+      document.getElementById('pkOpScore').textContent = pkState.opScore;
+      notify('对手钓到了 '+msg.fishName+' (+'+(msg.score||0)+')');
       break;
     case 'pk_result':
-      onlineState.inPK = false;
-      showPKResult(msg);
-      break;
-    case 'battle_start':
-      onlineState.in5v5 = true;
-      onlineState.opponentTeam = msg.opponentTeam;
-      startBattle(msg);
-      break;
-    case 'battle_update':
-      updateBattle(msg);
+      endPKMode(msg);
       break;
     case 'waiting':
-      notify('等待对手中...');
+      notify(msg.msg || '等待对手中...');
       break;
     case 'error':
       notify('❌ '+msg.message);
+      if(pkState.active) endPKMode({winner:'opponent', myScore:pkState.myScore, opponentScore:0, reason:msg.message});
+      break;
+    // 旧模式兼容（无 UI 入口，仅吞掉避免 console 报错）
+    case 'battle_start': case 'battle_update':
+    case 'arena_start': case 'arena_opponent_gold': case 'arena_end':
       break;
   }
+}
+
+// ============== 钓鱼 PK ==============
+let pkState = {active:false, scene:null, duration:0, startTime:0, savedState:null, myScore:0, opScore:0, timerId:null};
+
+function showPKSetup(){
+  if(!onlineState.connected){
+    connectOnline();
+    // 等连上再打开
+    let tries = 0;
+    let waitConn = setInterval(()=>{
+      tries++;
+      if(onlineState.connected){
+        clearInterval(waitConn);
+        renderPKSetup();
+        showPanel('pkSetup');
+      } else if(tries > 30){
+        clearInterval(waitConn);
+        notify('❌ 连接超时，请检查服务器地址是否正确');
+      }
+    }, 200);
+    return;
+  }
+  renderPKSetup();
+  showPanel('pkSetup');
+}
+
+function renderPKSetup(){
+  document.getElementById('pkSceneGrid').innerHTML = SCENES.map(sc=>`
+    <div class="scene-card" onclick="pkJoin('${sc.id}')">
+      <div class="scene-emoji">${sc.emoji}</div>
+      <h4>${sc.name}</h4>
+      <p>${sc.desc}</p>
+    </div>`).join('');
+}
+
+function pkJoin(scene){
+  if(!ws || ws.readyState!==WebSocket.OPEN){notify('未连接');return;}
+  ws.send(JSON.stringify({type:'pk_join', scene, level:game.level}));
+  hidePanel('pkSetup');
+  notify('匹配中...');
+}
+
+function startPKMode(duration, scene){
+  // 备份并切换到 PK 状态
+  pkState.savedState = JSON.parse(JSON.stringify(game));
+  pkState.active = true;
+  pkState.scene = scene;
+  pkState.duration = duration;
+  pkState.startTime = Date.now();
+  pkState.myScore = 0;
+  pkState.opScore = 0;
+  game.currentScene = scene;
+  game._ambient = null;
+  game.fishingState = 'idle';
+  hidePanel('online');
+  let hud = document.getElementById('pkHud');
+  hud.style.display = 'flex';
+  document.getElementById('pkMyScore').textContent = 0;
+  document.getElementById('pkOpScore').textContent = 0;
+  notify('🎣 钓鱼 PK 开始！限时 '+duration+' 秒');
+  pkState.timerId = setInterval(updatePKTimer, 200);
+}
+
+function updatePKTimer(){
+  if(!pkState.active) return;
+  let remaining = Math.max(0, pkState.duration - (Date.now()-pkState.startTime)/1000);
+  let m = Math.floor(remaining/60), s = Math.floor(remaining%60);
+  document.getElementById('pkTimer').textContent = m+':'+String(s).padStart(2,'0');
+}
+
+// 钓上鱼时调用：上报积分
+function reportPKCatch(fish, weight, quality){
+  if(!pkState.active || !ws || ws.readyState!==WebSocket.OPEN) return;
+  let rarityMul = {common:1, rare:3, epic:8, legendary:20}[fish.rarity] || 1;
+  let score = Math.round(weight * 10 * quality * rarityMul);
+  pkState.myScore += score;
+  document.getElementById('pkMyScore').textContent = pkState.myScore;
+  ws.send(JSON.stringify({type:'pk_catch', score, fishName:fish.name}));
+}
+
+function pkQuit(){
+  if(!pkState.active) return;
+  if(!confirm('确定放弃？将判负。')) return;
+  endPKMode({winner:'opponent', myScore:pkState.myScore, opponentScore:pkState.opScore, reason:'你放弃了'});
+}
+
+function endPKMode(msg){
+  if(!pkState.active) return;
+  clearInterval(pkState.timerId);
+  document.getElementById('pkHud').style.display = 'none';
+  // 战绩
+  let stats = pkState.savedState.pkStats || {wins:0,losses:0,draws:0};
+  if(msg.winner==='you') stats.wins++;
+  else if(msg.winner==='opponent') stats.losses++;
+  else stats.draws++;
+  game = pkState.savedState;
+  game.pkStats = stats;
+  pkState.active = false; pkState.savedState = null;
+  // 弹窗
+  let titleEl = document.getElementById('pkResultTitle');
+  let bodyEl = document.getElementById('pkResultBody');
+  if(msg.winner==='you'){ titleEl.textContent='🏆 胜利！'; titleEl.style.color='#4aeadc'; }
+  else if(msg.winner==='opponent'){ titleEl.textContent='😢 失败'; titleEl.style.color='#f44'; }
+  else { titleEl.textContent='🤝 平局'; titleEl.style.color='#aaa'; }
+  let total = stats.wins+stats.losses+stats.draws;
+  let rate = total > 0 ? (stats.wins/total*100).toFixed(1) : '0.0';
+  bodyEl.innerHTML = `
+    ${msg.reason?`<div style="color:#aac">${msg.reason}</div>`:''}
+    <div style="margin:10px 0;font-size:1.2rem">
+      你: <b style="color:#4af">🏆 ${msg.myScore!=null?msg.myScore:pkState.myScore}</b>
+      vs
+      对手: <b style="color:#f66">🏆 ${msg.opponentScore!=null?msg.opponentScore:pkState.opScore}</b>
+    </div>
+    <div style="color:#4aeadc;margin-top:14px">战绩: ${stats.wins} 胜 / ${stats.losses} 负 / ${stats.draws} 平 · 胜率 <b>${rate}%</b></div>
+  `;
+  document.getElementById('pkResult').style.display = 'block';
+  saveGame(true);
+}
+
+function closePKResult(){
+  document.getElementById('pkResult').style.display = 'none';
+}
+
+function renderPKStatsBox(){
+  let el = document.getElementById('pkStatsBox');
+  if(!el) return;
+  let s = game?.pkStats || {wins:0,losses:0,draws:0};
+  let total = s.wins+s.losses+s.draws;
+  let rate = total>0 ? (s.wins/total*100).toFixed(1) : '0.0';
+  el.innerHTML = `<div style="color:#4aeadc;font-size:1.1rem">🎣 PK 战绩</div>
+    <div style="font-size:1rem;margin-top:6px">${s.wins} 胜 / ${s.losses} 负 / ${s.draws} 平 · 胜率 <b>${rate}%</b></div>`;
+}
+
+// ============== Arena 1v1 ==============
+let arena = {active:false, scene:null, duration:0, startTime:0, savedState:null, curGold:0, timerId:null, goldSyncId:null};
+
+function showArenaSetup(){
+  if(!onlineState.connected){notify('请先连接服务器');return;}
+  renderArenaSetup();
+  showPanel('arenaSetup');
+}
+
+function renderArenaSetup(){
+  let html = SCENES.map(sc=>`
+    <div class="scene-card" onclick="arenaJoin('${sc.id}')">
+      <div class="scene-emoji">${sc.emoji}</div>
+      <h4>${sc.name}</h4>
+      <p>${sc.desc}</p>
+    </div>`).join('');
+  document.getElementById('arenaSceneGrid').innerHTML = html;
+}
+
+function arenaJoin(scene){
+  if(!ws || ws.readyState!==WebSocket.OPEN){notify('未连接');return;}
+  ws.send(JSON.stringify({type:'arena_join', scene}));
+  hidePanel('arenaSetup');
+  notify('匹配中...');
+}
+
+function startArenaMatch(msg){
+  // 备份当前 game state，重置为竞技场初始值
+  arena.savedState = JSON.parse(JSON.stringify(game));
+  arena.active = true;
+  arena.scene = msg.scene;
+  arena.duration = msg.duration;
+  arena.startTime = Date.now();
+  arena.curGold = msg.startGold;
+  // 重置游戏状态
+  game.gold = msg.startGold;
+  game.stats = {speed:1, strength:1, bait:1, rod:1};
+  game.backpack = [];
+  game.items = [];
+  game.currentScene = msg.scene;
+  game._ambient = null;
+  game.fishingState = 'idle';
+  hidePanel('online');
+  document.getElementById('arenaHud').style.display = 'flex';
+  document.getElementById('arenaMyGold').textContent = msg.startGold;
+  document.getElementById('arenaOpGold').textContent = msg.startGold;
+  notify('⚔️ 竞技开始！3 分钟内赚更多金币！');
+  // 定时器
+  arena.timerId = setInterval(updateArenaTimer, 200);
+  arena.goldSyncId = setInterval(syncArenaGold, 1000);
+}
+
+function updateArenaTimer(){
+  if(!arena.active) return;
+  let remaining = Math.max(0, arena.duration - (Date.now()-arena.startTime)/1000);
+  let m = Math.floor(remaining/60), s = Math.floor(remaining%60);
+  document.getElementById('arenaTimer').textContent = m+':'+String(s).padStart(2,'0');
+  document.getElementById('arenaMyGold').textContent = game.gold;
+}
+
+function syncArenaGold(){
+  if(!arena.active || !ws || ws.readyState!==WebSocket.OPEN) return;
+  if(game.gold !== arena.curGold){
+    arena.curGold = game.gold;
+    ws.send(JSON.stringify({type:'arena_gold', gold:game.gold}));
+  }
+}
+
+function arenaQuit(){
+  if(!arena.active) return;
+  if(!confirm('确定放弃比赛？将判负。')) return;
+  if(ws && ws.readyState===WebSocket.OPEN) ws.send(JSON.stringify({type:'arena_quit'}));
+}
+
+function endArenaMatch(msg){
+  if(!arena.active) return;
+  clearInterval(arena.timerId); clearInterval(arena.goldSyncId);
+  document.getElementById('arenaHud').style.display = 'none';
+  // 统计胜负
+  if(!game.arenaStats) game.arenaStats = {wins:0,losses:0,draws:0};
+  // 恢复 game state
+  let stats = arena.savedState.arenaStats || {wins:0,losses:0,draws:0};
+  if(msg.winner==='you') stats.wins++;
+  else if(msg.winner==='opponent') stats.losses++;
+  else stats.draws++;
+  game = arena.savedState;
+  game.arenaStats = stats;
+  arena.active = false; arena.savedState = null;
+  // 弹窗结果
+  let titleEl = document.getElementById('arenaResultTitle');
+  let bodyEl = document.getElementById('arenaResultBody');
+  if(msg.winner==='you'){ titleEl.textContent='🏆 胜利！'; titleEl.style.color='#ffd700'; }
+  else if(msg.winner==='opponent'){ titleEl.textContent='😢 失败'; titleEl.style.color='#f44'; }
+  else { titleEl.textContent='🤝 平局'; titleEl.style.color='#aaa'; }
+  let rate = stats.wins+stats.losses+stats.draws > 0 ? (stats.wins/(stats.wins+stats.losses+stats.draws)*100).toFixed(1) : '0.0';
+  bodyEl.innerHTML = `
+    <div>${msg.reason||''}</div>
+    <div style="margin:10px 0;font-size:1.2rem">
+      你: <b style="color:#4af">💰${msg.myGold||game.gold}</b>
+      vs
+      对手: <b style="color:#f66">💰${msg.opponentGold||0}</b>
+    </div>
+    <div style="color:#ffd700;margin-top:14px">战绩: ${stats.wins} 胜 / ${stats.losses} 负 / ${stats.draws} 平 · 胜率 <b>${rate}%</b></div>
+  `;
+  document.getElementById('arenaResult').style.display = 'block';
+  saveGame(true);
+}
+
+function closeArenaResult(){
+  document.getElementById('arenaResult').style.display = 'none';
+}
+
+function renderArenaStatsBox(){
+  let el = document.getElementById('arenaStatsBox');
+  if(!el) return;
+  let s = game?.arenaStats || {wins:0,losses:0,draws:0};
+  let total = s.wins+s.losses+s.draws;
+  let rate = total>0 ? (s.wins/total*100).toFixed(1) : '0.0';
+  el.innerHTML = `<div style="color:#ffd700;font-size:1.1rem">⚔️ 竞技场战绩</div>
+    <div style="font-size:1rem;margin-top:6px">${s.wins} 胜 / ${s.losses} 负 / ${s.draws} 平 · 胜率 <b>${rate}%</b></div>`;
 }
 
 function startPK(){
@@ -2442,22 +2995,6 @@ function battleAttack(){
   }
 }
 
-// ============== PK模式 ==============
-let pkTimer = 0;
-let pkScore = 0;
-
-function startPKMode(duration, scene){
-  pkTimer = duration;
-  pkScore = 0;
-  game.currentScene = scene;
-  hidePanel('online');
-}
-
-function showPKResult(msg){
-  let result = msg.winner === 'you' ? '🎉 你赢了！' : msg.winner === 'tie' ? '🤝 平局' : '😢 你输了';
-  notify(result + ' 你:'+msg.myScore+' 对手:'+msg.opponentScore);
-}
-
 // ============== 游戏结束 ==============
 function gameOverScreen(){
   notify('💀 你倒下了... 饥饿和口渴夺走了你的意识');
@@ -2470,7 +3007,7 @@ function gameOverScreen(){
 
 // ============== UI工具 ==============
 function showPanel(name){
-  let panelMap = {backpack:'backpackPanel',market:'marketPanel',aquarium:'aquariumPanel',scenes:'scenesPanel',online:'onlinePanel',battleSelect:'battleSelectPanel',battle:'battlePanel',help:'helpPanel',onlineMenu:'onlinePanel',dex:'dexPanel'};
+  let panelMap = {backpack:'backpackPanel',market:'marketPanel',aquarium:'aquariumPanel',scenes:'scenesPanel',online:'onlinePanel',battleSelect:'battleSelectPanel',battle:'battlePanel',help:'helpPanel',onlineMenu:'onlinePanel',dex:'dexPanel',pkSetup:'pkSetupPanel',bait:'baitPanel'};
   let el = document.getElementById(panelMap[name]);
   if(el){el.classList.add('active');}
   if(name==='backpack') renderBackpack();
@@ -2478,11 +3015,70 @@ function showPanel(name){
   if(name==='aquarium') renderAquarium();
   if(name==='scenes') renderScenes();
   if(name==='dex') renderDex();
+  if(name==='bait') renderBaitPicker();
+  if(name==='online' || name==='onlineMenu'){
+    renderPKStatsBox();
+    let inp = document.getElementById('serverUrlInput');
+    if(inp) inp.value = localStorage.getItem('fishingServerUrl') || '';
+  }
 }
 function hidePanel(name){
-  let panelMap = {backpack:'backpackPanel',market:'marketPanel',aquarium:'aquariumPanel',scenes:'scenesPanel',online:'onlinePanel',battleSelect:'battleSelectPanel',battle:'battlePanel',help:'helpPanel',dex:'dexPanel'};
+  let panelMap = {backpack:'backpackPanel',market:'marketPanel',aquarium:'aquariumPanel',scenes:'scenesPanel',online:'onlinePanel',battleSelect:'battleSelectPanel',battle:'battlePanel',help:'helpPanel',dex:'dexPanel',pkSetup:'pkSetupPanel',bait:'baitPanel'};
   let el = document.getElementById(panelMap[name]);
   if(el) el.classList.remove('active');
+}
+
+function showBaitPicker(){ showPanel('bait'); }
+
+function renderBaitPicker(){
+  let el = document.getElementById('baitList');
+  if(!game.baits) game.baits = {basic:0};
+  el.innerHTML = BAITS.map(b=>{
+    let owned = game.baits[b.id] || 0;
+    let sel = game.currentBait === b.id;
+    let dis = owned <= 0;
+    return `<div class="item-card" style="cursor:${dis?'not-allowed':'pointer'};opacity:${dis?0.5:1};border-color:${sel?'#ffd700':''};background:${sel?'rgba(255,215,0,.1)':''}" onclick="${dis?'':`selectBait('${b.id}')`}">
+      <div class="emoji">${b.emoji}</div>
+      <div class="name">${b.name} ${sel?'✓':''}</div>
+      <div class="detail">库存 <b style="color:${owned>0?'#4f4':'#f44'}">${owned}</b></div>
+      <div class="detail" style="color:#aac">${b.desc}</div>
+    </div>`;
+  }).join('');
+}
+
+function selectBait(id){
+  if(!game.baits || !game.baits[id]){notify('库存不足');return;}
+  game.currentBait = id;
+  notify('已选择 '+BAITS.find(b=>b.id===id).emoji+' '+BAITS.find(b=>b.id===id).name);
+  renderBaitPicker();
+  updateBaitHUD();
+}
+
+function updateBaitHUD(){
+  let id = game.currentBait || 'basic';
+  let b = BAITS.find(x=>x.id===id) || BAITS[0];
+  let owned = (game.baits && game.baits[id]) || 0;
+  let iconEl = document.getElementById('hudBaitIcon');
+  let cntEl = document.getElementById('hudBaitCount');
+  if(iconEl) iconEl.textContent = b.emoji;
+  if(cntEl){ cntEl.textContent = 'x'+owned; cntEl.style.color = owned<=0?'#f44':(owned<=3?'#fa0':'#ffd700'); }
+}
+
+function consumeBait(){
+  // 钓鱼时消耗 1 个饵料；若当前饵无库存，回退到 basic（basic 也没就免费补 1 个）
+  if(!game.baits) game.baits = {};
+  let id = game.currentBait || 'basic';
+  if((game.baits[id]||0) <= 0){
+    // 没库存：尝试切回 basic
+    if((game.baits.basic||0) <= 0){
+      game.baits.basic = 1;
+      notify('🪱 紧急补给：免费给你 1 个普通蚯蚓');
+    }
+    game.currentBait = id = 'basic';
+  }
+  game.baits[id]--;
+  updateBaitHUD();
+  return id;
 }
 function hideAllPanels(){
   document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
