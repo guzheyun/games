@@ -67,7 +67,7 @@ canvas{display:block;position:absolute;top:0;left:0}
 /* 钓鱼结果弹窗 */
 #catchResult{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);padding:36px 48px;background:linear-gradient(160deg,rgba(20,40,70,.97),rgba(10,22,40,.97));border:3px solid #4aeadc;border-radius:24px;z-index:55;display:none;text-align:center;min-width:420px;box-shadow:0 0 60px rgba(74,234,220,.4),0 20px 60px rgba(0,0,0,.7)}
 #catchResult h3{font-size:2.2rem;margin-bottom:14px;text-shadow:0 0 20px currentColor}
-#catchResult canvas.fish-canvas{display:block;margin:14px auto;background:radial-gradient(ellipse at center,rgba(74,234,220,.15),transparent);border-radius:16px}
+#catchResult canvas.fish-canvas{display:block;margin:14px auto}
 #catchResult .fish-info{margin:14px 0;line-height:2;font-size:1.05rem}
 #catchResult .rarity-common{color:#ccc}
 #catchResult .rarity-rare{color:#4a9eff}
@@ -833,7 +833,7 @@ function processFishImg(img){
     for(let y=0;y<h;y++){ if(d[(y*w+x)*4+3]>100){ if(top<0)top=y; bot=y; }}
     if(top>=0) rightH += bot-top;
   }
-  cv.facingRight = rightH >= leftH;
+  cv.facingRight = true; // 启发式不准，统一按朝右处理
 
   // 裁剪到主体包围盒（消除矩形边界 + 紧凑包围）
   let minX=w, minY=h, maxX=0, maxY=0;
@@ -1387,17 +1387,42 @@ function drawGame(){
   skyGrad.addColorStop(1,sc.skyColor2);
   ctx.fillStyle=skyGrad; ctx.fillRect(0,0,w,h*0.5);
 
-  // === 太阳/月亮 + 云 ===
+  // 太阳/月亮 + 光晕
   let sunX = w*0.78, sunY = h*0.18;
-  let sunGrad = ctx.createRadialGradient(sunX,sunY,5,sunX,sunY,80);
-  if(isDeep){
-    sunGrad.addColorStop(0,'#e0e0ff'); sunGrad.addColorStop(0.3,'#9999cc'); sunGrad.addColorStop(1,'rgba(150,150,200,0)');
+  let isMoon = isDeep;
+  // 外晕（柔光）
+  let halo = ctx.createRadialGradient(sunX,sunY,10,sunX,sunY,180);
+  if(isMoon){
+    halo.addColorStop(0,'rgba(220,230,255,.45)');
+    halo.addColorStop(0.4,'rgba(180,200,240,.15)');
+    halo.addColorStop(1,'rgba(150,180,220,0)');
   } else {
-    sunGrad.addColorStop(0,'#fffce8'); sunGrad.addColorStop(0.3,'#ffe070'); sunGrad.addColorStop(1,'rgba(255,200,80,0)');
+    halo.addColorStop(0,'rgba(255,240,180,.55)');
+    halo.addColorStop(0.3,'rgba(255,210,130,.25)');
+    halo.addColorStop(0.7,'rgba(255,180,80,.08)');
+    halo.addColorStop(1,'rgba(255,160,60,0)');
   }
-  ctx.fillStyle=sunGrad; ctx.fillRect(sunX-100,sunY-100,200,200);
-  ctx.beginPath(); ctx.arc(sunX,sunY,32,0,Math.PI*2);
-  ctx.fillStyle=isDeep?'#cdd':'#fff5c0'; ctx.fill();
+  ctx.fillStyle=halo; ctx.fillRect(sunX-220,sunY-220,440,440);
+  // 内核
+  let core = ctx.createRadialGradient(sunX-8,sunY-8,2,sunX,sunY,36);
+  if(isMoon){
+    core.addColorStop(0,'#ffffff');
+    core.addColorStop(0.5,'#e8edff');
+    core.addColorStop(1,'#aab8d8');
+  } else {
+    core.addColorStop(0,'#fffce8');
+    core.addColorStop(0.6,'#ffe070');
+    core.addColorStop(1,'#ffae3a');
+  }
+  ctx.fillStyle=core;
+  ctx.beginPath(); ctx.arc(sunX,sunY,32,0,Math.PI*2); ctx.fill();
+  // 月球环形山
+  if(isMoon){
+    ctx.fillStyle='rgba(150,160,190,.35)';
+    [[5,-8,4],[-10,2,5],[8,10,3],[-4,-12,3],[12,-2,2.5]].forEach(([dx,dy,r])=>{
+      ctx.beginPath(); ctx.arc(sunX+dx,sunY+dy,r,0,Math.PI*2); ctx.fill();
+    });
+  }
 
   // 云
   if(!isDeep){
@@ -1405,7 +1430,7 @@ function drawGame(){
     for(let i=0;i<5;i++){
       let cx = ((t*8+i*350)%(w+200))-100;
       let cy = 40+i*30;
-      drawCloud(cx,cy,60+i*15);
+      drawCloud(cx,cy,40+i*12, i*73+13);
     }
   } else {
     // 深海星空气泡
@@ -1570,13 +1595,126 @@ function shadeColor(hex, percent){
   return '#'+((r<<16)|(g<<8)|b).toString(16).padStart(6,'0');
 }
 
-function drawCloud(x,y,size){
+// seeded random（保证同一朵云每帧形状一致）
+function srand(seed){
+  let s = seed|0;
+  return function(){ s = (s*1664525 + 1013904223)|0; return ((s>>>0)/4294967296); };
+}
+
+function drawCloud(x,y,size,seed){
+  let rng = srand(seed||(x*131+y*7|0));
+  ctx.save();
+  // 1) 形状：随机 5-9 个 puff，半径不一，沿一个略扁的椭圆带分布
+  let n = 6 + (rng()*4|0);
+  let aspect = 1.6 + rng()*1.4;   // 横宽比，1.6~3.0
+  let puffs = [];
+  for(let i=0;i<n;i++){
+    let u = i/(n-1);
+    // 基础位置沿椭圆带
+    let px = u * size * aspect;
+    let pyJitter = (rng()-0.5) * size * 0.35;
+    // 中央 puff 大、两端小
+    let weight = Math.sin(u*Math.PI);
+    let r = size * (0.22 + weight*0.30 + rng()*0.08);
+    puffs.push([px, pyJitter, r]);
+  }
+  // 中心化
+  let totalW = size*aspect;
+  for(let p of puffs) p[0] -= totalW/2;
+  // 阴影层（暗灰，向下偏移，形成 puff 自身的柔影）
+  ctx.fillStyle = 'rgba(170,185,210,.7)';
+  for(let [dx,dy,r] of puffs){
+    ctx.beginPath();
+    ctx.arc(x+dx, y+dy+r*0.18, r*1.02, 0, Math.PI*2);
+    ctx.fill();
+  }
+  // 4) 主体白
+  ctx.fillStyle = 'rgba(252,253,255,.97)';
+  for(let [dx,dy,r] of puffs){
+    ctx.beginPath();
+    ctx.arc(x+dx, y+dy, r, 0, Math.PI*2);
+    ctx.fill();
+  }
+  // 5) 顶部高光（偏左上）
+  ctx.fillStyle = 'rgba(255,255,255,.85)';
+  for(let [dx,dy,r] of puffs){
+    ctx.beginPath();
+    ctx.arc(x+dx-r*0.15, y+dy-r*0.4, r*0.55, 0, Math.PI*2);
+    ctx.fill();
+  }
+  ctx.restore();
+}
+
+// 程序化绘制树：递归分枝 + 多 puff 树叶
+function drawTree(cx, baseY, height, seed){
+  let rng = srand(seed||(cx*17+baseY*3|0));
+  // 树干
+  let trunkH = height * 0.32;
+  let trunkW = Math.max(3, height * 0.06);
+  let tg = ctx.createLinearGradient(cx-trunkW/2, 0, cx+trunkW/2, 0);
+  tg.addColorStop(0,'#2a1808'); tg.addColorStop(0.5,'#5a3818'); tg.addColorStop(1,'#1a0e04');
+  ctx.fillStyle = tg;
+  // 树干带微弯
   ctx.beginPath();
-  ctx.arc(x,y,size*0.4,0,Math.PI*2);
-  ctx.arc(x+size*0.35,y-size*0.1,size*0.35,0,Math.PI*2);
-  ctx.arc(x+size*0.6,y,size*0.4,0,Math.PI*2);
-  ctx.arc(x+size*0.25,y+size*0.1,size*0.3,0,Math.PI*2);
+  ctx.moveTo(cx-trunkW/2, baseY);
+  ctx.quadraticCurveTo(cx-trunkW*0.3, baseY-trunkH*0.5, cx-trunkW*0.4, baseY-trunkH);
+  ctx.lineTo(cx+trunkW*0.4, baseY-trunkH);
+  ctx.quadraticCurveTo(cx+trunkW*0.3, baseY-trunkH*0.5, cx+trunkW/2, baseY);
   ctx.fill();
+
+  // 树枝（左右各 2-3 条）
+  function drawBranch(x0, y0, ang, len, w){
+    if(len < 4) return;
+    let x1 = x0 + Math.cos(ang)*len;
+    let y1 = y0 + Math.sin(ang)*len;
+    ctx.strokeStyle = '#3a2410';
+    ctx.lineWidth = w;
+    ctx.lineCap = 'round';
+    ctx.beginPath(); ctx.moveTo(x0,y0); ctx.lineTo(x1,y1); ctx.stroke();
+    if(len > 8 && rng() < 0.7){
+      drawBranch(x1, y1, ang-0.3-rng()*0.3, len*0.6, w*0.6);
+      drawBranch(x1, y1, ang+0.3+rng()*0.3, len*0.6, w*0.6);
+    }
+  }
+  let branchY = baseY - trunkH*0.65;
+  let nBranches = 3 + (rng()*2|0);
+  for(let i=0;i<nBranches;i++){
+    let side = (i%2===0)?-1:1;
+    drawBranch(cx, branchY - i*trunkH*0.15, -Math.PI/2 + side*(0.5+rng()*0.5), height*0.22, trunkW*0.5);
+  }
+
+  // 树冠：多层有机叶团
+  let crownCY = baseY - trunkH - height*0.20;
+  let crownW = height * 0.40;
+  let crownH = height * 0.45;
+  // 暗层
+  let leafLayers = [
+    {color:'#0e2810', dy: height*0.04, scale:1.02, alpha:1},
+    {color:'#1d4318', dy: 0,           scale:1.0,  alpha:1},
+    {color:'#2f6a26', dy:-height*0.04, scale:0.85, alpha:1},
+    {color:'#4a9038', dy:-height*0.10, scale:0.62, alpha:0.95},
+    {color:'#74c150', dy:-height*0.15, scale:0.36, alpha:0.85}  // 顶部高光绿
+  ];
+  for(let layer of leafLayers){
+    ctx.globalAlpha = layer.alpha;
+    ctx.fillStyle = layer.color;
+    let cy = crownCY + layer.dy;
+    let ww = crownW * layer.scale;
+    let hh = crownH * layer.scale;
+    // 撒 ~14 个不同大小不规则的叶团
+    let nP = 14;
+    for(let i=0;i<nP;i++){
+      let ang = rng()*Math.PI*2;
+      let dist = Math.pow(rng(), 0.55);
+      let px = Math.cos(ang) * ww * dist;
+      let py = Math.sin(ang) * hh * dist * 0.85;
+      let r = ww * (0.18 + rng()*0.18);
+      ctx.beginPath();
+      ctx.arc(cx+px, cy+py, r, 0, Math.PI*2);
+      ctx.fill();
+    }
+  }
+  ctx.globalAlpha = 1;
 }
 
 function drawScenery(sc, w, h, t){
@@ -1589,20 +1727,24 @@ function drawScenery(sc, w, h, t){
   }
   let y = h*0.5;
   if(sc.id==='pond'){
-    // 远树林
-    ctx.fillStyle='#2a5a3a';
-    for(let i=0;i<w/30;i++){
-      let tx=i*30, th=40+Math.sin(i*1.7)*15;
-      ctx.beginPath(); ctx.arc(tx,y-th/2,th/2,0,Math.PI*2); ctx.fill();
-      ctx.fillRect(tx-2,y-th/2,4,th/2);
+    // 远景树林（真实树形）
+    ctx.fillStyle='#1a3818';
+    ctx.fillRect(0,y-12,w,12);
+    let seeds = [];
+    for(let i=0;i<14;i++){
+      let tx = (i+0.5) * w/14 + Math.sin(i*1.7)*8;
+      let th = 55 + Math.abs(Math.sin(i*2.3))*40 + (i%3)*8;
+      seeds.push([tx, th]);
     }
-    ctx.fillStyle='#1a4a2a';
-    ctx.fillRect(0,y-15,w,15);
+    // 按高度从大到小画（高的在远处，但 baseY 一致；保持自然遮挡）
+    for(let [tx,th] of seeds){
+      drawTree(tx, y-2, th, (tx*97+th*5)|0);
+    }
     // 芦苇
-    ctx.strokeStyle='#3a6a3a'; ctx.lineWidth=1;
-    for(let i=0;i<20;i++){
-      let rx=(i*73)%w, ry=y-10;
-      ctx.beginPath(); ctx.moveTo(rx,ry); ctx.quadraticCurveTo(rx+Math.sin(t+i)*4,ry-20,rx+Math.sin(t+i)*8,ry-35); ctx.stroke();
+    ctx.strokeStyle='#3a6a3a'; ctx.lineWidth=1.5;
+    for(let i=0;i<24;i++){
+      let rx=(i*53+11)%w, ry=y-8;
+      ctx.beginPath(); ctx.moveTo(rx,ry); ctx.quadraticCurveTo(rx+Math.sin(t+i)*4,ry-22,rx+Math.sin(t+i)*9,ry-38); ctx.stroke();
     }
   } else if(sc.id==='river'){
     // 远山
@@ -1783,6 +1925,54 @@ function fishPalette(fish){
   return palette;
 }
 
+// 把鱼贴图按 N 段垂直切片画到目标矩形，每段沿正弦曲线弯曲（位移+旋转），模拟身体波形游动
+function drawFishMesh(ctx, img, cx, cy, drawSize, flip, tilt, t, phase){
+  let iw = img.width, ih = img.height;
+  let dw = drawSize, dh = drawSize;
+  let SEG = 28;
+  let segW = dw / SEG;
+  let srcSegW = iw / SEG;
+  // 波形：从头(右,u=1)向尾(左,u=0)传播
+  let speed = 3.2;
+  let waveLen = Math.PI*1.3;
+  let baseAmp = dh * 0.012;
+  let tailAmp = dh * 0.085;
+  ctx.save();
+  ctx.translate(cx, cy);
+  ctx.rotate(tilt||0);
+  if(flip) ctx.scale(-1, 1);
+  // 预计算每段中心位移，便于估斜率
+  function offsetAt(u){
+    // u: 沿鱼身的归一化位置，0=尾 1=头
+    let amp = baseAmp + (tailAmp - baseAmp) * Math.pow(1-u, 1.5);
+    return Math.sin(t*speed - u*waveLen + phase) * amp;
+  }
+  for(let i=0;i<SEG;i++){
+    let u0 = i/SEG;
+    let u1 = (i+1)/SEG;
+    let uMid = (u0+u1)/2;
+    let y0 = offsetAt(u0);
+    let y1 = offsetAt(u1);
+    let yMid = (y0+y1)/2;
+    // 段的斜率 → 局部旋转
+    let slope = (y1 - y0) / segW;     // dy/dx
+    let ang = Math.atan(slope);
+    // 段中心 x（目标坐标系）
+    let dxCenter = -dw/2 + (i+0.5)*segW;
+    // 源矩形
+    let sx = i * srcSegW;
+    ctx.save();
+    ctx.translate(dxCenter, yMid);
+    ctx.rotate(ang);
+    // 以段中心为原点画，长度=segW+overlap，高度=dh
+    ctx.drawImage(img,
+      sx, 0, srcSegW + 0.6, ih,
+      -segW/2 - 0.3, -dh/2, segW + 0.6, dh);
+    ctx.restore();
+  }
+  ctx.restore();
+}
+
 function drawFish(ctx, fishId, x, y, size, angle, t){
   let fish = FISH_DATA[fishId]; if(!fish) return;
   let wantFaceLeft = (angle||0) === Math.PI; // 想让鱼朝左游
@@ -1791,16 +1981,11 @@ function drawFish(ctx, fishId, x, y, size, angle, t){
 
   let img = getFishImg(fishId);
   if(img){
-    let imgFacingRight = img.facingRight !== false; // 默认朝右
-    // 想朝左 + 图朝右 = 翻转；想朝右 + 图朝左 = 翻转
+    let imgFacingRight = img.facingRight !== false;
     let flip = (wantFaceLeft === imgFacingRight);
-    ctx.save();
-    ctx.translate(x, y + bob);
-    ctx.rotate(bodyTilt * (wantFaceLeft?-1:1));
-    if(flip) ctx.scale(-1, 1);
     let drawSize = size*2.4;
-    ctx.drawImage(img, -drawSize/2, -drawSize/2, drawSize, drawSize);
-    ctx.restore();
+    let phase = (fishId * 0.37) % (Math.PI*2);
+    drawFishMesh(ctx, img, x, y + bob, drawSize, flip, bodyTilt * (wantFaceLeft?-1:1), t, phase);
     return;
   }
   let p = fishPalette(fish);
@@ -2423,23 +2608,6 @@ function updateReeling(dt){
 
 function finishReeling(success, reason){
   let h = document.getElementById('fishStaminaHud'); if(h) h.style.display = 'none';
-  let fish = FISH_DATA[game.reelFishId];El = document.getElementById('fishStaminaText');
-  if(sTextEl) sTextEl.textContent = Math.round(hpPct)+'% 体力';
-
-  let tPct = game.reelTension / game.reelLineMax * 100;
-  let tEl = document.getElementById('lineTensionFill');
-  if(tEl){
-    tEl.style.width = Math.min(100, tPct)+'%';
-    tEl.style.background = tPct<50?'linear-gradient(90deg,#4af,#8cf)':tPct<80?'linear-gradient(90deg,#fa0,#fd6)':'linear-gradient(90deg,#f44,#f66)';
-  }
-  let tTextEl = document.getElementById('lineTensionText');
-  if(tTextEl) tTextEl.textContent = '线张力 '+Math.round(tPct)+'%';
-
-  game.reelProgress = (1 - game.reelFishHp/game.reelFishMaxHp) * 100;
-}
-
-function finishReeling(success, reason){
-  let h = document.getElementById('fishStaminaHud'); if(h) h.style.display = 'none';
   let fish = FISH_DATA[game.reelFishId];
   if(success){
     let bait = game._castBait || 'basic';
@@ -2830,7 +2998,7 @@ function renderDex(){
       let stars = '★'.repeat(rec.maxQuality)+'☆'.repeat(5-rec.maxQuality);
       return `<div class="aquarium-card collected" onclick="dexShow(${f.id})">
         <div class="rarity-badge" style="background:${rarityColor};color:#fff">${rarityName}</div>
-        <canvas class="dex-fish-canvas" data-fish-id="${f.id}" width="100" height="60" style="display:block;margin:0 auto;background:radial-gradient(ellipse,rgba(74,234,220,.12),transparent)"></canvas>
+        <canvas class="dex-fish-canvas" data-fish-id="${f.id}" width="100" height="60" style="display:block;margin:0 auto"></canvas>
         <div style="font-weight:bold;color:${rarityColor};margin-top:4px">${f.name}</div>
         <div style="font-size:.75rem;color:#aac">${f.desc}</div>
         <div style="color:#ffd700;font-size:.85rem">${stars}</div>
@@ -3420,6 +3588,611 @@ function showPowerBar(){document.getElementById('powerBar').style.display='block
 function hidePowerBar(){document.getElementById('powerBar').style.display='none';}
 function setTip(t){let el=document.getElementById('fishingTip');el.textContent=t;el.style.display='block';}
 function hideTip(){document.getElementById('fishingTip').style.display='none';}
+
+// ====================================================================
+// ================== v2 ENHANCEMENT MODULE ==========================
+// 连击 / 天气 / 每日任务 / 成就 / Boss / 飘字 / 震动 / 张力警告 / 音效
+// ====================================================================
+
+// -------- WebAudio 音效 --------
+let _ac = null;
+function audio(){
+  if(_ac) return _ac;
+  try { _ac = new (window.AudioContext||window.webkitAudioContext)(); } catch(e){}
+  return _ac;
+}
+function beep(freq, dur, type, vol){
+  let ac = audio(); if(!ac) return;
+  if(ac.state === 'suspended') try{ac.resume();}catch(e){}
+  let o = ac.createOscillator(), g = ac.createGain();
+  o.type = type||'sine'; o.frequency.value = freq;
+  g.gain.value = 0;
+  let t = ac.currentTime;
+  g.gain.linearRampToValueAtTime(vol||0.15, t+0.01);
+  g.gain.exponentialRampToValueAtTime(0.0001, t+dur);
+  o.connect(g); g.connect(ac.destination);
+  o.start(t); o.stop(t+dur+0.02);
+}
+function sfx(name){
+  switch(name){
+    case 'cast':    beep(220, 0.18, 'triangle', 0.12); break;
+    case 'bite':    beep(880, 0.08, 'square', 0.18); setTimeout(()=>beep(1100,0.08,'square',0.18),90); break;
+    case 'hook':    beep(660, 0.12, 'sawtooth', 0.18); break;
+    case 'reel':    beep(180, 0.06, 'square', 0.06); break;
+    case 'shock':   beep(1500,0.05,'square',0.2); beep(2200,0.05,'sawtooth',0.15); break;
+    case 'catch':   beep(523,0.1,'sine',0.2); setTimeout(()=>beep(659,0.1,'sine',0.2),100); setTimeout(()=>beep(784,0.18,'sine',0.22),200); break;
+    case 'legend':  for(let i=0;i<6;i++) setTimeout(()=>beep(523+i*80,0.15,'triangle',0.18),i*90); break;
+    case 'fail':    beep(220,0.18,'sawtooth',0.15); setTimeout(()=>beep(165,0.25,'sawtooth',0.15),120); break;
+    case 'levelup': for(let i=0;i<4;i++) setTimeout(()=>beep([523,659,784,1047][i],0.15,'triangle',0.2),i*100); break;
+    case 'achieve': beep(880,0.1,'triangle',0.18); setTimeout(()=>beep(1175,0.18,'triangle',0.2),100); break;
+    case 'snap':    beep(120,0.4,'sawtooth',0.25); break;
+    case 'warn':    beep(440,0.06,'square',0.12); break;
+  }
+}
+
+// -------- 屏幕震动 --------
+let _shake = {t:0, mag:0};
+function shake(mag, dur){ _shake.mag = Math.max(_shake.mag, mag); _shake.t = Math.max(_shake.t, dur||0.3); }
+(function patchDrawGame(){
+  let orig = window.drawGame;
+  window.drawGame = function(){
+    if(_shake.t > 0){
+      let dx = (Math.random()-0.5)*_shake.mag;
+      let dy = (Math.random()-0.5)*_shake.mag;
+      ctx.save(); ctx.translate(dx, dy);
+      orig(); ctx.restore();
+      // 衰减（用 16ms 估算）
+      let dt = 0.016;
+      _shake.t -= dt;
+      _shake.mag *= 0.88;
+      if(_shake.t <= 0){ _shake.t = 0; _shake.mag = 0; }
+    } else orig();
+    // 飘字层
+    drawFloaters();
+    // 张力警告红边
+    drawTensionWarning();
+    // 天气覆盖层
+    drawWeatherOverlay();
+    // Boss 来袭闪烁
+    drawBossAlert();
+  };
+})();
+
+// -------- 飘字 --------
+let _floats = []; // {text,color,x,y,vx,vy,life,maxLife,scale}
+function floatText(text, x, y, opts){
+  opts = opts||{};
+  _floats.push({
+    text, x, y,
+    vx: opts.vx||0,
+    vy: opts.vy || -50,
+    life: opts.life || 1.4,
+    maxLife: opts.life || 1.4,
+    color: opts.color || '#ffd700',
+    scale: opts.scale || 1,
+    bold: opts.bold !== false
+  });
+  if(_floats.length > 60) _floats.splice(0, _floats.length-60);
+}
+function drawFloaters(){
+  let dt = 0.016;
+  for(let f of _floats){
+    f.x += f.vx*dt; f.y += f.vy*dt; f.vy += 30*dt; f.life -= dt;
+  }
+  _floats = _floats.filter(f=>f.life>0);
+  ctx.save();
+  ctx.textAlign='center'; ctx.textBaseline='middle';
+  for(let f of _floats){
+    let a = Math.min(1, f.life*2);
+    let s = f.scale * (1 + (1-f.life/f.maxLife)*0.3);
+    ctx.globalAlpha = a;
+    ctx.font = (f.bold?'bold ':'')+(16*s|0)+'px "Microsoft YaHei", sans-serif';
+    ctx.lineWidth = 3; ctx.strokeStyle = 'rgba(0,0,0,.7)';
+    ctx.strokeText(f.text, f.x, f.y);
+    ctx.fillStyle = f.color;
+    ctx.fillText(f.text, f.x, f.y);
+  }
+  ctx.globalAlpha = 1;
+  ctx.restore();
+}
+
+function drawTensionWarning(){
+  if(!game || game.fishingState !== 'reeling') return;
+  let pct = (game.reelTension||0) / (game.reelLineMax||1);
+  if(pct < 0.75) return;
+  let intensity = (pct-0.75)/0.25;
+  let pulse = 0.5 + 0.5*Math.sin(game.time*15);
+  let alpha = intensity * (0.25 + pulse*0.3);
+  let w = canvas.width, h = canvas.height;
+  let g = ctx.createRadialGradient(w/2,h/2, Math.min(w,h)*0.3, w/2,h/2, Math.max(w,h)*0.7);
+  g.addColorStop(0, 'rgba(255,40,40,0)');
+  g.addColorStop(1, `rgba(255,40,40,${alpha})`);
+  ctx.fillStyle = g; ctx.fillRect(0,0,w,h);
+  if(pct >= 0.9 && (game._warnT||0) < game.time - 0.25){
+    sfx('warn'); game._warnT = game.time;
+  }
+}
+
+// -------- 天气 --------
+const WEATHERS = [
+  {id:'sunny', name:'晴',   emoji:'☀️',  biteMul:1.0, rareBonus:0,  desc:'风和日丽'},
+  {id:'cloudy',name:'多云', emoji:'⛅',  biteMul:1.1, rareBonus:0.2,desc:'适合垂钓'},
+  {id:'rain',  name:'雨',   emoji:'🌧️', biteMul:0.7, rareBonus:0.5,desc:'鱼更活跃，咬钩快'},
+  {id:'storm', name:'暴风雨',emoji:'⛈️', biteMul:0.5, rareBonus:1.2,desc:'传说出没的时刻'},
+  {id:'fog',   name:'雾',   emoji:'🌫️', biteMul:1.3, rareBonus:0.1,desc:'视野模糊'},
+  {id:'night', name:'夜晚', emoji:'🌙',  biteMul:0.9, rareBonus:0.8,desc:'夜行性鱼出没'}
+];
+function curWeather(){ return WEATHERS.find(w=>w.id===(game?._weatherId||'sunny')) || WEATHERS[0]; }
+function rollWeather(){
+  let r = Math.random();
+  // 概率：晴35 多云25 雨15 暴10 雾10 夜5
+  let table = [['sunny',0.35],['cloudy',0.25],['rain',0.15],['storm',0.10],['fog',0.10],['night',0.05]];
+  let acc = 0;
+  for(let [id,p] of table){ acc+=p; if(r<=acc){ return id; } }
+  return 'sunny';
+}
+function tickWeather(){
+  if(!game) return;
+  if(!game._weatherId){ game._weatherId = rollWeather(); game._weatherStart = game.time; pushWeatherToast(); }
+  if(game.time - (game._weatherStart||0) > 180){
+    let prev = game._weatherId;
+    game._weatherId = rollWeather();
+    game._weatherStart = game.time;
+    if(prev !== game._weatherId) pushWeatherToast();
+  }
+}
+function pushWeatherToast(){
+  let w = curWeather();
+  notify(`${w.emoji} 天气变化：${w.name} — ${w.desc}`);
+}
+function drawWeatherOverlay(){
+  if(!game) return;
+  let w = canvas.width, h = canvas.height, t = game.time;
+  let wt = curWeather();
+  if(wt.id==='rain' || wt.id==='storm'){
+    ctx.save();
+    let count = wt.id==='storm'?180:110;
+    ctx.strokeStyle = 'rgba(180,210,255,.45)';
+    ctx.lineWidth = 1.2;
+    ctx.beginPath();
+    for(let i=0;i<count;i++){
+      let x = ((i*53 + t*400) % (w+100)) - 50;
+      let y = ((i*97 + t*900) % h);
+      ctx.moveTo(x, y); ctx.lineTo(x-6, y+14);
+    }
+    ctx.stroke();
+    // 暗
+    ctx.fillStyle = wt.id==='storm'?'rgba(0,8,20,.35)':'rgba(0,10,25,.18)';
+    ctx.fillRect(0,0,w,h);
+    if(wt.id==='storm' && Math.random()<0.008){
+      // 闪电
+      ctx.fillStyle = 'rgba(255,255,255,.7)';
+      ctx.fillRect(0,0,w,h);
+      sfx('shock');
+    }
+    ctx.restore();
+  } else if(wt.id==='fog'){
+    ctx.save();
+    let g = ctx.createLinearGradient(0,h*0.3,0,h*0.7);
+    g.addColorStop(0,'rgba(220,230,240,0)');
+    g.addColorStop(0.5,'rgba(220,230,240,.35)');
+    g.addColorStop(1,'rgba(220,230,240,0)');
+    ctx.fillStyle = g; ctx.fillRect(0,0,w,h);
+    ctx.restore();
+  } else if(wt.id==='night'){
+    ctx.save();
+    ctx.fillStyle = 'rgba(10,18,40,.45)';
+    ctx.fillRect(0,0,w,h);
+    // 星星
+    ctx.fillStyle = 'rgba(255,255,255,.8)';
+    for(let i=0;i<60;i++){
+      let sx=(i*137)%w, sy=(i*73)%(h*0.45);
+      let tw = .3+.7*Math.abs(Math.sin(t*2+i));
+      ctx.globalAlpha = tw;
+      ctx.beginPath(); ctx.arc(sx,sy,1,0,Math.PI*2); ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+    ctx.restore();
+  }
+  // 顶部天气 HUD
+  ctx.save();
+  ctx.fillStyle = 'rgba(0,0,0,.55)';
+  ctx.fillRect(w/2-90, 50, 180, 28);
+  ctx.fillStyle = '#fff'; ctx.font = 'bold 14px sans-serif';
+  ctx.textAlign='center'; ctx.textBaseline='middle';
+  ctx.fillText(`${wt.emoji} ${wt.name}  ·  连击 ${game._combo||0}`, w/2, 64);
+  ctx.restore();
+  ctx.textAlign='left'; ctx.textBaseline='alphabetic';
+}
+
+// -------- 连击 --------
+function bumpCombo(){
+  let now = game.time;
+  if(game._comboT && (now - game._comboT) > 15){ game._combo = 0; }
+  game._combo = (game._combo||0)+1;
+  game._comboT = now;
+  if(game._combo >= 3){
+    floatText(`连击 ×${game._combo}!`, canvas.width/2, canvas.height*0.35,
+      {color:'#ffaa44', scale:1.3+Math.min(0.8,game._combo*0.06)});
+  }
+}
+function resetCombo(){ game._combo = 0; game._comboT = 0; }
+function comboMul(){
+  let c = game._combo||0;
+  if(c < 3) return 1;
+  return 1 + Math.min(1.0, (c-2)*0.1); // 最高 +100%
+}
+
+// -------- 每日任务 --------
+function todayKey(){
+  // 用 game.time 代替 Date（无依赖）：以累积秒/86400 分桶
+  // 但跨会话需要稳定 key，用 localStorage 内 day
+  let d = Math.floor((game._dayStamp||0)/86400);
+  return 'd'+d;
+}
+function ensureDailyTasks(){
+  if(!game._daily) game._daily = {dayKey:null, tasks:[], lastReset:0};
+  // 每次进入游戏 / 累计游戏 10 分钟则刷新一次
+  let key = todayKey();
+  if(game._daily.dayKey === key && game._daily.tasks.length) return;
+  game._daily.dayKey = key;
+  game._daily.tasks = generateDailyTasks();
+}
+function generateDailyTasks(){
+  let pool = [
+    {id:'catch5',  desc:'钓 5 条任意鱼',          target:5,  type:'catch', reward:{gold:50, exp:30}},
+    {id:'catch15', desc:'钓 15 条任意鱼',         target:15, type:'catch', reward:{gold:150,exp:80}},
+    {id:'rare1',   desc:'钓 1 条稀有及以上鱼',    target:1,  type:'rare',  reward:{gold:80, exp:50}},
+    {id:'rare3',   desc:'钓 3 条稀有及以上鱼',    target:3,  type:'rare',  reward:{gold:200,exp:120}},
+    {id:'epic1',   desc:'钓 1 条极品鱼',          target:1,  type:'epic',  reward:{gold:200,exp:150}},
+    {id:'big5',    desc:'钓 1 条 5kg 以上的鱼',   target:1,  type:'big5',  reward:{gold:120,exp:80}},
+    {id:'big20',   desc:'钓 1 条 20kg 以上的鱼',  target:1,  type:'big20', reward:{gold:300,exp:200}},
+    {id:'combo5',  desc:'达成 5 连击',            target:5,  type:'combo', reward:{gold:100,exp:60}},
+    {id:'quality4',desc:'钓 1 条 4 星以上品质鱼', target:1,  type:'quality4', reward:{gold:120,exp:80}},
+    {id:'bait',    desc:'使用 3 次非普通饵料',    target:3,  type:'bait',  reward:{gold:80, exp:40}}
+  ];
+  // 洗牌取 3 个
+  let shuffled = pool.slice().sort(()=>Math.random()-0.5);
+  return shuffled.slice(0,3).map(t=>({...t, progress:0, done:false}));
+}
+function dailyProgress(type, val){
+  if(!game._daily) return;
+  for(let t of game._daily.tasks){
+    if(t.done) continue;
+    let hit = false;
+    if(type === t.type){
+      hit = true;
+      if(type === 'combo') t.progress = Math.max(t.progress, val);
+      else t.progress += (val||1);
+    }
+    if(hit && t.progress >= t.target){
+      t.done = true;
+      game.gold += t.reward.gold;
+      gainExp(t.reward.exp);
+      floatText(`📋 任务完成 +${t.reward.gold}💰 +${t.reward.exp}exp`, canvas.width/2, canvas.height*0.42,
+        {color:'#4aeadc', scale:1.3, life:2.0});
+      sfx('achieve');
+    }
+  }
+}
+
+// -------- 成就 --------
+const ACHIEVEMENTS = [
+  {id:'catch10',  name:'初出茅庐',     desc:'累计钓获 10 条',   check:g=>g.totalCaught>=10,  reward:50},
+  {id:'catch50',  name:'渔夫学徒',     desc:'累计钓获 50 条',   check:g=>g.totalCaught>=50,  reward:150},
+  {id:'catch200', name:'渔夫大师',     desc:'累计钓获 200 条',  check:g=>g.totalCaught>=200, reward:500},
+  {id:'catch500', name:'传奇渔人',     desc:'累计钓获 500 条',  check:g=>g.totalCaught>=500, reward:1500},
+  {id:'dex50',    name:'图鉴猎人 I',   desc:'发现 50 种鱼',    check:g=>Object.keys(g.dex||{}).length>=50, reward:200},
+  {id:'dex100',   name:'图鉴猎人 II',  desc:'发现 100 种鱼',   check:g=>Object.keys(g.dex||{}).length>=100,reward:500},
+  {id:'dex200',   name:'图鉴大全',     desc:'发现 200 种鱼',   check:g=>Object.keys(g.dex||{}).length>=200,reward:3000},
+  {id:'combo5',   name:'手感发烫',     desc:'达成 5 连击',      check:g=>(g._maxCombo||0)>=5, reward:100},
+  {id:'combo10',  name:'手感火热',     desc:'达成 10 连击',     check:g=>(g._maxCombo||0)>=10,reward:300},
+  {id:'combo20',  name:'神之钓手',     desc:'达成 20 连击',     check:g=>(g._maxCombo||0)>=20,reward:1000},
+  {id:'legend1',  name:'传说之触',     desc:'钓到第 1 条传说鱼', check:g=>(g._legendCount||0)>=1, reward:500},
+  {id:'legend5',  name:'传说收藏家',   desc:'钓到 5 条传说鱼',   check:g=>(g._legendCount||0)>=5, reward:2000},
+  {id:'boss1',    name:'屠龙者',       desc:'击败首个 Boss 鱼', check:g=>(g._bossCount||0)>=1, reward:500},
+  {id:'rich',     name:'暴富',         desc:'金币达到 5000',    check:g=>g.gold>=5000,        reward:300},
+];
+function ensureAchievements(){ if(!game._achv) game._achv = {}; }
+function checkAchievements(){
+  ensureAchievements();
+  for(let a of ACHIEVEMENTS){
+    if(game._achv[a.id]) continue;
+    if(a.check(game)){
+      game._achv[a.id] = Date.now();
+      game.gold += a.reward;
+      floatText(`🏆 ${a.name}  +${a.reward}💰`, canvas.width/2, canvas.height*0.30,
+        {color:'#ffd700', scale:1.5, life:2.5});
+      notify(`🏆 成就解锁：${a.name} — ${a.desc} (+${a.reward}💰)`);
+      sfx('achieve');
+    }
+  }
+}
+
+// -------- Boss 事件 --------
+function maybeTriggerBoss(){
+  if(!game || game._bossActive) return false;
+  // 钓鱼状态空闲一段时间，2% / tick 概率出现
+  if(game.fishingState !== 'idle') return false;
+  if((game.time - (game._lastBossT||0)) < 60) return false;
+  if(Math.random() < 0.0012){
+    // 在当前场景找 epic 或 legendary 鱼
+    let pool = FISH_DATA.filter(f=>f.scenes.includes(game.currentScene) && (f.rarity==='epic' || f.rarity==='legendary'));
+    if(!pool.length) return false;
+    let boss = pool[Math.floor(Math.random()*pool.length)];
+    game._bossActive = boss;
+    game._bossAlertT = game.time;
+    game._lastBossT = game.time;
+    sfx('legend');
+    notify(`👹 BOSS 来袭！${boss.emoji} ${boss.name} 出现在附近水域！下一次抛竿必上钩！`);
+    shake(20, 0.8);
+    return true;
+  }
+  return false;
+}
+function drawBossAlert(){
+  if(!game || !game._bossActive) return;
+  let t = game.time - (game._bossAlertT||0);
+  let w = canvas.width, h = canvas.height;
+  let pulse = 0.5 + 0.5*Math.sin(t*4);
+  ctx.save();
+  let g = ctx.createRadialGradient(w/2,h/2, h*0.2, w/2,h/2, h*0.8);
+  g.addColorStop(0,'rgba(255,40,40,0)');
+  g.addColorStop(1,`rgba(255,30,30,${0.15+pulse*0.15})`);
+  ctx.fillStyle = g; ctx.fillRect(0,0,w,h);
+  ctx.fillStyle = `rgba(255,80,80,${0.6+pulse*0.3})`;
+  ctx.font='bold 28px sans-serif'; ctx.textAlign='center';
+  ctx.fillText(`⚠ BOSS · ${game._bossActive.name} ⚠`, w/2, 130);
+  ctx.restore();
+  ctx.textAlign='left';
+}
+
+// -------- Hook 关键函数 --------
+(function patchPickFish(){
+  let orig = window.pickFish;
+  window.pickFish = function(){
+    // Boss 优先
+    if(game._bossActive){
+      let b = game._bossActive;
+      game._bossActive = null;
+      game._bossReward = 5;  // 奖励倍数
+      // 强化版（深拷贝，临时调高 power）
+      return {...b, _isBoss:true, power: b.power*1.8};
+    }
+    // 天气稀有度增益：临时调高 bait 等效
+    let wt = curWeather();
+    let savedBait = game.stats.bait;
+    game.stats.bait = savedBait + (wt.rareBonus||0)*3;
+    let f = orig();
+    game.stats.bait = savedBait;
+    return f;
+  };
+})();
+
+(function patchReleaseCast(){
+  let orig = window.releaseCast;
+  window.releaseCast = function(){
+    if(game.fishingState !== 'casting') return;
+    let r = orig.apply(this, arguments);
+    // 天气影响咬钩时间
+    let wt = curWeather();
+    if(game.biteTimer != null){
+      game.biteTimer *= (wt.biteMul||1);
+      if(game.biteTimer < 0.3) game.biteTimer = 0.3;
+    }
+    let bait = game._castBait || 'basic';
+    if(bait !== 'basic') dailyProgress('bait', 1);
+    sfx('cast');
+    return r;
+  };
+})();
+
+(function patchUpdateGame(){
+  let orig = window.updateGame;
+  let lastState = null;
+  window.updateGame = function(dt){
+    if(game){
+      ensureDailyTasks();
+      ensureAchievements();
+      game._dayStamp = (game._dayStamp||0) + dt;
+      tickWeather();
+      maybeTriggerBoss();
+      // 状态变化音效
+      let st = game.fishingState;
+      if(st !== lastState){
+        if(st === 'bite') sfx('bite');
+        else if(st === 'reeling') sfx('hook');
+        lastState = st;
+      }
+      // 收线连续音效
+      if(st === 'reeling' && game.reelZ){
+        game._reelTickT = (game._reelTickT||0) + dt;
+        if(game._reelTickT > 0.15){ sfx('reel'); game._reelTickT = 0; }
+      }
+    }
+    orig(dt);
+  };
+})();
+
+(function patchFinishReeling(){
+  let orig = window.finishReeling;
+  window.finishReeling = function(success, reason){
+    let fish = FISH_DATA[game.reelFishId];
+    let wasBoss = fish && game._bossReward;
+    let bossMul = wasBoss ? game._bossReward : 1;
+    game._bossReward = 0;
+    if(!success){
+      sfx(reason && reason.includes('断') ? 'snap' : 'fail');
+      shake(15, 0.5);
+      if((game._combo||0) > 0) floatText(`连击中断 ×${game._combo}`, canvas.width/2, canvas.height*0.4, {color:'#888'});
+      resetCombo();
+      return orig(success, reason);
+    }
+    // 成功 → 连击 + 飘字
+    sfx(fish.rarity==='legendary'||fish.rarity==='epic' ? 'legend' : 'catch');
+    shake(fish.rarity==='legendary'?18:8, 0.4);
+    bumpCombo();
+    let mul = comboMul() * bossMul;
+    game._maxCombo = Math.max(game._maxCombo||0, game._combo);
+    // 临时调整结果倍数：钩入 orig 后，再加成金币/经验
+    // 先保存余额，调用 orig（它会显示结算 UI），再做奖励
+    let goldBefore = game.gold, expBefore = game.exp;
+    let r = orig(success, reason);
+    // 此时 caughtFish 已生成，但金币要等卖出。改为：直接给一笔「钓到奖励」
+    let weight = game.caughtFish?.weight || 1;
+    let quality = game.caughtFish?.quality || 1;
+    let bonusGold = Math.round(fish.basePrice * (0.2+quality*0.1) * Math.min(3, weight/fish.minWeight) * mul);
+    let bonusExp  = Math.round(getExpForRarity(fish.rarity) * (mul-1));
+    if(wasBoss){
+      bonusGold *= 3;
+      floatText(`🐲 BOSS 击败！x${bossMul}`, canvas.width/2, canvas.height*0.3, {color:'#ff4040', scale:1.6, life:2.5});
+      game._bossCount = (game._bossCount||0)+1;
+    }
+    if(bonusGold>0) game.gold += bonusGold;
+    if(bonusExp>0) gainExp(bonusExp);
+    floatText(`+${bonusGold}💰`, canvas.width/2-80, canvas.height*0.4, {color:'#ffd700', scale:1.2});
+    if(bonusExp>0) floatText(`+${bonusExp}exp`, canvas.width/2+80, canvas.height*0.4, {color:'#7fd8ff', scale:1.2});
+    // 每日任务
+    dailyProgress('catch', 1);
+    if(fish.rarity!=='common') dailyProgress('rare', 1);
+    if(fish.rarity==='epic' || fish.rarity==='legendary') dailyProgress('epic', 1);
+    if(weight>=5) dailyProgress('big5', 1);
+    if(weight>=20) dailyProgress('big20', 1);
+    if(quality>=4) dailyProgress('quality4', 1);
+    dailyProgress('combo', game._combo);
+    // 传说计数
+    if(fish.rarity==='legendary') game._legendCount = (game._legendCount||0)+1;
+    checkAchievements();
+    return r;
+  };
+})();
+
+(function patchGainExp(){
+  let orig = window.gainExp;
+  window.gainExp = function(exp){
+    let lvBefore = game.level;
+    orig(exp);
+    if(game.level > lvBefore){
+      sfx('levelup');
+      shake(10, 0.6);
+      floatText(`🎉 LEVEL UP! Lv.${game.level}`, canvas.width/2, canvas.height*0.35,
+        {color:'#ffd700', scale:1.8, life:2.5});
+    }
+  };
+})();
+
+(function patchElectric(){
+  let orig = window.electricShock;
+  window.electricShock = function(){
+    let g0 = game.gold;
+    orig();
+    if(game.gold < g0) sfx('shock');
+  };
+})();
+
+(function patchReportPK(){
+  let orig = window.reportPKCatch;
+  window.reportPKCatch = function(fish, weight, quality){
+    let mul = comboMul();
+    let rarityMul = {common:1, rare:3, epic:8, legendary:20}[fish.rarity] || 1;
+    let baseScore = Math.round(weight * 10 * quality * rarityMul);
+    let boosted = Math.round(baseScore * mul);
+    if(mul > 1) floatText(`PK +${boosted} (连击×${mul.toFixed(1)})`, canvas.width/2, canvas.height*0.45, {color:'#4aeadc', scale:1.3});
+    // 调用原版，但替换分数：先临时改 reportPKCatch 逻辑
+    if(!pkState.active || !ws || ws.readyState!==WebSocket.OPEN) return;
+    pkState.myScore += boosted;
+    document.getElementById('pkMyScore').textContent = pkState.myScore;
+    ws.send(JSON.stringify({type:'pk_catch', score:boosted, fishName:fish.name}));
+  };
+})();
+
+// -------- 任务/成就 HUD 面板 --------
+function injectQuestPanel(){
+  if(document.getElementById('questPanel')) return;
+  let html = `
+    <div class="panel" id="questPanel">
+      <div class="panel-header">
+        <h2>📋 每日任务 & 成就</h2>
+        <button class="btn btn-small" onclick="hidePanel('quest')">✕ 关闭</button>
+      </div>
+      <div class="panel-body">
+        <h3 style="color:#4aeadc;margin-bottom:10px">📋 今日任务</h3>
+        <div id="dailyList" style="display:grid;gap:10px;margin-bottom:24px"></div>
+        <h3 style="color:#ffd700;margin-bottom:10px">🏆 成就 <span id="achvProgress" style="color:#aac;font-size:.85rem;font-weight:normal"></span></h3>
+        <div id="achvList" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px"></div>
+      </div>
+    </div>`;
+  document.getElementById('app').insertAdjacentHTML('beforeend', html);
+  // HUD 按钮
+  let bl = document.querySelector('.hud-bl');
+  if(bl){
+    let btn = document.createElement('button');
+    btn.className = 'hud-btn';
+    btn.innerHTML = `<span class="hb-icon">📋</span><span class="hb-label">任务</span>`;
+    btn.onclick = ()=>showPanel('quest');
+    bl.appendChild(btn);
+  }
+}
+function renderQuestPanel(){
+  ensureDailyTasks(); ensureAchievements();
+  let dl = document.getElementById('dailyList');
+  dl.innerHTML = game._daily.tasks.map(t=>{
+    let pct = Math.min(100, t.progress/t.target*100);
+    return `<div style="background:linear-gradient(135deg,rgba(74,234,220,.08),rgba(255,255,255,.02));border:1px solid ${t.done?'#4aeadc':'rgba(255,255,255,.15)'};border-radius:12px;padding:14px 18px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+        <span style="font-weight:bold;color:${t.done?'#4aeadc':'#fff'}">${t.done?'✓ ':''}${t.desc}</span>
+        <span style="color:#ffd700">+${t.reward.gold}💰 +${t.reward.exp}exp</span>
+      </div>
+      <div style="height:8px;background:rgba(0,0,0,.4);border-radius:4px;overflow:hidden">
+        <div style="height:100%;width:${pct}%;background:${t.done?'#4aeadc':'linear-gradient(90deg,#4aeadc,#7fd8ff)'};transition:width .4s"></div>
+      </div>
+      <div style="color:#aac;font-size:.85rem;margin-top:4px">${t.progress}/${t.target}</div>
+    </div>`;
+  }).join('');
+  let unlocked = Object.keys(game._achv||{}).length;
+  document.getElementById('achvProgress').textContent = `（${unlocked}/${ACHIEVEMENTS.length}）`;
+  let al = document.getElementById('achvList');
+  al.innerHTML = ACHIEVEMENTS.map(a=>{
+    let got = game._achv[a.id];
+    return `<div style="background:${got?'linear-gradient(135deg,rgba(255,215,0,.15),rgba(255,215,0,.02))':'rgba(255,255,255,.03)'};border:1px solid ${got?'rgba(255,215,0,.5)':'rgba(255,255,255,.1)'};border-radius:12px;padding:12px;opacity:${got?1:0.55}">
+      <div style="font-weight:bold;color:${got?'#ffd700':'#aac'};font-size:1rem">${got?'🏆':'🔒'} ${a.name}</div>
+      <div style="color:#bcd;font-size:.85rem;margin-top:3px">${a.desc}</div>
+      <div style="color:#ffd700;font-size:.8rem;margin-top:4px">奖励 +${a.reward}💰</div>
+    </div>`;
+  }).join('');
+}
+
+// 扩展 showPanel/hidePanel
+(function patchPanels(){
+  let oShow = window.showPanel, oHide = window.hidePanel;
+  window.showPanel = function(name){
+    if(name === 'quest'){
+      injectQuestPanel();
+      document.getElementById('questPanel').classList.add('active');
+      renderQuestPanel();
+      return;
+    }
+    return oShow(name);
+  };
+  window.hidePanel = function(name){
+    if(name === 'quest'){
+      let el = document.getElementById('questPanel');
+      if(el) el.classList.remove('active');
+      return;
+    }
+    return oHide(name);
+  };
+})();
+
+// 启动后注入任务按钮
+(function patchStart(){
+  let orig = window.startPlaying;
+  window.startPlaying = function(){
+    orig();
+    injectQuestPanel();
+    if(!game._weatherId){ game._weatherId = rollWeather(); game._weatherStart = game.time; }
+  };
+})();
 
 // ============== 启动 ==============
 window.onload = init;
