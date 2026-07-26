@@ -5,62 +5,87 @@
 <title>靶场射击</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{overflow:hidden;background:#000;font-family:'Segoe UI',sans-serif}
+body{overflow:hidden;background:#05070d;font-family:'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif}
 canvas{display:block}
 #hud{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:10}
-#crosshair{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:30px;height:30px}
-#crosshair::before,#crosshair::after{content:'';position:absolute;background:rgba(255,255,255,.8)}
-#crosshair::before{width:2px;height:30px;left:14px;top:0}
-#crosshair::after{width:30px;height:2px;top:14px;left:0}
-#score{position:absolute;top:20px;left:20px;color:#4aeadc;font-size:1.5rem;font-weight:bold;text-shadow:0 2px 4px rgba(0,0,0,.5)}
-#timer{position:absolute;top:20px;right:20px;color:#f5c542;font-size:1.5rem;font-weight:bold;text-shadow:0 2px 4px rgba(0,0,0,.5)}
-#reaction{position:absolute;top:55%;left:50%;transform:translateX(-50%);font-size:1.2rem;color:#4aeadc;opacity:0;transition:opacity .15s;text-shadow:0 1px 3px rgba(0,0,0,.5)}
-#avg-time{position:absolute;top:55px;left:20px;color:#aaa;font-size:1rem;text-shadow:0 1px 3px rgba(0,0,0,.5)}
-#overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:linear-gradient(135deg,#0f0c29,#302b63,#24243e);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:20;color:#fff}
-#overlay h1{font-size:3rem;margin-bottom:1rem;background:linear-gradient(135deg,#ff6ec4,#7873f5,#4aeadc);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-#overlay p{font-size:1.2rem;color:#aaa;margin-bottom:.5rem}
-#overlay button{padding:1rem 3rem;font-size:1.2rem;border:2px solid #7873f5;background:rgba(120,115,245,.1);color:#e0e0e0;border-radius:12px;cursor:pointer;margin-top:1rem;pointer-events:auto;transition:all .3s}
-#overlay button:hover{background:rgba(120,115,245,.4);box-shadow:0 0 20px rgba(120,115,245,.4)}
+#crosshair{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:28px;height:28px}
+#crosshair::before,#crosshair::after{content:'';position:absolute;background:rgba(120,255,235,.9);box-shadow:0 0 6px rgba(74,234,220,.9)}
+#crosshair::before{width:2px;height:28px;left:13px;top:0}
+#crosshair::after{width:28px;height:2px;top:13px;left:0}
+.hud-badge{position:absolute;padding:.35rem .9rem;border-radius:999px;font-weight:700;font-size:1.15rem;background:rgba(10,14,22,.55);backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,.08);box-shadow:0 4px 14px rgba(0,0,0,.35)}
+#score{top:18px;left:18px;color:#4aeadc}
+#timer{top:18px;right:18px;color:#f5c542}
+#reaction{position:absolute;top:56%;left:50%;transform:translateX(-50%);font-size:1.3rem;font-weight:700;color:#4aeadc;opacity:0;transition:opacity .15s;text-shadow:0 0 10px rgba(74,234,220,.6)}
+#avg-time{position:absolute;top:62px;left:18px;color:#9fb0c8;font-size:.95rem;text-shadow:0 1px 3px rgba(0,0,0,.5)}
+#difficulty-hud{position:absolute;top:62px;right:18px;color:#9fb0c8;font-size:.95rem;text-shadow:0 1px 3px rgba(0,0,0,.5)}
+#overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:radial-gradient(1200px 700px at 50% -10%,rgba(120,115,245,.25),transparent),linear-gradient(135deg,#0b0a1f,#1c1b3a 55%,#0e1226);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:20;color:#fff}
+.panel{background:rgba(18,20,34,.55);backdrop-filter:blur(14px);border:1px solid rgba(255,255,255,.08);border-radius:22px;padding:2.4rem 2.8rem;box-shadow:0 24px 60px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.06);text-align:center;max-width:min(92vw,540px)}
+#overlay h1{font-size:2.9rem;margin-bottom:.8rem;letter-spacing:2px;background:linear-gradient(135deg,#ff6ec4,#7873f5,#4aeadc);-webkit-background-clip:text;-webkit-text-fill-color:transparent;filter:drop-shadow(0 4px 18px rgba(120,115,245,.4))}
+#overlay p{font-size:1.05rem;color:#aab3c8;margin-bottom:.4rem}
+#overlay .hint{font-size:.85rem;color:#6b7391}
+#overlay button{padding:.85rem 1.4rem;font-size:1.05rem;border:1px solid rgba(120,115,245,.5);background:linear-gradient(180deg,rgba(120,115,245,.18),rgba(120,115,245,.06));color:#e8ebf7;border-radius:14px;cursor:pointer;pointer-events:auto;transition:transform .15s,box-shadow .3s,background .3s;font-weight:600}
+#overlay button:hover{background:linear-gradient(180deg,rgba(120,115,245,.4),rgba(120,115,245,.18));box-shadow:0 8px 24px rgba(120,115,245,.4);transform:translateY(-2px)}
+#overlay button:active{transform:translateY(0)}
+#overlay button.primary{border-color:rgba(74,234,220,.6);background:linear-gradient(180deg,rgba(74,234,220,.28),rgba(74,234,220,.1));color:#eafffb}
+#overlay button.primary:hover{box-shadow:0 8px 26px rgba(74,234,220,.45)}
+.menu-actions{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-top:1.4rem}
+.menu-actions .primary{grid-column:1 / -1}
+#difficulty-picker{margin-top:1.4rem}
+#difficulty-picker .difficulty-label{color:#9fb0c8;font-size:.95rem;margin-bottom:.6rem}
+#difficulty-picker .difficulty-options{display:flex;gap:.6rem;justify-content:center}
+#overlay .difficulty-btn{padding:.55rem 1.2rem;font-size:1rem;min-width:78px}
+#overlay .difficulty-btn.active{border-color:#4aeadc;background:rgba(74,234,220,.25);color:#fff;box-shadow:0 0 18px rgba(74,234,220,.35)}
+#overlay .difficulty-btn:disabled{opacity:.4;cursor:not-allowed;box-shadow:none;transform:none}
 #result{display:none}
-#result .final-score{font-size:4rem;color:#4aeadc;margin:1rem 0}
-#result .stats{font-size:1rem;color:#aaa;margin:.5rem 0}
+#result .final-score{font-size:4.2rem;font-weight:800;color:#4aeadc;margin:.6rem 0;text-shadow:0 0 30px rgba(74,234,220,.5)}
+#result .stats{font-size:.98rem;color:#aab3c8;margin:.5rem 0}
+#result .menu-actions{grid-template-columns:1fr}
 </style>
 </head>
 <body>
 <div id="hud">
   <div id="crosshair"></div>
-  <div id="score">得分: 0</div>
-  <div id="timer">60s</div>
+  <div id="score" class="hud-badge">得分: 0</div>
+  <div id="timer" class="hud-badge">60s</div>
   <div id="reaction"></div>
   <div id="avg-time"></div>
+  <div id="difficulty-hud">难度: 3×3</div>
 </div>
 <div id="overlay">
-  <div id="start-screen">
+  <div id="start-screen" class="panel">
     <h1>靶场射击</h1>
-    <p>点击开始游戏，鼠标瞄准射击小球</p>
-    <p style="font-size:.85rem;color:#666">鼠标瞄准 | 左键射击</p>
-    <div style="display:flex;gap:1rem;flex-wrap:wrap;justify-content:center;margin-top:1rem">
-      <button id="start-btn">开始游戏</button>
-      <button id="reflex-btn">反射弧训练</button>
+    <p>鼠标瞄准，左键射击发光靶球</p>
+    <p class="hint">锁定视角瞄准 | 左键射击 | 命中即刷新</p>
+    <div id="difficulty-picker">
+      <div class="difficulty-label">选择射击难度</div>
+      <div class="difficulty-options">
+        <button class="difficulty-btn active" data-size="3">3×3</button>
+        <button class="difficulty-btn" data-size="4">4×4</button>
+        <button class="difficulty-btn" data-size="5">5×5</button>
+      </div>
     </div>
-    <div style="display:flex;gap:1rem;flex-wrap:wrap;justify-content:center;margin-top:.5rem">
+    <div class="menu-actions">
+      <button id="start-btn" class="primary">开始游戏</button>
+      <button id="reflex-btn">反射弧训练</button>
       <button id="lb-btn">射击排行榜</button>
       <button id="rx-lb-btn">反射弧排行榜</button>
     </div>
   </div>
-  <div id="result">
+  <div id="result" class="panel">
     <h1>时间到！</h1>
     <div class="final-score" id="final-score">0</div>
     <p>最终得分</p>
     <div class="stats" id="result-stats"></div>
-    <button id="restart-btn">再来一局</button>
-    <button id="result-lb-btn" style="margin-top:.5rem">最高分榜</button>
-    <button id="result-back-btn" style="margin-top:.5rem">返回主菜单</button>
+    <div class="menu-actions">
+      <button id="restart-btn" class="primary">再来一局</button>
+      <button id="result-lb-btn">最高分榜</button>
+      <button id="result-back-btn">返回主菜单</button>
+    </div>
   </div>
-  <div id="leaderboard" style="display:none">
+  <div id="leaderboard" class="panel" style="display:none">
     <h1>最高分榜</h1>
-    <div id="lb-list" style="margin:1rem 0;font-size:1.2rem;line-height:2"></div>
-    <button id="lb-back-btn">返回</button>
+    <div id="lb-list" style="margin:1rem 0;font-size:1.1rem;line-height:2"></div>
+    <div class="menu-actions"><button id="lb-back-btn" class="primary">返回</button></div>
   </div>
 </div>
 <div id="reflex-screen" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;z-index:30;cursor:pointer;user-select:none">
@@ -83,35 +108,100 @@ import*as THREE from'three';
 import{PointerLockControls}from'three/addons/controls/PointerLockControls.js';
 
 const scene=new THREE.Scene();
-scene.background=new THREE.Color(0x2a2a3e);
+scene.background=new THREE.Color(0x0a0d16);
+scene.fog=new THREE.Fog(0x0a0d16,14,34);
 
 const camera=new THREE.PerspectiveCamera(75,innerWidth/innerHeight,0.1,100);
 camera.position.set(0,3,0);
 
-const renderer=new THREE.WebGLRenderer({antialias:true});
+const renderer=new THREE.WebGLRenderer({
+  antialias:false,
+  powerPreference:'high-performance',
+  precision:'mediump'
+});
 renderer.setSize(innerWidth,innerHeight);
+// 固定 1 倍内部像素：高分屏下避免数百万像素的重复着色。
+renderer.setPixelRatio(1);
+renderer.shadowMap.enabled=false;
+renderer.toneMapping=THREE.NoToneMapping;
 document.body.appendChild(renderer.domElement);
 
 const controls=new PointerLockControls(camera,document.body);
 
 // Lighting
-scene.add(new THREE.AmbientLight(0xaaaacc,1.5));
-const dirL=new THREE.DirectionalLight(0xffffff,1.5);
-dirL.position.set(2,8,-6);scene.add(dirL);
-const dirL2=new THREE.DirectionalLight(0xffffff,1);
-dirL2.position.set(-2,6,-10);scene.add(dirL2);
+scene.add(new THREE.AmbientLight(0x8892b8,0.7));
+const hemi=new THREE.HemisphereLight(0xbcd0ff,0x1a1e2a,0.8);scene.add(hemi);
+const dirL=new THREE.DirectionalLight(0xffffff,1.6);
+dirL.position.set(4,10,-2);dirL.castShadow=true;
+dirL.shadow.mapSize.set(1024,1024);
+dirL.shadow.camera.near=1;dirL.shadow.camera.far=40;
+dirL.shadow.camera.left=-12;dirL.shadow.camera.right=12;
+dirL.shadow.camera.top=12;dirL.shadow.camera.bottom=-4;
+dirL.shadow.bias=-0.0004;scene.add(dirL);
+const dirL2=new THREE.DirectionalLight(0x6f7bff,0.5);
+dirL2.position.set(-6,6,-10);scene.add(dirL2);
+// 靶墙聚光灯
+const spot=new THREE.SpotLight(0xfff2d6,120,26,Math.PI/5,0.5,1.2);
+spot.position.set(0,8,2);spot.target.position.set(0,3,-10.5);
+scene.add(spot);scene.add(spot.target);
+// 冷暖轮廓灯
+const rimA=new THREE.PointLight(0x4aeadc,18,20,2);rimA.position.set(-5,4,-6);scene.add(rimA);
+const rimB=new THREE.PointLight(0xff6ec4,16,20,2);rimB.position.set(5,4,-6);scene.add(rimB);
+
+// ===== 靶场环境 =====
+function buildRange(){
+  const g=new THREE.Group();
+  const floorMat=new THREE.MeshStandardMaterial({color:0x23283a,roughness:0.85,metalness:0.15});
+  const floor=new THREE.Mesh(new THREE.PlaneGeometry(18,30),floorMat);
+  floor.rotation.x=-Math.PI/2;floor.position.set(0,0,-6);floor.receiveShadow=true;g.add(floor);
+  // 地面网格线
+  const grid=new THREE.GridHelper(30,30,0x3d4a6b,0x2a3350);
+  grid.position.set(0,0.01,-6);g.add(grid);
+  // 射击线
+  const lineMat=new THREE.MeshStandardMaterial({color:0xf5c542,emissive:0x5a4300,roughness:0.6});
+  const line=new THREE.Mesh(new THREE.BoxGeometry(9,0.03,0.14),lineMat);
+  line.position.set(0,0.03,-1.5);g.add(line);
+  // 后墙
+  const wallMat=new THREE.MeshStandardMaterial({color:0x2c3346,roughness:0.95,metalness:0.05});
+  const back=new THREE.Mesh(new THREE.PlaneGeometry(18,12),wallMat);
+  back.position.set(0,6,-13);back.receiveShadow=true;g.add(back);
+  // 侧墙
+  const sideMat=new THREE.MeshStandardMaterial({color:0x262c3d,roughness:0.95,metalness:0.05});
+  const left=new THREE.Mesh(new THREE.PlaneGeometry(30,12),sideMat);
+  left.rotation.y=Math.PI/2;left.position.set(-9,6,-6);left.receiveShadow=true;g.add(left);
+  const right=new THREE.Mesh(new THREE.PlaneGeometry(30,12),sideMat);
+  right.rotation.y=-Math.PI/2;right.position.set(9,6,-6);right.receiveShadow=true;g.add(right);
+  // 天花板
+  const ceil=new THREE.Mesh(new THREE.PlaneGeometry(18,30),new THREE.MeshStandardMaterial({color:0x161b28,roughness:1}));
+  ceil.rotation.x=Math.PI/2;ceil.position.set(0,12,-6);g.add(ceil);
+  // 隔间立柱
+  const postMat=new THREE.MeshStandardMaterial({color:0x30384d,roughness:0.7,metalness:0.4});
+  for(const x of [-3,3]){
+    const post=new THREE.Mesh(new THREE.BoxGeometry(0.12,2.2,0.12),postMat);
+    post.position.set(x,1.1,-1.5);post.castShadow=true;g.add(post);
+  }
+  scene.add(g);
+}
+buildRange();
 
 // Balls
 const balls=[];
-const GRID_COLS=5,GRID_ROWS=3;
-const GRID_X_START=-3,GRID_X_STEP=1.5;
-const GRID_Y_START=1.5,GRID_Y_STEP=1.5;
-const GRID_Z=-8;
+const GRID_Z=-10.5;
 const allSlots=[];
-for(let r=0;r<GRID_ROWS;r++)for(let c=0;c<GRID_COLS;c++){
-  allSlots.push(new THREE.Vector3(GRID_X_START+c*GRID_X_STEP,GRID_Y_START+r*GRID_Y_STEP,GRID_Z));
-}
 const usedSlots=new Set();
+let gridSize=Number(localStorage.getItem('shooting-grid-size'))||3;
+if(![3,4,5].includes(gridSize))gridSize=3;
+
+function rebuildGrid(){
+  allSlots.length=0;usedSlots.clear();
+  const xMin=-1.5,xMax=1.5,yMin=1.7,yMax=4.3;
+  for(let r=0;r<gridSize;r++)for(let c=0;c<gridSize;c++){
+    const x=gridSize===1?0:xMin+c*(xMax-xMin)/(gridSize-1);
+    const y=gridSize===1?3:yMin+r*(yMax-yMin)/(gridSize-1);
+    allSlots.push(new THREE.Vector3(x,y,GRID_Z));
+  }
+}
+rebuildGrid();
 
 function randomBallPos(excludeSlot){
   const avail=[];
@@ -124,12 +214,12 @@ function randomBallPos(excludeSlot){
 
 for(let i=0;i<3;i++){
   const ball=new THREE.Mesh(
-    new THREE.SphereGeometry(0.35,32,32),
+    new THREE.SphereGeometry(0.28,16,12),
     new THREE.MeshPhongMaterial({color:0x2299ff,emissive:0x114488,specular:0x88ccff,shininess:80})
   );
   // 更大的隐形碰撞球
   const hitbox=new THREE.Mesh(
-    new THREE.SphereGeometry(0.55,8,8),
+    new THREE.SphereGeometry(0.44,8,8),
     new THREE.MeshBasicMaterial({visible:false})
   );
   ball.add(hitbox);
@@ -167,6 +257,28 @@ camera.add(gunGroup);scene.add(camera);
 let score=0,timeLeft=60,gameRunning=false,gunRecoil=0;
 let lastHitTime=0,reactionTimes=[];
 const raycaster=new THREE.Raycaster();
+const difficultyButtons=[...document.querySelectorAll('.difficulty-btn')];
+
+function targetScale(){return({3:1.1,4:.9,5:.72})[gridSize];}
+function updateDifficultyUI(){
+  difficultyButtons.forEach(btn=>{
+    btn.classList.toggle('active',Number(btn.dataset.size)===gridSize);
+    btn.disabled=gameRunning;
+  });
+  document.getElementById('difficulty-hud').textContent='难度: '+gridSize+'×'+gridSize;
+}
+function setDifficulty(size){
+  if(gameRunning||![3,4,5].includes(size))return;
+  gridSize=size;localStorage.setItem('shooting-grid-size',gridSize);
+  rebuildGrid();
+  balls.forEach(b=>b.scale.setScalar(targetScale()));
+  usedSlots.clear();
+  balls.forEach(b=>{const sp=randomBallPos();b.position.copy(sp.pos);b.userData.slot=sp.slot;});
+  updateDifficultyUI();
+}
+difficultyButtons.forEach(btn=>btn.addEventListener('click',()=>setDifficulty(Number(btn.dataset.size))));
+balls.forEach(b=>b.scale.setScalar(targetScale()));
+updateDifficultyUI();
 
 function shoot(){
   if(!gameRunning)return;
@@ -202,6 +314,7 @@ function shoot(){
 
 function startGame(){
   score=0;timeLeft=60;gameRunning=true;lastHitTime=0;reactionTimes=[];
+  updateDifficultyUI();
   document.getElementById('score').textContent='得分: 0';
   document.getElementById('timer').textContent='60s';
   document.getElementById('avg-time').textContent='';
@@ -220,7 +333,7 @@ document.getElementById('restart-btn').addEventListener('click',startGame);
 function getScores(){try{return JSON.parse(localStorage.getItem('shooting-scores')||'[]');}catch(e){return[];}}
 function saveScore(s,avg,best){
   const list=getScores();
-  list.push({score:s,avg:avg,best:best,date:new Date().toLocaleDateString()});
+  list.push({score:s,avg:avg,best:best,grid:gridSize,date:new Date().toLocaleDateString()});
   list.sort((a,b)=>b.score-a.score);
   if(list.length>10)list.length=10;
   localStorage.setItem('shooting-scores',JSON.stringify(list));
@@ -234,7 +347,7 @@ function showLeaderboard(){
   let html='';
   if(list.length===0)html='<div style="color:#888">暂无记录</div>';
   else list.forEach((r,i)=>{
-    html+=`<div style="color:${i<3?'#f5c542':'#aaa'}">${i+1}. ${r.score}分 | 平均${r.avg}ms | 最快${r.best}ms <span style="color:#555;font-size:.8rem">${r.date}</span></div>`;
+    html+=`<div style="color:${i<3?'#f5c542':'#aaa'}">${i+1}. ${r.score}分 | ${r.grid?r.grid+'×'+r.grid:'旧记录'} | 平均${r.avg}ms | 最快${r.best}ms <span style="color:#555;font-size:.8rem">${r.date}</span></div>`;
   });
   document.getElementById('lb-list').innerHTML=html;
 }
@@ -265,10 +378,11 @@ setInterval(()=>{
   document.getElementById('timer').textContent=timeLeft+'s';
   if(timeLeft<=0){
     gameRunning=false;controls.unlock();
+    updateDifficultyUI();
     document.getElementById('final-score').textContent=score;
     const avg=reactionTimes.length>0?Math.round(reactionTimes.reduce((a,b)=>a+b,0)/reactionTimes.length):'--';
     const best=reactionTimes.length>0?Math.min(...reactionTimes):'--';
-    document.getElementById('result-stats').textContent='平均反应: '+avg+'ms | 最快: '+best+'ms';
+    document.getElementById('result-stats').textContent='难度: '+gridSize+'×'+gridSize+' | 平均反应: '+avg+'ms | 最快: '+best+'ms';
     saveScore(score,avg,best);
     document.getElementById('start-screen').style.display='none';
     document.getElementById('result').style.display='block';
@@ -281,8 +395,10 @@ addEventListener('resize',()=>{
 });
 
 const clock=new THREE.Clock();
+document.addEventListener('visibilitychange',()=>clock.getDelta());
 function animate(){
   requestAnimationFrame(animate);
+  if(document.hidden)return;
   const dt=clock.getDelta();
   camera.position.y=3;
   // 限制视角幅度

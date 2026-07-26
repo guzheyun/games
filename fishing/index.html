@@ -11,7 +11,7 @@ body{background:#0a1628;color:#e8eef5;font-family:'Segoe UI','Microsoft YaHei',s
 #app{width:100vw;height:100vh;position:relative}
 canvas{display:block;position:absolute;top:0;left:0}
 .btn{padding:14px 30px;font-size:1.15rem;border:2px solid #4aeadc;background:rgba(8,18,32,.7);color:#e8eef5;border-radius:14px;cursor:pointer;transition:all .25s;font-family:inherit;backdrop-filter:blur(6px);box-shadow:0 4px 20px rgba(0,0,0,.4)}
-.btn:hover{background:#4aeadc;color:#0a1628;box-shadow:0 0 30px rgba(74,234,220,.6);transform:translateY(-2px)}
+.btn:hover{background:linear-gradient(135deg,#4aeadc,#7f6cff,#ff6ec4);border-color:#7f6cff;color:#0a1628;box-shadow:0 0 34px rgba(127,108,255,.6),0 0 18px rgba(255,110,196,.5);transform:translateY(-2px)}
 .btn-small{padding:8px 18px;font-size:.95rem;border-radius:10px}
 .btn-danger{border-color:#f44;color:#f44}
 .btn-danger:hover{background:#f44;color:#fff}
@@ -20,21 +20,22 @@ canvas{display:block;position:absolute;top:0;left:0}
 
 /* HUD 大按钮 */
 .hud-btn{min-width:96px;min-height:88px;padding:10px;font-size:1rem;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;border:2px solid rgba(74,234,220,.6);background:rgba(8,18,32,.75);color:#e8eef5;border-radius:18px;cursor:pointer;transition:all .25s;font-family:inherit;backdrop-filter:blur(8px);box-shadow:0 6px 20px rgba(0,0,0,.5)}
-.hud-btn:hover{border-color:#4aeadc;background:rgba(74,234,220,.18);transform:translateY(-3px);box-shadow:0 8px 25px rgba(74,234,220,.4)}
+.hud-btn:hover{border-color:#7f6cff;background:linear-gradient(135deg,rgba(74,234,220,.2),rgba(127,108,255,.2),rgba(255,110,196,.14));transform:translateY(-3px);box-shadow:0 8px 28px rgba(127,108,255,.45),0 0 18px rgba(255,110,196,.35)}
 .hud-btn .hb-icon{font-size:1.8rem;line-height:1}
 .hud-btn .hb-label{font-size:.8rem;color:#bcd}
 
 /* 主菜单 */
 #mainMenu{position:absolute;top:0;left:0;width:100%;height:100%;display:flex;flex-direction:column;justify-content:center;align-items:center;z-index:100}
-#mainMenu h1{font-size:5.5rem;background:linear-gradient(135deg,#ffd700,#ff8c5a,#ff6ec4,#7873f5,#4aeadc);background-size:200% 200%;-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:.5rem;text-shadow:0 0 80px rgba(74,234,220,.4);animation:shimmer 6s ease-in-out infinite;letter-spacing:.1em;font-weight:900}
+#mainMenu h1{font-size:5.5rem;background:linear-gradient(135deg,#ffd700,#ff8c5a,#ff6ec4,#b06cff,#7873f5,#4aeadc);background-size:300% 300%;-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:.5rem;text-shadow:0 0 60px rgba(127,108,255,.5),0 0 110px rgba(255,110,196,.35);animation:shimmer 6s ease-in-out infinite;letter-spacing:.1em;font-weight:900}
 @keyframes shimmer{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
+@keyframes auroraBg{0%,100%{background-position:0% 50%,0% 50%}50%{background-position:0% 50%,100% 50%}}
 #mainMenu .subtitle{color:#d8e8f5;font-size:1.4rem;margin-bottom:3rem;text-shadow:0 2px 12px rgba(0,0,0,.7);letter-spacing:.3em}
 #mainMenu .menu-buttons{display:flex;flex-direction:column;gap:18px;z-index:2}
 #mainMenu .menu-buttons .btn{min-width:340px;text-align:center;font-size:1.25rem;padding:18px 36px}
 #mainMenu .credit{position:absolute;bottom:20px;color:rgba(255,255,255,.4);font-size:.85rem}
 
 /* 通用面板 */
-.panel{position:absolute;top:0;left:0;width:100%;height:100%;background:radial-gradient(ellipse at top,rgba(20,40,70,.97),rgba(8,16,30,.98));z-index:200;display:none;flex-direction:column;overflow:hidden;backdrop-filter:blur(10px)}
+.panel{position:absolute;top:0;left:0;width:100%;height:100%;background:radial-gradient(ellipse at top,rgba(40,30,90,.96),rgba(10,16,34,.98)),linear-gradient(120deg,rgba(74,234,220,.10),rgba(127,108,255,.12),rgba(255,110,196,.08));background-size:100% 100%,220% 220%;animation:auroraBg 22s ease-in-out infinite;z-index:200;display:none;flex-direction:column;overflow:hidden;backdrop-filter:blur(10px)}
 .panel.active{display:flex;animation:fadeInPanel .25s ease-out}
 @keyframes fadeInPanel{from{opacity:0;transform:scale(.98)}to{opacity:1;transform:scale(1)}}
 .panel-header{display:flex;justify-content:space-between;align-items:center;padding:20px 32px;border-bottom:1px solid rgba(74,234,220,.2);flex-shrink:0;background:linear-gradient(180deg,rgba(74,234,220,.08),transparent)}
@@ -652,7 +653,107 @@ const FISH_DATA = [
   {id:196,name:'古鹦鹉螺王',desc:'巨型远古鹦鹉螺的王者',category:'远古鱼',rarity:'legendary',scenes:['deep'],minWeight:5,maxWeight:30,basePrice:1200,power:850,skill:'时空裂隙',emoji:'🐚'},
   {id:197,name:'奇虾遗种',desc:'寒武纪霸主的幽灵后裔',category:'远古鱼',rarity:'legendary',scenes:['deep'],minWeight:0.5,maxWeight:5,basePrice:1000,power:820,skill:'海啸',emoji:'🦐'},
   {id:198,name:'三叶虫鱼',desc:'疑似三叶虫后裔的怪鱼',category:'远古鱼',rarity:'legendary',scenes:['deep','lake'],minWeight:0.1,maxWeight:1,basePrice:700,power:650,skill:'远古咆哮',emoji:'🐟'},
-  {id:199,name:'始祖巨鱼',desc:'所有鱼类共同祖先的传说',category:'远古鱼',rarity:'legendary',scenes:['deep','lake'],minWeight:500,maxWeight:5000,basePrice:2000,power:1000,skill:'毁灭漩涡',emoji:'🐟'}
+  {id:199,name:'始祖巨鱼',desc:'所有鱼类共同祖先的传说',category:'远古鱼',rarity:'legendary',scenes:['deep','lake'],minWeight:500,maxWeight:5000,basePrice:2000,power:1000,skill:'毁灭漩涡',emoji:'🐟'},
+  {id:200,name:'熔岩鲷',desc:'栖息于熔岩深处的神秘存在',category:'熔岩鱼',rarity:'rare',scenes:["deep"],minWeight:1.9,maxWeight:22,basePrice:135,power:130,skill:'旋涡',emoji:'🦐'},
+  {id:201,name:'火焰刺鱼',desc:'栖息于熔岩深处的古老血脉',category:'熔岩鱼',rarity:'rare',scenes:["deep"],minWeight:1.9,maxWeight:26,basePrice:107,power:143,skill:'旋涡',emoji:'🦈'},
+  {id:202,name:'岩浆电鳗',desc:'栖息于熔岩深处的传奇猎物',category:'熔岩鱼',rarity:'epic',scenes:["deep"],minWeight:25,maxWeight:259,basePrice:583,power:426,skill:'海啸',emoji:'🐍'},
+  {id:203,name:'硫磺鲨',desc:'栖息于熔岩深处的强韧巨物',category:'熔岩鱼',rarity:'epic',scenes:["deep"],minWeight:17,maxWeight:195,basePrice:483,power:452,skill:'海啸',emoji:'🦈'},
+  {id:204,name:'炽焰鮟鱇',desc:'栖息于熔岩深处的珍稀鱼种',category:'熔岩鱼',rarity:'rare',scenes:["deep"],minWeight:2.2,maxWeight:23,basePrice:113,power:161,skill:'水流冲击',emoji:'🦈'},
+  {id:205,name:'火山口盲鱼',desc:'栖息于熔岩深处的古老血脉',category:'熔岩鱼',rarity:'rare',scenes:["deep"],minWeight:1.6,maxWeight:18,basePrice:146,power:108,skill:'水刃',emoji:'🦐'},
+  {id:206,name:'焦鳞龙鱼',desc:'栖息于熔岩深处的梦幻之影',category:'熔岩鱼',rarity:'epic',scenes:["deep"],minWeight:18,maxWeight:250,basePrice:368,power:310,skill:'深海压力',emoji:'🐟'},
+  {id:207,name:'熔金鲤',desc:'栖息于熔岩深处的强韧巨物',category:'熔岩鱼',rarity:'rare',scenes:["deep"],minWeight:2.9,maxWeight:23,basePrice:63,power:137,skill:'旋涡',emoji:'🔥'},
+  {id:208,name:'烈焰蝠鲼',desc:'栖息于熔岩深处的神秘存在',category:'熔岩鱼',rarity:'epic',scenes:["deep"],minWeight:8.5,maxWeight:54,basePrice:546,power:487,skill:'天罚雷霆',emoji:'🐍'},
+  {id:209,name:'火晶水母',desc:'栖息于熔岩深处的珍稀鱼种',category:'熔岩鱼',rarity:'rare',scenes:["deep"],minWeight:0.4,maxWeight:4.6,basePrice:125,power:113,skill:'急流',emoji:'🐍'},
+  {id:210,name:'炎纹章鱼',desc:'栖息于熔岩深处的强韧巨物',category:'熔岩鱼',rarity:'epic',scenes:["deep"],minWeight:19,maxWeight:228,basePrice:401,power:426,skill:'海啸',emoji:'🐟'},
+  {id:211,name:'熔岩巨骨舌',desc:'栖息于熔岩深处的珍稀鱼种',category:'熔岩鱼',rarity:'epic',scenes:["deep"],minWeight:22,maxWeight:187,basePrice:484,power:336,skill:'深海压力',emoji:'🦈'},
+  {id:212,name:'火脊鲟',desc:'栖息于熔岩深处的珍稀鱼种',category:'熔岩鱼',rarity:'epic',scenes:["deep"],minWeight:11,maxWeight:105,basePrice:324,power:387,skill:'旋涡',emoji:'🔥'},
+  {id:213,name:'赤炎裂唇鱼',desc:'栖息于熔岩深处的珍稀鱼种',category:'熔岩鱼',rarity:'epic',scenes:["deep"],minWeight:16,maxWeight:111,basePrice:413,power:311,skill:'深海压力',emoji:'🐟'},
+  {id:214,name:'火种虾虎',desc:'栖息于熔岩深处的强韧巨物',category:'熔岩鱼',rarity:'rare',scenes:["deep"],minWeight:0.68,maxWeight:6.1,basePrice:64,power:93,skill:'水刃',emoji:'🔥'},
+  {id:215,name:'焰尾狮子鱼',desc:'栖息于熔岩深处的神秘存在',category:'熔岩鱼',rarity:'epic',scenes:["deep"],minWeight:11,maxWeight:72,basePrice:276,power:327,skill:'深海压力',emoji:'🔥'},
+  {id:216,name:'熔岩帝王蟹',desc:'栖息于熔岩深处的传奇猎物',category:'熔岩鱼',rarity:'legendary',scenes:["deep"],minWeight:53,maxWeight:276,basePrice:1118,power:782,skill:'远古咆哮',emoji:'🔥'},
+  {id:217,name:'硫火海鳝',desc:'栖息于熔岩深处的珍稀鱼种',category:'熔岩鱼',rarity:'epic',scenes:["deep"],minWeight:3,maxWeight:20,basePrice:389,power:422,skill:'海啸',emoji:'🐟'},
+  {id:218,name:'炽热角鮟鱇',desc:'栖息于熔岩深处的传奇猎物',category:'熔岩鱼',rarity:'legendary',scenes:["deep"],minWeight:101,maxWeight:703,basePrice:1883,power:1119,skill:'天罚雷霆',emoji:'🦈'},
+  {id:219,name:'火种始祖鲨',desc:'栖息于熔岩深处的古老血脉',category:'熔岩鱼',rarity:'legendary',scenes:["deep"],minWeight:239,maxWeight:1981,basePrice:2997,power:682,skill:'海啸',emoji:'🦐'},
+  {id:220,name:'虹光神仙鱼',desc:'游弋在斑斓珊瑚间的珍稀鱼种',category:'热带鱼',rarity:'rare',scenes:["coast"],minWeight:1.6,maxWeight:23,basePrice:66,power:157,skill:'水流冲击',emoji:'🐠'},
+  {id:221,name:'珊瑚小丑鱼',desc:'游弋在斑斓珊瑚间的传奇猎物',category:'热带鱼',rarity:'rare',scenes:["coast"],minWeight:3,maxWeight:20,basePrice:141,power:139,skill:'旋涡',emoji:'🐚'},
+  {id:222,name:'棱镜蝴蝶鱼',desc:'游弋在斑斓珊瑚间的强韧巨物',category:'热带鱼',rarity:'rare',scenes:["coast"],minWeight:0.48,maxWeight:6.8,basePrice:119,power:101,skill:'水刃',emoji:'🦐'},
+  {id:223,name:'月华刺尾鱼',desc:'游弋在斑斓珊瑚间的传奇猎物',category:'热带鱼',rarity:'rare',scenes:["coast"],minWeight:2.7,maxWeight:32,basePrice:73,power:157,skill:'水流冲击',emoji:'🐠'},
+  {id:224,name:'七彩鹦嘴鱼',desc:'游弋在斑斓珊瑚间的神秘存在',category:'热带鱼',rarity:'epic',scenes:["coast"],minWeight:20,maxWeight:145,basePrice:673,power:366,skill:'旋涡',emoji:'🐚'},
+  {id:225,name:'琉璃箱鲀',desc:'游弋在斑斓珊瑚间的强韧巨物',category:'热带鱼',rarity:'rare',scenes:["coast"],minWeight:0.68,maxWeight:9.5,basePrice:83,power:162,skill:'水流冲击',emoji:'🐡'},
+  {id:226,name:'金纹狮子鱼',desc:'游弋在斑斓珊瑚间的神秘存在',category:'热带鱼',rarity:'epic',scenes:["coast"],minWeight:27,maxWeight:218,basePrice:703,power:410,skill:'海啸',emoji:'🐚'},
+  {id:227,name:'荧光海马',desc:'游弋在斑斓珊瑚间的珍稀鱼种',category:'热带鱼',rarity:'rare',scenes:["coast"],minWeight:0.98,maxWeight:14,basePrice:98,power:115,skill:'急流',emoji:'🪼'},
+  {id:228,name:'霓虹鳍鲷',desc:'游弋在斑斓珊瑚间的神秘存在',category:'热带鱼',rarity:'epic',scenes:["coast"],minWeight:29,maxWeight:272,basePrice:411,power:391,skill:'旋涡',emoji:'🐡'},
+  {id:229,name:'珍珠鲉',desc:'游弋在斑斓珊瑚间的传奇猎物',category:'热带鱼',rarity:'rare',scenes:["coast"],minWeight:1.4,maxWeight:13,basePrice:91,power:90,skill:'水刃',emoji:'🪼'},
+  {id:230,name:'翡翠海龙',desc:'游弋在斑斓珊瑚间的强韧巨物',category:'热带鱼',rarity:'epic',scenes:["coast"],minWeight:11,maxWeight:98,basePrice:261,power:404,skill:'旋涡',emoji:'🐠'},
+  {id:231,name:'彩焰隆头鱼',desc:'游弋在斑斓珊瑚间的传奇猎物',category:'热带鱼',rarity:'rare',scenes:["coast"],minWeight:1.2,maxWeight:7.5,basePrice:96,power:161,skill:'水流冲击',emoji:'🪼'},
+  {id:232,name:'虹膜炮弹鱼',desc:'游弋在斑斓珊瑚间的珍稀鱼种',category:'热带鱼',rarity:'epic',scenes:["coast"],minWeight:2.1,maxWeight:19,basePrice:697,power:356,skill:'旋涡',emoji:'🐚'},
+  {id:233,name:'琥珀护士鲨',desc:'游弋在斑斓珊瑚间的传奇猎物',category:'热带鱼',rarity:'rare',scenes:["coast"],minWeight:1.4,maxWeight:20,basePrice:79,power:159,skill:'水流冲击',emoji:'🐡'},
+  {id:234,name:'花纹魟',desc:'游弋在斑斓珊瑚间的珍稀鱼种',category:'热带鱼',rarity:'epic',scenes:["coast"],minWeight:29,maxWeight:221,basePrice:682,power:321,skill:'深海压力',emoji:'🐚'},
+  {id:235,name:'宝石虾蛄',desc:'游弋在斑斓珊瑚间的强韧巨物',category:'热带鱼',rarity:'epic',scenes:["coast"],minWeight:8.1,maxWeight:107,basePrice:298,power:548,skill:'远古咆哮',emoji:'🐠'},
+  {id:236,name:'流光水母',desc:'游弋在斑斓珊瑚间的梦幻之影',category:'热带鱼',rarity:'rare',scenes:["coast"],minWeight:2.8,maxWeight:19,basePrice:146,power:91,skill:'水刃',emoji:'🐚'},
+  {id:237,name:'琉光章鱼',desc:'游弋在斑斓珊瑚间的神秘存在',category:'热带鱼',rarity:'epic',scenes:["coast"],minWeight:4.3,maxWeight:59,basePrice:264,power:352,skill:'深海压力',emoji:'🐠'},
+  {id:238,name:'霓裳裸鳃',desc:'游弋在斑斓珊瑚间的强韧巨物',category:'热带鱼',rarity:'rare',scenes:["coast"],minWeight:2.9,maxWeight:17,basePrice:78,power:142,skill:'旋涡',emoji:'🐡'},
+  {id:239,name:'珊瑚王蝶鱼',desc:'游弋在斑斓珊瑚间的神秘存在',category:'热带鱼',rarity:'epic',scenes:["coast"],minWeight:2.2,maxWeight:17,basePrice:579,power:412,skill:'海啸',emoji:'🦀'},
+  {id:240,name:'晶簇刺尾鱼',desc:'游弋在斑斓珊瑚间的古老血脉',category:'热带鱼',rarity:'epic',scenes:["coast"],minWeight:7.6,maxWeight:88,basePrice:459,power:348,skill:'深海压力',emoji:'🪼'},
+  {id:241,name:'虹彩燕鳐',desc:'游弋在斑斓珊瑚间的珍稀鱼种',category:'热带鱼',rarity:'epic',scenes:["coast"],minWeight:21,maxWeight:203,basePrice:345,power:394,skill:'旋涡',emoji:'🐡'},
+  {id:242,name:'梦幻豆丁海马',desc:'游弋在斑斓珊瑚间的神秘存在',category:'热带鱼',rarity:'rare',scenes:["coast"],minWeight:1.5,maxWeight:11,basePrice:92,power:128,skill:'旋涡',emoji:'🪼'},
+  {id:243,name:'珊瑚礁帝王鱼',desc:'游弋在斑斓珊瑚间的梦幻之影',category:'热带鱼',rarity:'legendary',scenes:["coast"],minWeight:163,maxWeight:1228,basePrice:1961,power:682,skill:'海啸',emoji:'🦐'},
+  {id:244,name:'深渊鮟鱇',desc:'潜伏于无光深渊的神秘存在',category:'深海鱼',rarity:'epic',scenes:["deep"],minWeight:12,maxWeight:121,basePrice:292,power:420,skill:'海啸',emoji:'🐙'},
+  {id:245,name:'幽光吞噬鳗',desc:'潜伏于无光深渊的强韧巨物',category:'深海鱼',rarity:'epic',scenes:["deep"],minWeight:16,maxWeight:106,basePrice:473,power:493,skill:'天罚雷霆',emoji:'🐟'},
+  {id:246,name:'遗迹守卫鱼',desc:'潜伏于无光深渊的古老血脉',category:'深海鱼',rarity:'epic',scenes:["deep"],minWeight:3.9,maxWeight:38,basePrice:601,power:420,skill:'海啸',emoji:'🪼'},
+  {id:247,name:'渊底盲鲨',desc:'潜伏于无光深渊的古老血脉',category:'深海鱼',rarity:'epic',scenes:["deep"],minWeight:15,maxWeight:179,basePrice:471,power:357,skill:'旋涡',emoji:'🐟'},
+  {id:248,name:'磷火水母',desc:'潜伏于无光深渊的梦幻之影',category:'深海鱼',rarity:'rare',scenes:["deep"],minWeight:2.3,maxWeight:23,basePrice:80,power:140,skill:'旋涡',emoji:'🦑'},
+  {id:249,name:'黑渊巨口鱼',desc:'潜伏于无光深渊的神秘存在',category:'深海鱼',rarity:'epic',scenes:["deep"],minWeight:15,maxWeight:115,basePrice:564,power:448,skill:'海啸',emoji:'🦈'},
+  {id:250,name:'古神触须鱼',desc:'潜伏于无光深渊的神秘存在',category:'深海鱼',rarity:'legendary',scenes:["deep"],minWeight:190,maxWeight:1829,basePrice:2094,power:964,skill:'时空裂隙',emoji:'🦈'},
+  {id:251,name:'深潜龙涎鱼',desc:'潜伏于无光深渊的神秘存在',category:'深海鱼',rarity:'epic',scenes:["deep"],minWeight:21,maxWeight:216,basePrice:567,power:406,skill:'海啸',emoji:'🪼'},
+  {id:252,name:'遗迹石斑',desc:'潜伏于无光深渊的强韧巨物',category:'深海鱼',rarity:'rare',scenes:["deep"],minWeight:1.8,maxWeight:22,basePrice:97,power:118,skill:'急流',emoji:'🐟'},
+  {id:253,name:'渊光灯笼鱼',desc:'潜伏于无光深渊的传奇猎物',category:'深海鱼',rarity:'epic',scenes:["deep"],minWeight:21,maxWeight:192,basePrice:433,power:396,skill:'旋涡',emoji:'🐟'},
+  {id:254,name:'虚空章鱼',desc:'潜伏于无光深渊的梦幻之影',category:'深海鱼',rarity:'epic',scenes:["deep"],minWeight:13,maxWeight:121,basePrice:431,power:357,skill:'旋涡',emoji:'🐟'},
+  {id:255,name:'深渊帝王蟹',desc:'潜伏于无光深渊的珍稀鱼种',category:'深海鱼',rarity:'epic',scenes:["deep"],minWeight:13,maxWeight:113,basePrice:361,power:544,skill:'远古咆哮',emoji:'🦑'},
+  {id:256,name:'亡灵七鳃鳗',desc:'潜伏于无光深渊的传奇猎物',category:'深海鱼',rarity:'epic',scenes:["deep"],minWeight:12,maxWeight:96,basePrice:691,power:513,skill:'远古咆哮',emoji:'🦐'},
+  {id:257,name:'渊墟蝰鱼',desc:'潜伏于无光深渊的神秘存在',category:'深海鱼',rarity:'epic',scenes:["deep"],minWeight:8.1,maxWeight:110,basePrice:637,power:306,skill:'深海压力',emoji:'🪼'},
+  {id:258,name:'幽冥皇带鱼',desc:'潜伏于无光深渊的传奇猎物',category:'深海鱼',rarity:'legendary',scenes:["deep"],minWeight:751,maxWeight:8055,basePrice:947,power:1043,skill:'天罚雷霆',emoji:'🐙'},
+  {id:259,name:'古碑鲟',desc:'潜伏于无光深渊的神秘存在',category:'深海鱼',rarity:'epic',scenes:["deep"],minWeight:25,maxWeight:154,basePrice:645,power:417,skill:'海啸',emoji:'🦐'},
+  {id:260,name:'吸血鬼乌贼',desc:'潜伏于无光深渊的珍稀鱼种',category:'深海鱼',rarity:'legendary',scenes:["deep"],minWeight:37,maxWeight:406,basePrice:1848,power:1118,skill:'天罚雷霆',emoji:'🐟'},
+  {id:261,name:'渊底盾皮鱼',desc:'潜伏于无光深渊的珍稀鱼种',category:'深海鱼',rarity:'legendary',scenes:["deep"],minWeight:673,maxWeight:5488,basePrice:2989,power:877,skill:'毁灭漩涡',emoji:'🦐'},
+  {id:262,name:'腐光鮟鱇',desc:'潜伏于无光深渊的神秘存在',category:'深海鱼',rarity:'epic',scenes:["deep"],minWeight:15,maxWeight:204,basePrice:482,power:334,skill:'深海压力',emoji:'🐟'},
+  {id:263,name:'遗迹魔鳐',desc:'潜伏于无光深渊的梦幻之影',category:'深海鱼',rarity:'legendary',scenes:["deep"],minWeight:796,maxWeight:6673,basePrice:1173,power:704,skill:'海啸',emoji:'🐙'},
+  {id:264,name:'深渊蛛蟹',desc:'潜伏于无光深渊的神秘存在',category:'深海鱼',rarity:'legendary',scenes:["deep"],minWeight:397,maxWeight:2347,basePrice:1139,power:842,skill:'毁灭漩涡',emoji:'🐙'},
+  {id:265,name:'渊核水母',desc:'潜伏于无光深渊的梦幻之影',category:'深海鱼',rarity:'rare',scenes:["deep"],minWeight:0.65,maxWeight:4.6,basePrice:97,power:146,skill:'旋涡',emoji:'🐟'},
+  {id:266,name:'亘古盲鳗',desc:'潜伏于无光深渊的传奇猎物',category:'深海鱼',rarity:'epic',scenes:["deep"],minWeight:5.2,maxWeight:48,basePrice:603,power:426,skill:'海啸',emoji:'🪼'},
+  {id:267,name:'幽渊利维鱼',desc:'潜伏于无光深渊的古老血脉',category:'深海鱼',rarity:'legendary',scenes:["deep"],minWeight:338,maxWeight:3456,basePrice:1920,power:992,skill:'时空裂隙',emoji:'🐟'},
+  {id:268,name:'深墟巨齿鱼',desc:'潜伏于无光深渊的传奇猎物',category:'深海鱼',rarity:'legendary',scenes:["deep"],minWeight:601,maxWeight:5050,basePrice:2430,power:1116,skill:'天罚雷霆',emoji:'🪼'},
+  {id:269,name:'永夜吞天鲸',desc:'潜伏于无光深渊的强韧巨物',category:'深海鱼',rarity:'legendary',scenes:["deep"],minWeight:399,maxWeight:4028,basePrice:2984,power:943,skill:'时空裂隙',emoji:'🦐'},
+  {id:270,name:'极光水晶鱼',desc:'穿行于极光冰原的珍稀鱼种',category:'极地鱼',rarity:'epic',scenes:["deep"],minWeight:22,maxWeight:312,basePrice:547,power:531,skill:'远古咆哮',emoji:'🐳'},
+  {id:271,name:'冰川帝王鲑',desc:'穿行于极光冰原的古老血脉',category:'极地鱼',rarity:'epic',scenes:["deep"],minWeight:30,maxWeight:327,basePrice:669,power:357,skill:'旋涡',emoji:'🦈'},
+  {id:272,name:'霜羽天使鱼',desc:'穿行于极光冰原的强韧巨物',category:'极地鱼',rarity:'rare',scenes:["deep"],minWeight:2,maxWeight:28,basePrice:80,power:97,skill:'水刃',emoji:'❄️'},
+  {id:273,name:'寒晶鲟',desc:'穿行于极光冰原的珍稀鱼种',category:'极地鱼',rarity:'epic',scenes:["deep"],minWeight:27,maxWeight:208,basePrice:301,power:461,skill:'天罚雷霆',emoji:'❄️'},
+  {id:274,name:'极夜发光鱿',desc:'穿行于极光冰原的传奇猎物',category:'极地鱼',rarity:'epic',scenes:["deep"],minWeight:8.1,maxWeight:54,basePrice:545,power:365,skill:'旋涡',emoji:'🐳'},
+  {id:275,name:'冰棱狮子鱼',desc:'穿行于极光冰原的古老血脉',category:'极地鱼',rarity:'epic',scenes:["deep"],minWeight:4.5,maxWeight:49,basePrice:376,power:313,skill:'深海压力',emoji:'🐟'},
+  {id:276,name:'雪魂水母',desc:'穿行于极光冰原的古老血脉',category:'极地鱼',rarity:'rare',scenes:["deep"],minWeight:2,maxWeight:16,basePrice:65,power:164,skill:'水流冲击',emoji:'❄️'},
+  {id:277,name:'独角鲸鱼',desc:'穿行于极光冰原的珍稀鱼种',category:'极地鱼',rarity:'epic',scenes:["deep"],minWeight:9,maxWeight:58,basePrice:716,power:441,skill:'海啸',emoji:'🦈'},
+  {id:278,name:'冰纹龙鱼',desc:'穿行于极光冰原的珍稀鱼种',category:'极地鱼',rarity:'legendary',scenes:["deep"],minWeight:60,maxWeight:720,basePrice:2037,power:946,skill:'时空裂隙',emoji:'🐳'},
+  {id:279,name:'银霜刺鲀',desc:'穿行于极光冰原的梦幻之影',category:'极地鱼',rarity:'epic',scenes:["deep"],minWeight:30,maxWeight:307,basePrice:550,power:331,skill:'深海压力',emoji:'🐳'},
+  {id:280,name:'极光蝠鲼',desc:'穿行于极光冰原的强韧巨物',category:'极地鱼',rarity:'epic',scenes:["deep"],minWeight:17,maxWeight:189,basePrice:314,power:335,skill:'深海压力',emoji:'❄️'},
+  {id:281,name:'冻鳞古鲨',desc:'穿行于极光冰原的古老血脉',category:'极地鱼',rarity:'legendary',scenes:["deep"],minWeight:511,maxWeight:2980,basePrice:1183,power:1020,skill:'时空裂隙',emoji:'❄️'},
+  {id:282,name:'水晶灯笼鱼',desc:'穿行于极光冰原的梦幻之影',category:'极地鱼',rarity:'epic',scenes:["deep"],minWeight:5.3,maxWeight:38,basePrice:622,power:376,skill:'旋涡',emoji:'🦈'},
+  {id:283,name:'霜火双生鱼',desc:'穿行于极光冰原的神秘存在',category:'极地鱼',rarity:'legendary',scenes:["deep"],minWeight:125,maxWeight:1314,basePrice:1510,power:930,skill:'毁灭漩涡',emoji:'🐟'},
+  {id:284,name:'冰封始祖鱼',desc:'穿行于极光冰原的强韧巨物',category:'极地鱼',rarity:'legendary',scenes:["deep"],minWeight:635,maxWeight:4464,basePrice:2152,power:1004,skill:'时空裂隙',emoji:'🐳'},
+  {id:285,name:'极寒帝王蟹',desc:'穿行于极光冰原的神秘存在',category:'极地鱼',rarity:'epic',scenes:["deep"],minWeight:10,maxWeight:109,basePrice:607,power:398,skill:'旋涡',emoji:'🦈'},
+  {id:286,name:'雪盲鮟鱇',desc:'穿行于极光冰原的梦幻之影',category:'极地鱼',rarity:'epic',scenes:["deep"],minWeight:19,maxWeight:225,basePrice:433,power:383,skill:'旋涡',emoji:'🐟'},
+  {id:287,name:'北境海妖鳗',desc:'穿行于极光冰原的神秘存在',category:'极地鱼',rarity:'legendary',scenes:["deep"],minWeight:608,maxWeight:4640,basePrice:1572,power:809,skill:'远古咆哮',emoji:'🐟'},
+  {id:288,name:'冰晶皇带鱼',desc:'穿行于极光冰原的传奇猎物',category:'极地鱼',rarity:'legendary',scenes:["deep"],minWeight:314,maxWeight:2271,basePrice:1611,power:989,skill:'时空裂隙',emoji:'🐟'},
+  {id:289,name:'极光巨兽',desc:'穿行于极光冰原的珍稀鱼种',category:'极地鱼',rarity:'legendary',scenes:["deep"],minWeight:270,maxWeight:1988,basePrice:2415,power:841,skill:'毁灭漩涡',emoji:'🐳'},
+  {id:290,name:'星辰鲲',desc:'只存在于传说中的珍稀鱼种',category:'神话鱼',rarity:'legendary',scenes:["deep"],minWeight:284,maxWeight:2857,basePrice:1751,power:1044,skill:'天罚雷霆',emoji:'🐋'},
+  {id:291,name:'时空锦鲤',desc:'只存在于传说中的古老血脉',category:'神话鱼',rarity:'legendary',scenes:["deep"],minWeight:583,maxWeight:4568,basePrice:2660,power:700,skill:'海啸',emoji:'🐍'},
+  {id:292,name:'创世白龙鱼',desc:'只存在于传说中的古老血脉',category:'神话鱼',rarity:'legendary',scenes:["deep"],minWeight:336,maxWeight:3654,basePrice:1122,power:672,skill:'海啸',emoji:'🐉'},
+  {id:293,name:'混沌吞天兽',desc:'只存在于传说中的古老血脉',category:'神话鱼',rarity:'legendary',scenes:["deep"],minWeight:674,maxWeight:3868,basePrice:1000,power:958,skill:'时空裂隙',emoji:'🐉'},
+  {id:294,name:'虚空神鲸',desc:'只存在于传说中的珍稀鱼种',category:'神话鱼',rarity:'legendary',scenes:["deep"],minWeight:102,maxWeight:547,basePrice:2278,power:950,skill:'时空裂隙',emoji:'🌟'},
+  {id:295,name:'永恒海皇',desc:'只存在于传说中的强韧巨物',category:'神话鱼',rarity:'legendary',scenes:["deep"],minWeight:57,maxWeight:549,basePrice:2240,power:894,skill:'毁灭漩涡',emoji:'🌟'},
+  {id:296,name:'天穹雷龙鱼',desc:'只存在于传说中的古老血脉',category:'神话鱼',rarity:'legendary',scenes:["deep"],minWeight:532,maxWeight:5034,basePrice:1989,power:678,skill:'海啸',emoji:'🌟'},
+  {id:297,name:'幽冥彼岸鱼',desc:'只存在于传说中的传奇猎物',category:'神话鱼',rarity:'legendary',scenes:["deep"],minWeight:518,maxWeight:4468,basePrice:1024,power:779,skill:'远古咆哮',emoji:'🐉'},
+  {id:298,name:'苍龙王',desc:'只存在于传说中的梦幻之影',category:'神话鱼',rarity:'legendary',scenes:["deep"],minWeight:424,maxWeight:2297,basePrice:1479,power:921,skill:'毁灭漩涡',emoji:'🐋'},
+  {id:299,name:'利维坦',desc:'只存在于传说中的传奇猎物',category:'神话鱼',rarity:'legendary',scenes:["deep"],minWeight:66,maxWeight:458,basePrice:2113,power:1049,skill:'天罚雷霆',emoji:'🌟'}
 ];
 
 // ============== 场景数据 ==============
@@ -669,11 +770,11 @@ const BAITS = [
 ];
 
 const SCENES = [
-  {id:'pond',name:'池塘',emoji:'🌿',desc:'宁静的乡村池塘，适合新手',color1:'#2d5a27',color2:'#1a4a2e',waterColor:'#2a6b4f',skyColor1:'#87ceeb',skyColor2:'#e0f0ff',unlockLevel:0},
-  {id:'river',name:'河流',emoji:'🏞️',desc:'湍急的山间河流，中型鱼出没',color1:'#3a5a3a',color2:'#2a4a2a',waterColor:'#1a5a6a',skyColor1:'#6ab7d4',skyColor2:'#c8e6f0',unlockLevel:3},
-  {id:'lake',name:'湖泊',emoji:'🏔️',desc:'深邃的高山湖泊，大鱼藏身之处',color1:'#2a4a3a',color2:'#1a3a2e',waterColor:'#1a3a6a',skyColor1:'#4a7ab7',skyColor2:'#8ab4d8',unlockLevel:6},
-  {id:'coast',name:'近海',emoji:'🏖️',desc:'辽阔的海岸线，海鱼的世界',color1:'#c2a878',color2:'#a89060',waterColor:'#0a4a8a',skyColor1:'#4a90d9',skyColor2:'#f0c878',unlockLevel:10},
-  {id:'deep',name:'深海',emoji:'🌊',desc:'漆黑的深海，传说级鱼种出没',color1:'#1a2a3a',color2:'#0a1a2a',waterColor:'#0a1a3a',skyColor1:'#1a2a4a',skyColor2:'#0a1628',unlockLevel:15}
+  {id:'pond',name:'池塘',emoji:'🌿',desc:'宁静的乡村池塘，适合新手',color1:'#2d5a27',color2:'#1a4a2e',waterColor:'#1fa87a',skyColor1:'#7fd4f5',skyMid:'#b6e6c9',skyColor2:'#ffe6d0',horizon:'#ffc9e0',accent:'#7effc4',unlockLevel:0},
+  {id:'river',name:'河流',emoji:'🏞️',desc:'湍急的山间河流，中型鱼出没',color1:'#3a5a3a',color2:'#2a4a2a',waterColor:'#12a0c0',skyColor1:'#5ecbe6',skyMid:'#a8e6de',skyColor2:'#dcf3e8',horizon:'#ffe0b8',accent:'#6ff0ff',unlockLevel:3},
+  {id:'lake',name:'湖泊',emoji:'🏔️',desc:'深邃的高山湖泊，大鱼藏身之处',color1:'#2a4a3a',color2:'#1a3a2e',waterColor:'#2158c8',skyColor1:'#5a8fe0',skyMid:'#9fb8f0',skyColor2:'#e8d6f5',horizon:'#ffcce8',accent:'#a48cff',unlockLevel:6},
+  {id:'coast',name:'近海',emoji:'🏖️',desc:'辽阔的海岸线，海鱼的世界',color1:'#c2a878',color2:'#a89060',waterColor:'#0c78d8',skyColor1:'#4aa8f0',skyMid:'#a9d6f5',skyColor2:'#ffdca0',horizon:'#ff9ec4',accent:'#7fd8ff',unlockLevel:10},
+  {id:'deep',name:'深海',emoji:'🌊',desc:'漆黑的深海，传说级鱼种出没',color1:'#1a2a3a',color2:'#0a1a2a',waterColor:'#0e1e5a',skyColor1:'#2a1a5a',skyMid:'#3a2a7a',skyColor2:'#0a1440',horizon:'#7a3aa0',accent:'#b06cff',unlockLevel:15}
 ];
 
 // ============== 市场商品 ==============
@@ -739,7 +840,7 @@ function getFishImg(id){
   return null;
 }
 
-// 处理鱼图：边缘 k-means 多色聚类 + flood-fill 抠图 + 朝向探测
+// 处理鱼图：朝向探测 + 裁剪到主体包围盒（图片已是透明背景，无需运行时抠图）
 function processFishImg(img){
   let w = img.naturalWidth, h = img.naturalHeight;
   let cv = document.createElement('canvas');
@@ -749,71 +850,7 @@ function processFishImg(img){
   let imgd; try { imgd = c.getImageData(0,0,w,h); } catch(e){ cv.facingRight=true; return cv; }
   let d = imgd.data;
 
-  // 1) 边缘整圈采样
-  let samples = [];
-  for(let x=0;x<w;x+=2){ for(let y of [0,1,h-2,h-1]){ let i=(y*w+x)*4; samples.push([d[i],d[i+1],d[i+2]]); }}
-  for(let y=0;y<h;y+=2){ for(let x of [0,1,w-2,w-1]){ let i=(y*w+x)*4; samples.push([d[i],d[i+1],d[i+2]]); }}
-
-  // 2) k-means k=3，识别最多 3 种背景色（白+浅灰+其他）
-  let centers = [samples[0].slice(), samples[(samples.length/3)|0].slice(), samples[(samples.length*2/3)|0].slice()];
-  for(let iter=0;iter<6;iter++){
-    let s=[[0,0,0,0],[0,0,0,0],[0,0,0,0]];
-    for(let p of samples){
-      let bd=1e9, bi=0;
-      for(let k=0;k<3;k++){
-        let dr=p[0]-centers[k][0], dg=p[1]-centers[k][1], db=p[2]-centers[k][2];
-        let dist=dr*dr+dg*dg+db*db;
-        if(dist<bd){bd=dist;bi=k;}
-      }
-      s[bi][0]+=p[0]; s[bi][1]+=p[1]; s[bi][2]+=p[2]; s[bi][3]++;
-    }
-    for(let k=0;k<3;k++) if(s[k][3]) centers[k]=[s[k][0]/s[k][3],s[k][1]/s[k][3],s[k][2]/s[k][3]];
-  }
-
-  let TH_HARD = 75*75, TH_SOFT = 130*130;
-  let bgScore = (r,g,b)=>{
-    let best = 1e9;
-    for(let k=0;k<3;k++){
-      let dr=r-centers[k][0], dg=g-centers[k][1], db=b-centers[k][2];
-      let dist=dr*dr+dg*dg+db*db;
-      if(dist < best) best = dist;
-    }
-    return best;
-  };
-
-  // 3) flood-fill 从整圈边缘：只移除与边缘相连的背景区域（鱼身上的浅色斑不会被吃）
-  let visited = new Uint8Array(w*h);
-  let stack = [];
-  for(let x=0;x<w;x++){ stack.push(x); stack.push((h-1)*w+x); }
-  for(let y=0;y<h;y++){ stack.push(y*w); stack.push(y*w+w-1); }
-  while(stack.length){
-    let p = stack.pop();
-    if(visited[p]) continue;
-    let idx = p*4;
-    let sc = bgScore(d[idx],d[idx+1],d[idx+2]);
-    if(sc > TH_SOFT) continue;
-    visited[p] = 1;
-    if(sc < TH_HARD) d[idx+3] = 0;
-    else d[idx+3] = Math.min(d[idx+3], Math.round(((sc-TH_HARD)/(TH_SOFT-TH_HARD))*255));
-    let x=p%w, y=(p/w)|0;
-    if(x>0) stack.push(p-1);
-    if(x<w-1) stack.push(p+1);
-    if(y>0) stack.push(p-w);
-    if(y<h-1) stack.push(p+w);
-  }
-
-  // 4) 边缘羽化
-  let snap = new Uint8Array(w*h);
-  for(let p=0;p<w*h;p++) snap[p] = d[p*4+3];
-  for(let y=1;y<h-1;y++) for(let x=1;x<w-1;x++){
-    let p = y*w+x;
-    if(visited[p]) continue;
-    let n = visited[p-1]+visited[p+1]+visited[p-w]+visited[p+w];
-    if(n>0) d[p*4+3] = Math.min(snap[p], 255 - n*45);
-  }
-  c.putImageData(imgd, 0, 0);
-
-  // 5) 朝向探测：鱼头通常更厚
+  // 朝向探测：鱼头通常更厚
   let leftTip = w, rightTip = 0;
   for(let y=(h*0.3)|0;y<h*0.7;y++) for(let x=0;x<w;x++){
     if(d[(y*w+x)*4+3] > 100){
@@ -1384,25 +1421,37 @@ function drawGame(){
   let isDeep = sc.id==='deep';
   let skyGrad = ctx.createLinearGradient(0,0,0,h*0.5);
   skyGrad.addColorStop(0,sc.skyColor1);
+  if(sc.skyMid) skyGrad.addColorStop(0.5,sc.skyMid);
   skyGrad.addColorStop(1,sc.skyColor2);
   ctx.fillStyle=skyGrad; ctx.fillRect(0,0,w,h*0.5);
 
-  // 太阳/月亮 + 光晕
+  // 地平线辉光带（梦幻暖光）
+  if(sc.horizon){
+    let hzGrad = ctx.createLinearGradient(0,h*0.32,0,h*0.5);
+    hzGrad.addColorStop(0,'rgba(0,0,0,0)');
+    hzGrad.addColorStop(1,sc.horizon);
+    ctx.save();
+    ctx.globalCompositeOperation='screen';
+    ctx.globalAlpha=isDeep?0.5:0.6;
+    ctx.fillStyle=hzGrad; ctx.fillRect(0,h*0.32,w,h*0.18);
+    ctx.restore();
+  }
+
+  // === 太阳/月亮 ===
   let sunX = w*0.78, sunY = h*0.18;
   let isMoon = isDeep;
-  // 外晕（柔光）
-  let halo = ctx.createRadialGradient(sunX,sunY,10,sunX,sunY,180);
-  if(isMoon){
-    halo.addColorStop(0,'rgba(220,230,255,.45)');
-    halo.addColorStop(0.4,'rgba(180,200,240,.15)');
-    halo.addColorStop(1,'rgba(150,180,220,0)');
+  // 外层柔光 bloom（梦幻）
+  ctx.save();
+  ctx.globalCompositeOperation='screen';
+  let bloom = ctx.createRadialGradient(sunX,sunY,10,sunX,sunY,180);
+  if(isDeep){
+    bloom.addColorStop(0,'rgba(200,200,255,.6)'); bloom.addColorStop(0.4,'rgba(140,150,220,.22)'); bloom.addColorStop(1,'rgba(120,120,200,0)');
   } else {
-    halo.addColorStop(0,'rgba(255,240,180,.55)');
-    halo.addColorStop(0.3,'rgba(255,210,130,.25)');
-    halo.addColorStop(0.7,'rgba(255,180,80,.08)');
-    halo.addColorStop(1,'rgba(255,160,60,0)');
+    bloom.addColorStop(0,'rgba(255,250,220,.7)'); bloom.addColorStop(0.35,'rgba(255,210,150,.28)'); bloom.addColorStop(1,'rgba(255,180,120,0)');
   }
-  ctx.fillStyle=halo; ctx.fillRect(sunX-220,sunY-220,440,440);
+  ctx.fillStyle=bloom; ctx.fillRect(sunX-190,sunY-190,380,380);
+  ctx.restore();
+
   // 内核
   let core = ctx.createRadialGradient(sunX-8,sunY-8,2,sunX,sunY,36);
   if(isMoon){
@@ -1423,6 +1472,40 @@ function drawGame(){
       ctx.beginPath(); ctx.arc(sunX+dx,sunY+dy,r,0,Math.PI*2); ctx.fill();
     });
   }
+
+  // 镜头光斑
+  ctx.save();
+  ctx.globalCompositeOperation='screen';
+  let flareCol = isDeep?'rgba(180,190,255,':'rgba(255,235,180,';
+  for(let i=1;i<=4;i++){
+    let fx=sunX-i*w*0.11, fy=sunY+i*h*0.06;
+    let fr=8+i*4;
+    ctx.globalAlpha=0.25/i;
+    ctx.beginPath(); ctx.arc(fx,fy,fr,0,Math.PI*2);
+    ctx.fillStyle=flareCol+'1)'; ctx.fill();
+  }
+  ctx.restore();
+
+  // 漂浮彩色光点（梦幻颗粒）
+  if(!game._skyBokeh){
+    game._skyBokeh=[];
+    for(let i=0;i<18;i++) game._skyBokeh.push({
+      x:Math.random(), y:Math.random()*0.5, r:2+Math.random()*5,
+      sp:0.004+Math.random()*0.01, hue:Math.random()
+    });
+  }
+  ctx.save();
+  ctx.globalCompositeOperation='screen';
+  for(let b of game._skyBokeh){
+    let bx=(b.x+ t*b.sp)%1*w;
+    let by=(b.y + Math.sin(t*0.3+b.hue*6)*0.02)*h;
+    let a=0.12+0.1*Math.sin(t*0.8+b.hue*6);
+    let bg=ctx.createRadialGradient(bx,by,0,bx,by,b.r*3);
+    let col=isDeep?`rgba(150,120,255,`:(b.hue<0.5?`rgba(255,190,230,`:`rgba(170,240,255,`);
+    bg.addColorStop(0,col+Math.max(0,a)+')'); bg.addColorStop(1,col+'0)');
+    ctx.fillStyle=bg; ctx.fillRect(bx-b.r*3,by-b.r*3,b.r*6,b.r*6);
+  }
+  ctx.restore();
 
   // 云
   if(!isDeep){
@@ -1449,14 +1532,23 @@ function drawGame(){
   // === 水面 ===
   let waterY = h*0.5;
   let waterGrad = ctx.createLinearGradient(0,waterY,0,h);
-  waterGrad.addColorStop(0,sc.waterColor);
-  waterGrad.addColorStop(0.5,shadeColor(sc.waterColor,-25));
-  waterGrad.addColorStop(1,isDeep?'#000308':shadeColor(sc.waterColor,-60));
+  waterGrad.addColorStop(0,shadeColor(sc.waterColor,25));
+  waterGrad.addColorStop(0.35,sc.waterColor);
+  waterGrad.addColorStop(0.7,shadeColor(sc.waterColor,-30));
+  waterGrad.addColorStop(1,isDeep?'#01030f':shadeColor(sc.waterColor,-65));
   ctx.fillStyle=waterGrad; ctx.fillRect(0,waterY,w,h-waterY);
+
+  // 水面梦幻色调叠层（地平线色映入水面）
+  if(sc.horizon){
+    let wtint=ctx.createLinearGradient(0,waterY,0,waterY+70);
+    wtint.addColorStop(0,sc.horizon); wtint.addColorStop(1,'rgba(0,0,0,0)');
+    ctx.save(); ctx.globalCompositeOperation='screen'; ctx.globalAlpha=0.35;
+    ctx.fillStyle=wtint; ctx.fillRect(0,waterY,w,70); ctx.restore();
+  }
 
   // 水面高光
   let hlGrad = ctx.createLinearGradient(0,waterY,0,waterY+30);
-  hlGrad.addColorStop(0,'rgba(255,255,255,.35)');
+  hlGrad.addColorStop(0,'rgba(255,255,255,.45)');
   hlGrad.addColorStop(1,'rgba(255,255,255,0)');
   ctx.fillStyle=hlGrad; ctx.fillRect(0,waterY,w,30);
 
@@ -1486,7 +1578,7 @@ function drawGame(){
   drawAmbientFish(sc, w, h, waterY, t);
 
   // === 第一人称：双手 + 鱼竿 ===
-  drawHandsAndRod(w, h, waterY, t);
+  drawHandsAndRod(w, h, waterY, t, sc);
 
   // === 画面美化层（god rays、光斑、晕影、波纹）===
   drawPolishLayer(w, h, waterY, t, sc);
@@ -1542,18 +1634,21 @@ function drawPolishLayer(w, h, waterY, t, sc){
     }
     ctx.restore();
   }
-  // 2. 水面 caustic 光斑
+  // 2. 水面 caustic 光斑（带场景色调，更梦幻）
+  let causticRGB = hexToRgb(sc.accent || '#fff0c8');
   ctx.save();
   ctx.globalCompositeOperation = 'screen';
-  ctx.globalAlpha = isDeep ? 0.1 : 0.18;
-  for(let i=0;i<8;i++){
+  ctx.globalAlpha = isDeep ? 0.12 : 0.2;
+  for(let i=0;i<10;i++){
     let phase = t*0.4 + i*1.3;
     let spX = (Math.sin(phase)*0.5 + 0.5) * w;
     let spY = waterY + 20 + (Math.cos(phase*0.7)*0.5 + 0.5) * (h - waterY) * 0.6;
-    let r = 30 + Math.sin(t+i)*10;
+    let r = 30 + Math.sin(t+i)*12;
+    let mix = i%2===0;
+    let cr = mix ? causticRGB : {r:255,g:255,b:220};
     let g = ctx.createRadialGradient(spX, spY, 0, spX, spY, r);
-    g.addColorStop(0, 'rgba(255,255,220,.5)');
-    g.addColorStop(1, 'rgba(255,255,220,0)');
+    g.addColorStop(0, `rgba(${cr.r},${cr.g},${cr.b},.55)`);
+    g.addColorStop(1, `rgba(${cr.r},${cr.g},${cr.b},0)`);
     ctx.fillStyle = g;
     ctx.fillRect(spX-r, spY-r, r*2, r*2);
   }
@@ -1586,6 +1681,11 @@ function drawPolishLayer(w, h, waterY, t, sc){
     ctx.fillStyle = cg;
     ctx.fillRect(0, 0, w, h);
   }
+}
+
+function hexToRgb(hex){
+  let n = parseInt(hex.slice(1),16);
+  return {r:(n>>16)&255, g:(n>>8)&255, b:n&255};
 }
 
 function shadeColor(hex, percent){
@@ -1801,6 +1901,8 @@ function drawScenery(sc, w, h, t){
 function sceneFishCount(sid){return FISH_DATA.filter(f=>f.scenes.includes(sid)).length;}
 
 function drawAmbientFish(sc, w, h, waterY, t){
+  // 水中梦幻粒子（气泡 + 漂浮光点），拉鱼时也保留氛围
+  drawWaterParticles(sc, w, h, waterY, t);
   // 拉鱼时不画环境鱼，只显示正在钓的鱼
   if(game.fishingState === 'reeling'){
     drawReelingFish(w, h, waterY, t);
@@ -1808,7 +1910,7 @@ function drawAmbientFish(sc, w, h, waterY, t){
   }
   if(!game._ambient){
     game._ambient = [];
-    for(let i=0;i<8;i++) game._ambient.push({
+    for(let i=0;i<12;i++) game._ambient.push({
       fishId: sampleSceneFishId(sc.id),
       x: Math.random()*w, y: waterY+50+Math.random()*(h-waterY-80),
       vx: (Math.random()<0.5?-1:1)*(20+Math.random()*30),
@@ -1817,17 +1919,70 @@ function drawAmbientFish(sc, w, h, waterY, t){
       depth: 0.4+Math.random()*0.6
     });
   }
+  let glowCol = sc.accent || '#7fd8ff';
   for(let a of game._ambient){
     a.x += a.vx * 0.016;
     if(a.x<-60){a.x=w+60; a.fishId=sampleSceneFishId(sc.id); a.vx = Math.abs(a.vx);}
     if(a.x>w+60){a.x=-60; a.fishId=sampleSceneFishId(sc.id); a.vx = -Math.abs(a.vx);}
     // 游动姿态：S 形垂直摆动 + 缓慢深度变化
     let drawY = a.y + Math.sin(t*1.5 + a.phase) * 8 + Math.sin(t*0.4 + a.phase)*15;
+    // 柔和色晕
+    ctx.save();
+    ctx.globalCompositeOperation='screen';
+    ctx.globalAlpha=(sc.id==='deep'?0.5:0.28)*a.depth;
+    let gr=ctx.createRadialGradient(a.x,drawY,2,a.x,drawY,a.size*1.6);
+    gr.addColorStop(0,glowCol); gr.addColorStop(1,'rgba(0,0,0,0)');
+    ctx.fillStyle=gr; ctx.fillRect(a.x-a.size*1.6,drawY-a.size*1.6,a.size*3.2,a.size*3.2);
+    ctx.restore();
     let alpha = (sc.id==='deep'?0.45:0.25) * a.depth;
     ctx.globalAlpha = alpha;
     drawFish(ctx, a.fishId, a.x, drawY, a.size, a.vx>0?0:Math.PI, t);
     ctx.globalAlpha = 1;
   }
+}
+
+// 水中梦幻粒子：上升气泡 + 缓慢漂浮的彩色光点
+function drawWaterParticles(sc, w, h, waterY, t){
+  if(!game._waterParticles){
+    game._waterParticles = [];
+    for(let i=0;i<46;i++){
+      let bubble = i<26;
+      game._waterParticles.push({
+        bubble,
+        x: Math.random(),
+        y: Math.random(),
+        r: bubble ? 1+Math.random()*3 : 2+Math.random()*6,
+        sp: bubble ? 0.03+Math.random()*0.05 : 0.006+Math.random()*0.014,
+        sway: Math.random()*Math.PI*2,
+        hue: Math.random()
+      });
+    }
+  }
+  let waterH = h - waterY;
+  let accent = sc.accent || '#7fd8ff';
+  ctx.save();
+  ctx.globalCompositeOperation='screen';
+  for(let p of game._waterParticles){
+    if(p.bubble){
+      // 上升气泡
+      let py = waterY + waterH * ((p.y - t*p.sp)%1+1)%1;
+      let px = p.x*w + Math.sin(t*1.2+p.sway)*10;
+      ctx.globalAlpha=0.35;
+      let bg=ctx.createRadialGradient(px,py,0,px,py,p.r*2);
+      bg.addColorStop(0,'rgba(220,245,255,.9)'); bg.addColorStop(0.6,'rgba(180,225,255,.35)'); bg.addColorStop(1,'rgba(180,225,255,0)');
+      ctx.fillStyle=bg; ctx.beginPath(); ctx.arc(px,py,p.r*2,0,Math.PI*2); ctx.fill();
+    } else {
+      // 漂浮彩色光点
+      let py = waterY + waterH * ((p.y + Math.sin(t*0.2+p.sway)*0.03 + t*p.sp)%1);
+      let px = (p.x*w + Math.cos(t*0.3+p.sway)*20 + w)%w;
+      let a=0.1+0.1*Math.sin(t*0.9+p.sway);
+      let col = sc.id==='deep' ? 'rgba(150,120,255,' : (p.hue<0.5?'rgba(140,240,220,':'rgba(200,180,255,');
+      let g=ctx.createRadialGradient(px,py,0,px,py,p.r*3);
+      g.addColorStop(0,col+Math.max(0,a)+')'); g.addColorStop(1,col+'0)');
+      ctx.fillStyle=g; ctx.fillRect(px-p.r*3,py-p.r*3,p.r*6,p.r*6);
+    }
+  }
+  ctx.restore();
 }
 
 function sampleSceneFishId(sid){
@@ -2085,7 +2240,30 @@ function drawFish(ctx, fishId, x, y, size, angle, t){
 }
 
 // === 第一人称：双手 + 鱼竿 + 卷线轮 ===
-function drawHandsAndRod(w, h, waterY, t){
+// 生成带场景色调轮廓光的手部副本（按场景缓存，source-atop 只作用于照片像素）
+function getTintedHands(hImg, sc, aRGB){
+  let key = (sc && sc.id) || 'default';
+  if(!hImg._tintCache) hImg._tintCache = {};
+  if(hImg._tintCache[key]) return hImg._tintCache[key];
+  let tw = hImg.width, th = hImg.height;
+  let oc = document.createElement('canvas');
+  oc.width = tw; oc.height = th;
+  let octx = oc.getContext('2d');
+  octx.drawImage(hImg, 0, 0);
+  octx.globalCompositeOperation = 'source-atop';
+  let rim = octx.createLinearGradient(0, 0, 0, th);
+  rim.addColorStop(0, `rgba(${aRGB.r},${aRGB.g},${aRGB.b},.24)`);
+  rim.addColorStop(0.45, 'rgba(255,255,255,0)');
+  rim.addColorStop(1, 'rgba(0,0,0,.22)');
+  octx.fillStyle = rim;
+  octx.fillRect(0, 0, tw, th);
+  hImg._tintCache[key] = oc;
+  return oc;
+}
+
+function drawHandsAndRod(w, h, waterY, t, sc){
+  let accent = (sc && sc.accent) || '#4aeadc';
+  let aRGB = hexToRgb(accent);
   // 鱼竿弯曲程度
   let bend = 0;
   if(game.fishingState==='reeling') bend = 80 + Math.sin(t*15)*15;
@@ -2120,14 +2298,24 @@ function drawHandsAndRod(w, h, waterY, t){
     // 以照片右下角（玩家肘部）为支点旋转
     let pivotX = hx + drawW * 0.85;
     let pivotY = hy + drawH * 0.85;
+    // 背光辉光（场景色，让双手融入画面）
     ctx.save();
-    ctx.shadowColor = 'rgba(0,0,0,.45)';
-    ctx.shadowBlur = 30;
-    ctx.shadowOffsetY = 8;
+    ctx.globalCompositeOperation='screen';
+    let backGlow=ctx.createRadialGradient(hx+drawW*0.45,hy+drawH*0.35,20,hx+drawW*0.45,hy+drawH*0.35,drawW*0.6);
+    backGlow.addColorStop(0,`rgba(${aRGB.r},${aRGB.g},${aRGB.b},.32)`);
+    backGlow.addColorStop(1,`rgba(${aRGB.r},${aRGB.g},${aRGB.b},0)`);
+    ctx.fillStyle=backGlow; ctx.fillRect(hx-40,hy-40,drawW+80,drawH+80);
+    ctx.restore();
+    // 场景色调轮廓光烘焙到手部副本（仅作用于照片像素）
+    let tinted = getTintedHands(hImg, sc, aRGB);
+    ctx.save();
+    ctx.shadowColor = `rgba(${aRGB.r>>1},${aRGB.g>>1},${aRGB.b>>1},.5)`;
+    ctx.shadowBlur = 34;
+    ctx.shadowOffsetY = 6;
     ctx.translate(pivotX, pivotY);
     ctx.rotate(rotAng);
     ctx.translate(-pivotX, -pivotY);
-    ctx.drawImage(hImg, hx, hy, drawW, drawH);
+    ctx.drawImage(tinted, hx, hy, drawW, drawH);
     // 计算鱼线起点（旋转后的鱼竿末端世界坐标）
     let relX = (hImg.rodTipX != null) ? hImg.rodTipX/hImg.width : 0.05;
     let relY = (hImg.rodTipY != null) ? hImg.rodTipY/hImg.height : 0.05;
@@ -2614,7 +2802,7 @@ function finishReeling(success, reason){
     let weight = fish.minWeight + Math.random()*(fish.maxWeight-fish.minWeight);
     if(bait === 'big') weight *= 1.3;
     weight = Math.round(weight*100)/100;
-    let quality = rollQuality();
+    let quality = rollQuality(fish);
     if(bait === 'quality') quality = Math.min(5, quality+1);
     game.caughtFish = {fishId:fish.id, weight, quality, rarity:fish.rarity};
     game.fishingState = 'caught';
@@ -2687,13 +2875,8 @@ function calcSuccessRate(fish){
   return Math.min(0.95, base);
 }
 
-function rollQuality(){
-  let r = Math.random();
-  if(r < 0.3) return 1;
-  if(r < 0.6) return 2;
-  if(r < 0.8) return 3;
-  if(r < 0.93) return 4;
-  return 5;
+function rollQuality(fish){
+  return fish.rarity==='legendary' ? 5 : fish.rarity==='epic' ? 4 : fish.rarity==='rare' ? 3 : 1;
 }
 
 function getExpForRarity(rarity){
@@ -4201,82 +4384,299 @@ function renderQuestPanel(){
 #remaster{position:fixed;inset:0;z-index:10000;overflow:hidden;background:#07131c;color:#eefcff;font-family:"Microsoft YaHei",system-ui,sans-serif}
 #rCanvas{position:absolute;inset:0;width:100%;height:100%;cursor:crosshair}.r-hud{position:absolute;inset:0;pointer-events:none}.r-top{display:flex;align-items:center;gap:10px;padding:16px 18px;background:linear-gradient(180deg,rgba(3,12,18,.88),transparent)}
 .r-brand{font-weight:900;font-size:20px;letter-spacing:3px;color:#7ef7df;text-shadow:0 0 18px #23e3bd}.r-pill{padding:8px 13px;border:1px solid #ffffff25;border-radius:13px;background:#07131cbb;backdrop-filter:blur(12px);font-weight:700}.r-pill b{color:#ffd768}.r-exp{width:190px;height:8px;border-radius:9px;background:#ffffff1b;overflow:hidden;margin-top:4px}.r-exp i{display:block;height:100%;background:linear-gradient(90deg,#39d9a2,#8affdf);box-shadow:0 0 10px #39d9a2}
+.r-bait-switch{pointer-events:auto;cursor:pointer;user-select:none;transition:.2s}.r-bait-switch:hover{border-color:#7effdf;background:#12323a;transform:translateY(-1px)}
 .r-actions{position:absolute;right:18px;top:18px;display:flex;gap:8px;pointer-events:auto}.r-btn{border:1px solid #ffffff2b;color:#eafffb;background:#07131cd9;padding:10px 14px;border-radius:12px;font-weight:800;cursor:pointer;transition:.2s;box-shadow:0 8px 24px #0006}.r-btn:hover{transform:translateY(-2px);border-color:#6fffe0;background:#14313a}.r-btn.primary{background:linear-gradient(135deg,#1aa985,#087e72);border-color:#82ffe2}.r-btn:disabled{opacity:.4;cursor:not-allowed;transform:none}
 .r-bottom{position:absolute;left:50%;bottom:18px;transform:translateX(-50%);padding:11px 16px;background:#061117dc;border:1px solid #ffffff20;border-radius:16px;backdrop-filter:blur(12px);text-align:center;min-width:430px}.r-tip{font-size:13px;color:#b6d6d3;margin-top:5px}.r-panel{position:absolute;inset:5% 7%;display:none;pointer-events:auto;background:linear-gradient(145deg,#0b1e27f5,#071118fa);border:1px solid #7effdf4a;border-radius:24px;box-shadow:0 30px 100px #000c,0 0 45px #1de0b31c;overflow:hidden}.r-panel.on{display:flex;flex-direction:column}.r-head{padding:20px 24px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #ffffff16}.r-head h2{margin:0;font-size:25px}.r-content{padding:20px 24px;overflow:auto;display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:13px}.r-card{position:relative;padding:14px;border:1px solid #ffffff18;border-radius:15px;background:#ffffff08;min-height:104px;overflow:hidden}.r-card:hover{border-color:#6ef9d860}.r-card h3{margin:0 0 6px}.r-card p{margin:4px 0;color:#a9c8c6;font-size:13px}.r-card img{width:100%;height:92px;object-fit:contain;filter:drop-shadow(0 8px 8px #0008)}.quality-1{color:#d4e0df}.quality-2{color:#63e39e}.quality-3{color:#64aaff}.quality-4{color:#d884ff}.quality-5{color:#ffcf5a}.r-card .r-btn{padding:7px 9px;margin:7px 5px 0 0;font-size:12px}.r-tabs{padding:0 24px 12px;display:flex;gap:8px}.r-scene{cursor:pointer;min-height:120px}.r-scene.locked{filter:grayscale(.8);opacity:.55}.r-scene .bg{position:absolute;inset:0;opacity:.25}.r-scene>*:not(.bg){position:relative}.r-toast{position:absolute;left:50%;top:90px;transform:translateX(-50%) translateY(-15px);opacity:0;background:#07131cee;border:1px solid #63fadd;padding:12px 19px;border-radius:12px;transition:.25s;pointer-events:none}.r-toast.on{opacity:1;transform:translateX(-50%)}
+.legend-alert{position:absolute;left:50%;top:18%;z-index:7;width:min(560px,82vw);padding:18px 24px 22px;box-sizing:border-box;transform:translate(-50%,-18px) scale(.96);opacity:0;overflow:hidden;text-align:center;pointer-events:none;border:2px solid #ffd86b;border-radius:18px;background:linear-gradient(135deg,#40220ff2,#181008f5);box-shadow:0 18px 70px #000b,0 0 38px #ffbd3d66;color:#fff4bf;transition:opacity .2s,transform .2s}.legend-alert.on{opacity:1;transform:translate(-50%,0) scale(1)}.legend-alert b{display:block;font-size:25px;letter-spacing:3px;color:#ffd768;text-shadow:0 0 15px #ff9d24}.legend-alert span{display:block;margin-top:5px;font-size:14px}.legend-alert::after{content:"";position:absolute;left:0;bottom:0;width:100%;height:5px;background:linear-gradient(90deg,#fff4a8,#ff9d24);transform-origin:left}.legend-alert.on::after{animation:legendAlertCountdown 3s linear forwards}@keyframes legendAlertCountdown{to{transform:scaleX(0)}}
+.legend-alert.boss{border-color:#ff684f;background:linear-gradient(135deg,#5a130df5,#1b0708f7);box-shadow:0 18px 80px #000c,0 0 52px #ff482e88}.legend-alert.boss b{color:#ffcf67;font-size:29px;text-shadow:0 0 18px #ff321f}.legend-alert.boss::after{background:linear-gradient(90deg,#fff09c,#ff3d26)}
+.sanctum-card{border-color:#ffd76899!important;background:linear-gradient(145deg,#4b286380,#261238b8)!important;box-shadow:inset 0 0 28px #ffd76814,0 0 18px #b56aff24}.sanctum-card::after{content:"限时秘境";position:absolute;right:10px;top:10px;padding:4px 9px;border-radius:99px;background:#ffd768;color:#2b1635;font-size:11px;font-weight:900}.sanctum-card.sanctum-focus{animation:sanctumPulse 1s ease-in-out 2}@keyframes sanctumPulse{50%{transform:scale(1.025);box-shadow:0 0 42px #ffd768aa,inset 0 0 30px #ffd76822}}
 .fight{position:absolute;left:50%;bottom:92px;transform:translateX(-50%);width:min(620px,85%);display:none;pointer-events:auto;background:#07131cf2;border:1px solid #68f6dc55;border-radius:18px;padding:15px}.fight.on{display:block}.meter{height:20px;background:#ffffff16;border-radius:20px;overflow:hidden;position:relative}.meter i{display:block;height:100%;transition:.08s;background:linear-gradient(90deg,#36db9a,#e6ff80)}.meter.danger i{background:linear-gradient(90deg,#ff5555,#ffbd52)}.fight button{width:100%;margin-top:12px;font-size:18px}.aquarium-bg{background:linear-gradient(#0b597b,#031c32)!important}.swimmer{animation:none!important;transform:none!important}
 .catch-modal{position:absolute;inset:0;z-index:8;display:none;place-items:center;pointer-events:auto;background:#02090dbd;backdrop-filter:blur(8px)}.catch-modal.on{display:grid}.catch-box{position:relative;width:min(500px,86vw);padding:28px;text-align:center;border:1px solid #71ffe0;border-radius:24px;background:linear-gradient(150deg,#102f39,#071219);box-shadow:0 35px 100px #000,0 0 55px #45e8c733;overflow:hidden}.catch-box img{display:block;width:80%;height:205px;margin:20px auto 6px;object-fit:contain;filter:drop-shadow(0 14px 13px #0009);animation:catchFloat 2.4s ease-in-out infinite}.catch-heading{position:relative;z-index:3;min-height:24px;padding:3px 56px 8px;background:linear-gradient(90deg,transparent,#102f39 25%,#102f39 75%,transparent)}.catch-x{position:absolute;right:14px;top:14px;z-index:5;width:38px;height:38px;border-radius:50%;font-size:22px;padding:0}.catch-box h2{margin:4px 0 9px;font-size:29px}.catch-box p{color:#b9d8d5}.catch-saved{display:inline-block;padding:8px 14px;border-radius:99px;background:#38d5a31c;color:#7effd7;border:1px solid #58eecf55}@keyframes catchFloat{50%{transform:translateY(-3px) rotate(-.6deg)}}
+.catch-modal.space-close .catch-x{display:none}.catch-close-hint{margin-top:12px;color:#9fc4c0;font-size:13px}.settings-grid{align-content:start;grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}.setting-card{display:flex;flex-direction:column;min-height:150px}.setting-card .setting-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:auto}.setting-card .setting-actions .r-btn{margin:8px 0 0}.setting-state{color:#7effdf!important;font-weight:800}#remaster.reduce-motion *,#remaster.reduce-motion *::before,#remaster.reduce-motion *::after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important;scroll-behavior:auto!important}
 .save-menu{position:absolute;inset:0;z-index:20;display:none;place-items:center;pointer-events:auto;background:radial-gradient(circle at 50% 25%,#154354f2,#02080dfb 70%);backdrop-filter:blur(10px)}.save-menu.on{display:grid}.save-menu-box{width:min(780px,88vw);max-height:84vh;overflow:auto;padding:30px;border:1px solid #72ffe04d;border-radius:26px;background:#07151dec;box-shadow:0 35px 100px #000}.save-menu h1{margin:0;color:#7effdf;letter-spacing:6px}.save-menu-title{text-align:center;margin-bottom:22px}.save-list{display:grid;gap:11px;margin:18px 0}.save-row{display:flex;align-items:center;gap:14px;padding:15px;border:1px solid #ffffff1b;border-radius:15px;background:#ffffff08}.save-row-info{flex:1}.save-row-info b{font-size:18px}.save-row-info p{margin:5px 0 0;color:#a9c8c6;font-size:13px}.save-empty{text-align:center;padding:28px;color:#8ca7a5;border:1px dashed #ffffff25;border-radius:15px}.save-menu-actions{display:flex;justify-content:center;gap:10px}
 #rContent>.r-card:has(>.r-btn[onclick^="R.sell"]){display:flex;flex-direction:column;height:315px;box-sizing:border-box}#rContent>.r-card:has(>.r-btn[onclick^="R.sell"])>img{flex:0 0 92px}#rContent>.r-card:has(>.r-btn[onclick^="R.sell"])>h3{min-height:24px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}#rContent>.r-card:has(>.r-btn[onclick^="R.sell"])>p{min-height:34px}#rContent>.r-card:has(>.r-btn[onclick^="R.sell"])>.r-btn{width:100%;box-sizing:border-box;margin-left:0;margin-right:0}#rContent>.r-card:has(>.r-btn[onclick^="R.sell"])>.r-btn:first-of-type{margin-top:auto}
+#rContent>.r-card:has(>.r-btn[onclick^="R.buyBait"]){display:flex;flex-direction:column;height:210px;box-sizing:border-box}#rContent>.r-card:has(>.r-btn[onclick^="R.buyBait"])>h3{min-height:24px}#rContent>.r-card:has(>.r-btn[onclick^="R.buyBait"])>p:first-of-type{min-height:38px}#rContent>.r-card:has(>.r-btn[onclick^="R.buyBait"])>.r-btn{width:100%;box-sizing:border-box;margin-left:0;margin-right:0}#rContent>.r-card:has(>.r-btn[onclick^="R.buyBait"])>.r-btn:first-of-type{margin-top:auto}
+#rContent>.r-card:has(>.r-btn[onclick^="R.buyBait"]){height:305px}.bait-stats{color:#7eead8!important;font-size:12px!important;line-height:1.45}
+#rContent>.r-card:has(>.r-btn[onclick^="R.rodAction"]){display:flex;flex-direction:column;height:190px;box-sizing:border-box}#rContent>.r-card:has(>.r-btn[onclick^="R.rodAction"])>h3{min-height:24px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}#rContent>.r-card:has(>.r-btn[onclick^="R.rodAction"])>p:first-of-type{min-height:38px}#rContent>.r-card:has(>.r-btn[onclick^="R.rodAction"])>.r-btn{width:100%;height:36px;flex:0 0 36px;box-sizing:border-box;margin:auto 0 0;padding:0 9px}
+#rContent.dex-grid{flex:1;min-height:0;align-content:start;grid-auto-rows:280px}#rContent.dex-grid>.r-card{height:280px;min-height:280px;box-sizing:border-box;display:flex;flex-direction:column;align-items:stretch;overflow:hidden}#rContent.dex-grid>.r-card>img{flex:0 0 92px}#rContent.dex-grid>.r-card>h3{display:block;min-height:25px;margin-top:9px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}#rContent.dex-grid>.r-card>p{display:block;line-height:1.45}.dex-map{margin-top:auto!important;padding-top:7px;border-top:1px solid #ffffff14;color:#7eead8!important}
+#rContent.dex-grid>.r-card::before{content:attr(data-category);position:absolute;right:9px;top:9px;z-index:2;padding:3px 7px;border:1px solid #7effdf45;border-radius:99px;background:#06151cdd;color:#9af5df;font-size:11px;line-height:1.2;backdrop-filter:blur(6px)}
+.r-tabs{flex-wrap:wrap}
+.fish-search-wrap{display:flex;align-items:center;gap:9px;flex:1 1 280px;min-width:240px}.fish-search{width:min(360px,100%);box-sizing:border-box;padding:10px 13px;border:1px solid #6ef9d84a;border-radius:12px;outline:none;background:#06151cdd;color:#eafffb;font:inherit}.fish-search:focus{border-color:#7effdf;box-shadow:0 0 0 3px #31d6b526}.fish-search::placeholder{color:#789d99}.fish-search-count{white-space:nowrap;color:#91bbb6;font-size:12px}.fish-zoomable{cursor:zoom-in;transition:transform .2s,filter .2s}.fish-zoomable:hover{transform:scale(1.04);filter:drop-shadow(0 10px 13px #0009) drop-shadow(0 0 14px #67f7d455)}
+.fish-zoom{position:absolute;inset:0;z-index:30;display:none;place-items:center;pointer-events:auto;padding:24px;background:#02090de8;backdrop-filter:blur(12px)}.fish-zoom.on{display:grid}.fish-zoom-box{position:relative;width:min(820px,90vw);height:min(680px,86vh);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;box-sizing:border-box;border:1px solid #71ffe0;border-radius:24px;background:radial-gradient(circle at 50% 42%,#164654,#071219 72%);box-shadow:0 35px 110px #000,0 0 60px #45e8c72b}.fish-zoom-box img{width:100%;height:calc(100% - 72px);object-fit:contain;filter:drop-shadow(0 20px 18px #000b)}.fish-zoom-box h3{margin:12px 0 0;font-size:25px}.fish-zoom-close{position:absolute;right:16px;top:16px;z-index:2;width:42px;height:42px;padding:0;border-radius:50%;font-size:23px}
+#rContent.aquarium-bg{align-content:start;grid-auto-rows:285px}#rContent.aquarium-bg>.r-card{height:285px;min-height:285px;display:flex;flex-direction:column;overflow:hidden;box-sizing:border-box}#rContent.aquarium-bg>.r-card>.r-card{display:contents}#rContent.aquarium-bg>.r-card img{width:100%;height:112px;flex:0 0 112px;object-fit:contain}#rContent.aquarium-bg>.r-card h3{min-height:25px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}#rContent.aquarium-bg>.r-card p{min-height:42px;line-height:1.5}#rContent.aquarium-bg>.r-card>.r-btn{width:100%;margin:auto 0 0;box-sizing:border-box}
+@media(max-width:1500px) and (min-width:801px){.r-actions{top:70px}}
 @media(max-width:800px){.r-brand{display:none}.r-actions{top:70px;flex-wrap:wrap;justify-content:flex-end;left:10px}.r-actions .r-btn{padding:8px}.r-panel{inset:3%}.r-bottom{min-width:0;width:86%}.r-content{grid-template-columns:1fr 1fr}.r-top{font-size:12px;gap:5px;padding:9px}.r-pill{padding:6px}.r-exp{width:90px}}
 </style>
 <div id="remaster">
   <canvas id="rCanvas"></canvas>
   <div class="r-hud">
-    <div class="r-top"><div class="r-brand">深境垂钓</div><div class="r-pill">💰 <b id="rGold">0</b></div><div class="r-pill">等级 <b id="rLevel">1</b><div class="r-exp"><i id="rExp"></i></div></div><div class="r-pill">🎣 <span id="rRod">旧木竿</span></div><div class="r-pill">🪱 <span id="rBait">蚯蚓 × 0</span></div></div>
-    <div class="r-actions"><button class="r-btn" onclick="R.backMenu()">↩ 返回</button><button class="r-btn" onclick="R.open('map')">🗺 场景</button><button class="r-btn" onclick="R.open('bag')">🎒 背包</button><button class="r-btn" onclick="R.open('dex')">📖 图鉴</button><button class="r-btn" onclick="R.open('aquarium')">🐠 水族馆</button><button class="r-btn primary" onclick="R.cast()">空格 · 抛竿</button></div>
+    <div class="r-top"><div class="r-brand">深境垂钓</div><div class="r-pill">💰 <b id="rGold">0</b></div><div class="r-pill">等级 <b id="rLevel">1</b><div class="r-exp"><i id="rExp"></i></div></div><div class="r-pill">🎣 <span id="rRod">旧木竿</span></div><div class="r-pill r-bait-switch" onclick="R.cycleBait()" title="点击切换到下一种有库存的饵料">🪱 <span id="rBait">蚯蚓 × 0</span>　↻</div><div class="r-pill" id="rSanctumPass" style="display:none;color:#ffd768">⛩️ 秘境 <b id="rSanctumTime">2:00</b></div></div>
+    <div class="r-actions"><button class="r-btn" onclick="R.backMenu()">↩ 返回</button><button class="r-btn" onclick="R.open('map')">🗺 场景</button><button class="r-btn" onclick="R.openSanctum()">⛩️ 天命秘境</button><button class="r-btn" onclick="R.open('bag')">🎒 背包</button><button class="r-btn" onclick="R.open('dex')">📖 图鉴</button><button class="r-btn" onclick="R.open('aquarium')">🐠 水族馆</button><button class="r-btn" onclick="R.open('settings')">⚙ 设置</button><button class="r-btn primary" onclick="R.cast()">空格 · 抛竿</button></div>
     <div class="r-bottom"><b id="rPlace">翠谷湖岸 · 钓鱼码头</b><div class="r-tip" id="rTip">WASD / 方向键移动，靠近市场或工坊后按 E；在水边按空格抛竿</div></div>
-    <div class="fight" id="rFight"><div style="display:flex;justify-content:space-between;margin-bottom:8px"><b id="fightName">神秘鱼</b><span id="fightClicks">点击速度 0/s</span></div><div class="meter"><i id="fishHp" style="width:100%"></i></div><div class="r-tip">鱼的体力 · 快速点击消耗体力</div><div class="meter danger" style="margin-top:8px"><i id="lineHp" style="width:18%"></i></div><div class="r-tip" id="escapeTip">挣脱进度 · 点击速度 + 鱼竿力量必须压过鱼的挣脱力</div><button class="r-btn primary" onclick="R.reel(event)">⚡ 快速点击收线！</button></div>
+    <div class="fight" id="rFight"><div style="display:flex;justify-content:space-between;margin-bottom:8px"><b id="fightName">神秘鱼</b><span id="fightClicks">点击速度 0/s</span></div><div class="meter"><i id="fishHp" style="width:100%"></i></div><div class="r-tip">鱼的体力 · 快速点击消耗体力</div><div class="meter danger" style="margin-top:8px"><i id="lineHp" style="width:18%"></i></div><div class="r-tip" id="escapeTip">挣脱进度 · 点击速度 + 鱼竿力量必须压过鱼的挣脱力</div><button class="r-btn primary" id="rReelButton" onclick="R.reel(event)">⚡ 快速点击收线！</button></div>
     <div class="r-toast" id="rToast"></div>
-    <div class="catch-modal" id="rCatch"><div class="catch-box"><button class="r-btn catch-x" aria-label="关闭钓获结果" onclick="R.closeCatch()">×</button><div class="catch-heading" style="color:#7effdf;font-weight:900;letter-spacing:4px">钓获成功</div><img id="rCatchImg" alt="钓获的鱼"><h2 id="rCatchName"></h2><p id="rCatchInfo"></p><span class="catch-saved">✓ 已自动放入背包并保存</span></div></div>
+    <div class="legend-alert" id="rLegendAlert"><b id="rLegendAlertHeading">🌟 传说鱼上钩！</b><span id="rLegendAlertText">准备迎接传说级挑战</span></div>
+    <div class="catch-modal" id="rCatch"><div class="catch-box"><button class="r-btn catch-x" aria-label="关闭钓获结果" onclick="R.closeCatch()">×</button><div class="catch-heading" style="color:#7effdf;font-weight:900;letter-spacing:4px">钓获成功</div><img id="rCatchImg" alt="钓获的鱼" onerror="fishFallback(this)"><h2 id="rCatchName"></h2><p id="rCatchInfo"></p><span class="catch-saved">✓ 已自动放入背包并保存</span><div class="catch-close-hint" id="rCatchCloseHint">点击右上角 × 关闭</div></div></div>
     <div class="r-panel" id="rPanel"><div class="r-head"><h2 id="rPanelTitle"></h2><button class="r-btn" onclick="R.close()">✕ 关闭</button></div><div class="r-tabs" id="rTabs"></div><div class="r-content" id="rContent"></div></div>
+    <div class="fish-zoom" id="rFishZoom" onclick="R.closeFishZoom()"><div class="fish-zoom-box" onclick="event.stopPropagation()"><button class="r-btn fish-zoom-close" aria-label="关闭图片预览" onclick="R.closeFishZoom()">×</button><img id="rFishZoomImg" alt="鱼类大图" onerror="fishFallback(this)"><h3 id="rFishZoomName"></h3></div></div>
     <div class="save-menu" id="rSaveMenu"><div class="save-menu-box"><div class="save-menu-title"><h1>深境垂钓</h1><p>选择旅程，或开启新的垂钓生涯</p></div><div class="save-list" id="rSaveList"></div><div class="save-menu-actions"><button class="r-btn primary" onclick="R.newGame()">＋ 开始新游戏</button></div></div></div>
   </div>
 </div>
 <script>
 const R=(()=>{
+const SANCTUM_ENTRY_FEE=2000000000;
+const SANCTUM_DURATION_MS=2*60*1000;
+const SANCTUM_LEGENDARY_BOOST=400;
+const SANCTUM_BOSS_BOOST=2000;
 const SC=[
  {id:'verdant',name:'翠谷湖岸',xp:0,icon:'🌿',sky:'#7bd5ed',far:'#6d9b75',ground:'#315d48',water:'#197a86',accent:'#9ff3ca',fish:[0,1,2,5,6,20,21,35,36,120]},
- {id:'volcano',name:'熔岩火山',xp:450,icon:'🌋',sky:'#351525',far:'#6b2630',ground:'#29191b',water:'#d54b17',accent:'#ffae42',fish:[22,23,25,28,49,128,136,144,181,182]},
- {id:'coral',name:'珊瑚海底',xp:1300,icon:'🪸',sky:'#0d7191',far:'#0b6880',ground:'#b16f64',water:'#087998',accent:'#62f5e6',fish:[60,61,69,70,71,75,80,81,82,94,97,120,121,122]},
- {id:'abyss',name:'深渊遗迹',xp:3100,icon:'🗿',sky:'#050b24',far:'#091638',ground:'#10162c',water:'#06112f',accent:'#806eff',fish:[76,77,78,79,150,151,152,153,155,157,160,164,168,169,180]},
- {id:'aurora',name:'极光冰原',xp:6500,icon:'❄️',sky:'#17355a',far:'#8cb8cb',ground:'#d4edf0',water:'#216789',accent:'#8dffdc',fish:[25,34,74,75,76,150,163,168,169,178,180,185,189,192,199]}
+ {id:'volcano',name:'熔岩火山',xp:450,icon:'🌋',sky:'#351525',far:'#6b2630',ground:'#29191b',water:'#d54b17',accent:'#ffae42',fish:[22,23,25,28,49,128,136,144,181,182,200,201,202,203,204,205,206,207,208,209,210,211,212,213,214,215,216,217,218,219]},
+ {id:'coral',name:'珊瑚海底',xp:1300,icon:'🪸',sky:'#0d7191',far:'#0b6880',ground:'#b16f64',water:'#087998',accent:'#62f5e6',fish:[60,61,69,70,71,75,80,81,82,94,97,120,121,122,220,221,222,223,224,225,226,227,228,229,230,231,232,233,234,235,236,237,238,239,240,241,242,243]},
+ {id:'abyss',name:'深渊遗迹',xp:3100,icon:'🗿',sky:'#050b24',far:'#091638',ground:'#10162c',water:'#06112f',accent:'#806eff',fish:[76,77,78,79,150,151,152,153,155,157,160,164,168,169,180,244,245,246,247,248,249,250,251,252,253,254,255,256,257,258,259,260,261,262,263,264,265,266,267,268,269]},
+ {id:'aurora',name:'极光冰原',xp:6500,icon:'❄️',sky:'#17355a',far:'#8cb8cb',ground:'#d4edf0',water:'#216789',accent:'#8dffdc',fish:[25,34,74,75,76,150,163,168,169,178,180,185,189,192,199,270,271,272,273,274,275,276,277,278,279,280,281,282,283,284,285,286,287,288,289,290,291,292,293,294,295,296,297,298,299]},
+ {id:'sanctum',name:'天命秘境',xp:12000,icon:'⛩️',sky:'#291345',far:'#522770',ground:'#241438',water:'#5d2b91',accent:'#ffd76e',fish:[],entryFee:SANCTUM_ENTRY_FEE,durationMs:SANCTUM_DURATION_MS}
 ];
+const SCENE_PROGRESSION=['verdant','coral','volcano','abyss','aurora','sanctum'];
+SC.sort((a,b)=>SCENE_PROGRESSION.indexOf(a.id)-SCENE_PROGRESSION.indexOf(b.id));
+Object.assign(SC.find(s=>s.id==='coral'),{xp:450});
+Object.assign(SC.find(s=>s.id==='volcano'),{xp:1300});
+Object.assign(SC.find(s=>s.id==='abyss'),{xp:3000});
+Object.assign(SC.find(s=>s.id==='aurora'),{xp:6000});
+function distributeAllFish(){let byId=Object.fromEntries(SC.map(sc=>[sc.id,new Set()])),cold=/鳟|鲑|鳕|鲟|银鱼|冰|格陵兰|六鳃|帆蜥|烛光|鲱/,hot=/鳡|黑鱼|乌鳢|电鳗|食人|龙鱼|罗汉|战船|雀鳝|肺鱼|弓鳍|多鳍|帝鳄/;for(let f of FISH_DATA){let category=f.category||'',old=f.scenes||[];if(category==='淡水鱼'){byId.verdant.add(f.id);if(hot.test(f.name))byId.volcano.add(f.id);if(cold.test(f.name))byId.aurora.add(f.id)}else if(category==='熔岩鱼'){byId.volcano.add(f.id)}else if(category==='热带鱼'){if(old.includes('lake'))byId.verdant.add(f.id);if(old.includes('coast'))byId.coral.add(f.id);if(hot.test(f.name))byId.volcano.add(f.id)}else if(category==='海水鱼'){if(old.includes('coast'))byId.coral.add(f.id);if(old.includes('deep'))byId.abyss.add(f.id)}else if(category==='深海鱼'){byId.abyss.add(f.id)}else if(category==='远古鱼'){if(old.includes('lake'))byId.volcano.add(f.id);if(old.includes('deep'))byId.abyss.add(f.id)}else if(category==='极地鱼'){byId.aurora.add(f.id)}else if(category==='神话鱼'){byId.abyss.add(f.id);byId.aurora.add(f.id)}else{byId.verdant.add(f.id)}}for(let id of [0,1,2,5,6])byId.volcano.add(id);for(let sc of SC)sc.fish=[...byId[sc.id]].sort((a,b)=>a-b)}
+distributeAllFish();
+SC.find(sc=>sc.id==='sanctum').fish=FISH_DATA.map(f=>f.id);
+const BOSS_FISH_IDS=[288,289,290,293,294,295,296,297,298,299];
+const BOSS_FISH_SET=new Set(BOSS_FISH_IDS);
+const BOSS_POWER_MULTIPLIER=1.8;
+const BOSS_FORCE_MULTIPLIER=1.08;
+const BOSS_VALUE_MULTIPLIER=10;
+const BOSS_SPAWN_MULTIPLIER=.18;
+function isBossFish(f){return Boolean(f&&BOSS_FISH_SET.has(f.id))}
+function bossRank(f){return Math.max(0,BOSS_FISH_IDS.indexOf(f?.id))}
+function bossHpMultiplier(f){return 12+bossRank(f)*.6}
+function bossForceCap(f){return(400+bossRank(f)*7)*BOSS_FORCE_MULTIPLIER}
+for(let f of FISH_DATA)if(isBossFish(f)){f.boss=true;f.originalPower=f.power;f.power=Math.round(f.power*BOSS_POWER_MULTIPLIER);f.desc=`世界级钓鱼 Boss。${f.desc}`}
 const RODS=[
  {id:'wood',name:'旧木竿',price:0,power:18,line:65,desc:'可靠的入门鱼竿'},
  {id:'carbon',name:'碳素溪流竿',price:380,power:30,line:100,desc:'点击伤害 +67%，适合中型鱼'},
  {id:'ocean',name:'远洋战斗竿',price:1450,power:48,line:165,desc:'高韧性，可对抗大型海鱼'},
  {id:'thermal',name:'熔芯合金竿',price:4200,power:70,line:245,desc:'耐热合金，强力压制巨物'},
- {id:'mythic',name:'星渊龙骨竿',price:12000,power:105,line:380,desc:'传奇级力量与鱼线强度'}
+ {id:'mythic',name:'星渊龙骨竿',price:12000,power:105,line:380,desc:'传奇级力量与鱼线强度'},
+ {id:'leviathan',name:'利维坦重铸竿',price:28000,power:142,line:520,desc:'深海巨物专用，显著提高点击伤害与压制力'},
+ {id:'phoenix',name:'凤凰熔晶竿',price:65000,power:188,line:690,desc:'熔晶竿身释放持续强劲的收线力量'},
+ {id:'aurora',name:'极光量子竿',price:138000,power:245,line:900,desc:'轻盈而强韧，专为极地传说巨鱼打造'},
+ {id:'celestial',name:'天穹创世竿',price:320000,power:330,line:1250,desc:'顶级收藏鱼竿，拥有无与伦比的压制能力'},
+ {id:'voidEmperor',name:'虚空帝王竿',price:680000,power:430,line:1650,desc:'以虚空合金铸造，专门压制深渊级巨物'},
+ {id:'galaxy',name:'银河裁决竿',price:1350000,power:560,line:2200,desc:'星河能量强化每次收线，适合终极挑战'},
+ {id:'eternity',name:'永恒神谕竿',price:3000000,power:750,line:3000,desc:'最高阶传世鱼竿，提供绝对级垂钓力量'},
+ {id:'chaos',name:'混沌裂界竿',price:6000000,power:950,line:3900,desc:'撕裂水域阻力的混沌级重竿'},
+ {id:'titan',name:'泰坦山脉竿',price:12000000,power:1200,line:5000,desc:'以泰坦金属打造，专攻超大型鱼'},
+ {id:'nebula',name:'星云潮汐竿',price:25000000,power:1500,line:6500,desc:'利用星云潮汐持续压制挣脱'},
+ {id:'dragonGod',name:'龙神镇海竿',price:50000000,power:1850,line:8200,desc:'龙神之力镇压海洋霸主'},
+ {id:'dimension',name:'次元折叠竿',price:100000000,power:2250,line:10500,desc:'折叠距离，让每次收线更强'},
+ {id:'sun',name:'恒星熔炉竿',price:220000000,power:2750,line:13500,desc:'恒星核心提供无尽收线动力'},
+ {id:'universe',name:'宇宙法则竿',price:480000000,power:3350,line:17000,desc:'以宇宙法则束缚传说巨鱼'},
+ {id:'origin',name:'起源神木竿',price:950000000,power:4050,line:21500,desc:'源自世界初生之木的神话鱼竿'},
+ {id:'infinity',name:'无限奇点竿',price:2000000000,power:4900,line:27000,desc:'奇点引力提供近乎无限的压制'},
+ {id:'creator',name:'创世主宰竿',price:5000000000,power:6000,line:35000,desc:'终极鱼竿，足以挑战最强巨物'}
 ];
 const BA=[
  {id:'worm',name:'蚯蚓',price:4,luck:0,size:0,power:0,desc:'常见鱼偏爱的基础饵'},
- {id:'shrimp',name:'活虾',price:22,luck:.08,size:.06,power:0,desc:'提升稀有鱼概率与体型'},
- {id:'glow',name:'荧光拟饵',price:65,luck:.16,size:.1,power:.08,desc:'吸引深水鱼，稍微安抚挣扎'},
- {id:'giant',name:'巨物秘饵',price:180,luck:.25,size:.22,power:.16,desc:'显著增加大鱼概率和体型'}
+ {id:'shrimp',name:'活虾',price:16,luck:.08,size:.06,power:0,desc:'小幅提升稀有物种与大体型概率'},
+ {id:'glow',name:'荧光拟饵',price:40,luck:.16,size:.1,power:.08,desc:'提升稀有鱼种概率，并稍微削弱挣脱'},
+ {id:'giant',name:'巨物秘饵',price:100,luck:.25,size:.22,power:.16,desc:'明显提高大体型与稀有鱼种概率'},
+ {id:'abyssPearl',name:'深渊珍珠饵',price:400,luck:.34,size:.25,power:.22,desc:'吸引稀有物种，并削弱其挣脱力量'},
+ {id:'dragonScale',name:'龙鳞活饵',price:950,luck:.43,size:.31,power:.28,desc:'兼顾稀有鱼种、体型与战斗压制'},
+ {id:'auroraCore',name:'极光核心饵',price:2300,luck:.55,size:.36,power:.36,desc:'提高稀有度与重量倾向，降低挣脱力'},
+ {id:'divine',name:'神域星辉饵',price:5500,luck:.72,size:.42,power:.45,desc:'用于追寻史诗与传说鱼种'},
+ {id:'voidEssence',name:'虚空精华饵',price:12000,luck:.82,size:.46,power:.52,desc:'吸引深渊与远古鱼种，强力削弱挣脱'},
+ {id:'galaxyNectar',name:'银河神露饵',price:22000,luck:.94,size:.5,power:.6,desc:'大幅提高史诗与传说鱼种概率'},
+ {id:'eternalStar',name:'永恒星核饵',price:38000,luck:1.08,size:.56,power:.68,desc:'为极难遇见的传说巨物而制'},
+ {id:'chaosDrop',name:'混沌源液饵',price:60000,luck:1.16,size:.58,power:.7,desc:'混沌气息吸引超稀有鱼群'},
+ {id:'titanHeart',name:'泰坦心核饵',price:90000,luck:1.24,size:.6,power:.72,desc:'提高巨物体型，并稳定鱼线压力'},
+ {id:'nebulaDust',name:'星云幻尘饵',price:130000,luck:1.32,size:.62,power:.74,desc:'显著提高史诗与传说鱼种概率'},
+ {id:'dragonSoul',name:'龙神魂晶饵',price:180000,luck:1.4,size:.64,power:.76,desc:'蕴含龙魂气息的高阶巨物诱饵'},
+ {id:'dimensionFruit',name:'次元异果饵',price:250000,luck:1.5,size:.66,power:.78,desc:'吸引来自深层水域的异种巨鱼'},
+ {id:'solarSeed',name:'恒星种子饵',price:340000,luck:1.6,size:.68,power:.8,desc:'炽热能量显著削弱鱼的挣脱'},
+ {id:'lawCrystal',name:'法则结晶饵',price:450000,luck:1.72,size:.7,power:.82,desc:'以水域法则锁定极稀有目标'},
+ {id:'originFruit',name:'起源圣果饵',price:600000,luck:1.84,size:.72,power:.84,desc:'远古与神话鱼类偏爱的起源气息'},
+ {id:'singularity',name:'奇点暗质饵',price:800000,luck:1.96,size:.74,power:.86,desc:'暗物质引力聚集传说级巨物'},
+ {id:'creation',name:'创世本源饵',price:1100000,luck:2.1,size:.76,power:.88,desc:'最高阶收藏诱饵，挑战终极鱼王'}
 ];
+const BAIT_PRICE_PER_EFFECT_POINT=300;
+function baitEffectPoints(baitItem){return Math.round(baitItem.luck*100)+Math.round(baitItem.size*100)+Math.round(baitItem.power*65)}
+for(let baitItem of BA)baitItem.price=Math.max(2,Math.round(baitEffectPoints(baitItem)*BAIT_PRICE_PER_EFFECT_POINT));
+const SETTINGS_KEY='fishingRemasterSettings';
+const DEFAULT_SETTINGS=Object.freeze({catchCloseMode:'button',spaceToReel:false,confirmSellAll:true,showFightStats:true,showControlHints:true,reducedMotion:false});
+function loadSettings(){try{let saved=JSON.parse(localStorage.getItem(SETTINGS_KEY)||'{}'),next={...DEFAULT_SETTINGS};if(saved.catchCloseMode==='button'||saved.catchCloseMode==='space')next.catchCloseMode=saved.catchCloseMode;for(let key of ['spaceToReel','confirmSellAll','showFightStats','showControlHints','reducedMotion'])if(typeof saved[key]==='boolean')next[key]=saved[key];return next}catch(e){return{...DEFAULT_SETTINGS}}}
+let settings=loadSettings();
+function saveSettings(){localStorage.setItem(SETTINGS_KEY,JSON.stringify(settings))}
+function applySettings(){let root=document.getElementById('remaster'),catchModal=document.getElementById('rCatch'),catchHint=document.getElementById('rCatchCloseHint'),fightStats=document.getElementById('fightClicks'),controlHints=document.getElementById('rTip'),reelButton=document.getElementById('rReelButton');root?.classList.toggle('reduce-motion',settings.reducedMotion);catchModal?.classList.toggle('space-close',settings.catchCloseMode==='space');if(catchHint)catchHint.textContent=settings.catchCloseMode==='space'?'按空格关闭':'点击右上角 × 关闭';if(fightStats)fightStats.style.display=settings.showFightStats?'':'none';if(controlHints)controlHints.style.display=settings.showControlHints?'':'none';if(reelButton)reelButton.textContent=settings.spaceToReel?'⚡ 点击或按空格快速收线！':'⚡ 快速点击收线！'}
+function setSetting(key,value){if(!(key in DEFAULT_SETTINGS))return;if(key==='catchCloseMode'){if(value!=='button'&&value!=='space')return;settings[key]=value}else settings[key]=Boolean(value);saveSettings();applySettings();renderSettings();toast('设置已保存')}
+function resetSettings(){settings={...DEFAULT_SETTINGS};saveSettings();applySettings();renderSettings();toast('设置已恢复默认')}
+function toggleSettingCard(key,title,desc){let enabled=settings[key];return `<div class="r-card setting-card"><h3>${title}</h3><p>${desc}</p><p class="setting-state">当前：${enabled?'开启':'关闭'}</p><div class="setting-actions"><button class="r-btn ${enabled?'primary':''}" onclick="R.setSetting('${key}',true)">开启</button><button class="r-btn ${!enabled?'primary':''}" onclick="R.setSetting('${key}',false)">关闭</button></div></div>`}
+function renderSettings(){let pan=document.getElementById('rPanel'),title=document.getElementById('rPanelTitle'),tabs=document.getElementById('rTabs'),box=document.getElementById('rContent');pan.classList.add('on');title.textContent='游戏设置';tabs.innerHTML='<button class="r-btn" onclick="R.resetSettings()">恢复默认设置</button>';box.className='r-content settings-grid';box.innerHTML=`<div class="r-card setting-card"><h3>钓获结果关闭方式</h3><p>选择钓到鱼后如何关闭结算界面。两种方式互斥，避免空格误操作。</p><p class="setting-state">当前：${settings.catchCloseMode==='space'?'按空格关闭':'点击 × 关闭'}</p><div class="setting-actions"><button class="r-btn ${settings.catchCloseMode==='button'?'primary':''}" onclick="R.setSetting('catchCloseMode','button')">点击 ×</button><button class="r-btn ${settings.catchCloseMode==='space'?'primary':''}" onclick="R.setSetting('catchCloseMode','space')">按空格</button></div></div>${toggleSettingCard('spaceToReel','空格键钓鱼','开启后可在鱼上钩进入对抗时连续点按空格收线；长按不会自动连点。')}${toggleSettingCard('confirmSellAll','一键出售确认','出售背包内全部鱼之前弹出确认，防止误操作。')}${toggleSettingCard('showFightStats','显示战斗数据','显示每秒点击、玩家压制力和鱼的挣脱力。')}${toggleSettingCard('showControlHints','显示操作提示','显示底部的移动、交互和抛竿提示。')}${toggleSettingCard('reducedMotion','减少动画','关闭浮动、闪烁和过渡动画，降低视觉干扰。')}<div class="r-card setting-card"><h3>全屏模式</h3><p>切换浏览器全屏，获得更大的垂钓视野。</p><p class="setting-state">当前：${document.fullscreenElement?'全屏':'窗口'}</p><div class="setting-actions"><button class="r-btn primary" onclick="R.toggleFullscreen()">${document.fullscreenElement?'退出全屏':'进入全屏'}</button></div></div>`}
+async function toggleFullscreen(){try{if(document.fullscreenElement)await document.exitFullscreen();else await document.documentElement.requestFullscreen();renderSettings()}catch(e){toast('浏览器未允许切换全屏')}}
 const Q=['','普通','优秀','稀有','史诗','传说'], QC=['','#d4e0df','#63e39e','#64aaff','#d884ff','#ffcf5a'];
-let c,x,w,h,dpr=1,t=0,keys={},near='',fishing=null,last=0,autosave=0;
+const QUALITY_PRICE_MULTIPLIERS=[0,1,3,12,200,400];
+const QUALITY_HP_MULTIPLIERS=[0,1,1.35,1.9,2.8,4.2];
+const FIGHT_TEMPO=.78;
+const FISH_HP_DIFFICULTY=1.18;
+const FISH_FORCE_DIFFICULTY=1.22;
+const LEGENDARY_FORCE_MULTIPLIER=1.3;
+const PLAYER_SUPPRESSION_MULTIPLIER=.55;
+function fishPrice(f,weight,quality){let multiplier=QUALITY_PRICE_MULTIPLIERS[quality]||1,sizeValue=Math.pow(Math.max(.001,Number(weight)||0),.72),bossValue=isBossFish(f)?BOSS_VALUE_MULTIPLIER:1;return Math.max(2,Math.round((f?.basePrice||2)*sizeValue*multiplier*bossValue))}
+function speciesQuality(f){return f?.rarity==='legendary'?5:f?.rarity==='epic'?4:f?.rarity==='rare'?3:1}
+function speciesForceMultiplier(f){return f?.rarity==='legendary'?LEGENDARY_FORCE_MULTIPLIER:1}
+function repriceFishItem(item){let f=FISH_DATA[item.id];if(!f)return item;item.quality=speciesQuality(f);item.weight=Math.max(.001,Number(item.weight)||f.minWeight||.001);item.score=score(item.weight,item.quality);item.price=fishPrice(f,item.weight,item.quality);return item}
+function rollQuality(f){return speciesQuality(f)}
+function sanctumPassActive(){return Number(s?.sanctumUntil)>Date.now()}
+function sanctumSpawnMultiplier(f){if(s?.scene!=='sanctum'||!sanctumPassActive())return 1;if(isBossFish(f))return SANCTUM_BOSS_BOOST;if(f?.rarity==='legendary')return SANCTUM_LEGENDARY_BOOST;return 1}
+function speciesSpawnWeight(f,luck){let base={common:.23625,rare:.0486,epic:.0038,legendary:.00009}[f.rarity]??1,boost={common:0,rare:1.5,epic:3,legendary:10}[f.rarity]??0,bossRate=isBossFish(f)?BOSS_SPAWN_MULTIPLIER:1;return base*(1+Math.max(0,luck)*boost)*bossRate*sanctumSpawnMultiplier(f)}
+let c,x,w,h,dpr=1,t=0,keys={},near='',fishing=null,last=0,autosave=0,dexSort='category',fishSearch={dex:'',aquarium:''};
 let s=load(),p={x:0,z:4,dir:1};
-function fresh(){return{version:2,slotId:'',saveName:'',gold:100,totalXp:0,level:1,scene:'verdant',rod:'wood',ownedRods:['wood'],baits:{worm:12},bait:'worm',bag:[],aquarium:[],dex:{},caught:0,lastSave:Date.now()}}
+function fresh(){return{version:2,slotId:'',saveName:'',gold:100,totalXp:0,level:1,scene:'verdant',sanctumUntil:0,rod:'wood',ownedRods:['wood'],baits:{worm:12},bait:'worm',bag:[],aquarium:[],dex:{},caught:0,lastSave:Date.now()}}
 function readSlots(){try{return JSON.parse(localStorage.getItem('fishingRemasterSlots')||'{}')}catch(e){return{}}}
-function normalize(v){v=Object.assign(fresh(),v||{});v.bag=Array.isArray(v.bag)?v.bag:[];v.aquarium=Array.isArray(v.aquarium)?v.aquarium:[];v.dex=v.dex&&typeof v.dex==='object'?v.dex:{};v.ownedRods=Array.isArray(v.ownedRods)?v.ownedRods:['wood'];return v}
+function normalize(v){v=Object.assign(fresh(),v||{});v.bag=Array.isArray(v.bag)?v.bag.map(repriceFishItem):[];v.aquarium=Array.isArray(v.aquarium)?v.aquarium.map(repriceFishItem):[];sortAquarium(v.aquarium);v.dex=v.dex&&typeof v.dex==='object'?v.dex:{};v.ownedRods=Array.isArray(v.ownedRods)?v.ownedRods:['wood'];return v}
+function sortAquarium(list=s.aquarium){list.sort((a,b)=>(b.quality||0)-(a.quality||0)||(b.score||0)-(a.score||0)||(b.weight||0)-(a.weight||0));return list}
 function load(){let n=fresh();try{let slots=readSlots(),legacy=JSON.parse(localStorage.getItem('fishingRemaster')||'null');if(!Object.keys(slots).length&&legacy){legacy=normalize(legacy);legacy.slotId=legacy.slotId||'slot_legacy';slots[legacy.slotId]={savedAt:legacy.lastSave||Date.now(),data:legacy};localStorage.setItem('fishingRemasterSlots',JSON.stringify(slots))}let active=localStorage.getItem('fishingActiveSlot');if(active&&slots[active])return normalize(slots[active].data);let old=JSON.parse(localStorage.getItem('fishingGame')||'null');if(!Object.keys(slots).length&&old){n.slotId='slot_legacy';n.gold=Number(old.gold)||100;n.level=Number(old.level)||1;n.totalXp=((n.level-1)*500)+(Number(old.exp)||0);n.bag=Array.isArray(old.backpack)?old.backpack.map((a,i)=>({uid:Date.now()+i,id:a.fishId,weight:a.weight||1,quality:a.quality||1,score:score(a.weight||1,a.quality||1),price:Math.max(2,Math.round((a.weight||1)*10*(a.quality||1)))})):[];n.dex=old.dex||{};n.caught=old.totalCaught||0;save(n)}}catch(e){}return n}
-function save(v=s){if(!v.slotId)return;v.lastSave=Date.now();let slots=readSlots();slots[v.slotId]={savedAt:v.lastSave,data:v};localStorage.setItem('fishingRemasterSlots',JSON.stringify(slots));localStorage.setItem('fishingActiveSlot',v.slotId);localStorage.setItem('fishingRemaster',JSON.stringify(v));localStorage.setItem('fishingGameV2',JSON.stringify(v))}
+function save(v=s){if(!v.slotId)return;(v.bag||[]).forEach(repriceFishItem);(v.aquarium||[]).forEach(repriceFishItem);v.lastSave=Date.now();let slots=readSlots();slots[v.slotId]={savedAt:v.lastSave,data:v};localStorage.setItem('fishingRemasterSlots',JSON.stringify(slots));localStorage.setItem('fishingActiveSlot',v.slotId);localStorage.setItem('fishingRemaster',JSON.stringify(v));localStorage.setItem('fishingGameV2',JSON.stringify(v))}
 function xpLevel(xp){return Math.floor(Math.sqrt(xp/180))+1}function levelStart(l){return Math.pow(l-1,2)*180}function levelEnd(l){return Math.pow(l,2)*180}
 function score(weight,q){return Math.max(10,Math.round(Math.log10(weight+1)*260+q*95))}
-function speciesWeight(f,b){let span=f.maxWeight-f.minWeight,standard=f.minWeight+span*.38,bias=b.size?Math.min(1,Math.random()+b.size*1.5):Math.random(),factor=.96+bias*.08;return Math.max(f.minWeight,Math.min(f.maxWeight,standard*factor))}
-function init(){c=document.getElementById('rCanvas');x=c.getContext('2d');resize();addEventListener('resize',resize);addEventListener('keydown',e=>{if(e.code==='Space'){e.preventDefault();e.stopImmediatePropagation();let blocked=document.getElementById('rCatch').classList.contains('on')||document.getElementById('rSaveMenu').classList.contains('on')||document.getElementById('rPanel').classList.contains('on');if(!e.repeat&&!blocked&&!fishing)cast();return}if(document.getElementById('rCatch').classList.contains('on')&&e.code==='Escape'){e.preventDefault();e.stopImmediatePropagation();return}keys[e.key.toLowerCase()]=1;if(e.key.toLowerCase()==='e')interact()},true);addEventListener('keyup',e=>{if(e.code==='Space'){e.preventDefault();e.stopImmediatePropagation();return}if(document.getElementById('rCatch').classList.contains('on')&&e.code==='Escape'){e.preventDefault();e.stopImmediatePropagation();return}keys[e.key.toLowerCase()]=0},true);c.addEventListener('click',e=>{if(fishing&&fishing.phase==='fight')reel(e)});update();requestAnimationFrame(loop);setInterval(()=>save(),5000);document.addEventListener('visibilitychange',()=>{if(document.hidden)save()});addEventListener('beforeunload',()=>save());showMenu()}
+function speciesWeight(f,b){let span=f.maxWeight-f.minWeight,size=Math.max(0,Number(b?.size)||0),exponent=2.2/(1+size*2),ratio=.08+.92*Math.pow(Math.random(),exponent);return f.minWeight+span*ratio}
+function eliteForceMultiplier(quality){return[1,1,1.4,2.4,4,6.5][quality]||1}
+function fishFightHp(f,ratio,quality){let bossHp=isBossFish(f)?bossHpMultiplier(f):1;return(55+f.power*.16+ratio*95)*(QUALITY_HP_MULTIPLIERS[quality]||1)*FISH_HP_DIFFICULTY*bossHp}
+function init(){c=document.getElementById('rCanvas');x=c.getContext('2d');resize();applySettings();addEventListener('resize',resize);addEventListener('keydown',e=>{if(e.code==='Escape'&&document.getElementById('rFishZoom').classList.contains('on')){e.preventDefault();e.stopImmediatePropagation();closeFishZoom();return}if(e.code==='Space'){e.preventDefault();e.stopImmediatePropagation();let catchOpen=document.getElementById('rCatch').classList.contains('on');if(catchOpen){if(!e.repeat&&settings.catchCloseMode==='space')closeCatch();return}let blocked=document.getElementById('rSaveMenu').classList.contains('on')||document.getElementById('rPanel').classList.contains('on');if(!e.repeat&&!blocked&&fishing?.phase==='fight'&&settings.spaceToReel){reel();return}if(!e.repeat&&!blocked&&!fishing)cast();return}if(document.getElementById('rCatch').classList.contains('on')&&e.code==='Escape'){e.preventDefault();e.stopImmediatePropagation();return}keys[e.key.toLowerCase()]=1;if(e.key.toLowerCase()==='e')interact()},true);addEventListener('keyup',e=>{if(e.code==='Space'){e.preventDefault();e.stopImmediatePropagation();return}if(document.getElementById('rCatch').classList.contains('on')&&e.code==='Escape'){e.preventDefault();e.stopImmediatePropagation();return}keys[e.key.toLowerCase()]=0},true);c.addEventListener('click',e=>{if(fishing&&fishing.phase==='fight')reel(e)});update();requestAnimationFrame(loop);setInterval(()=>save(),5000);document.addEventListener('visibilitychange',()=>{if(document.hidden)save()});document.addEventListener('fullscreenchange',()=>{if(document.getElementById('rPanelTitle').textContent==='游戏设置')renderSettings()});addEventListener('beforeunload',()=>save());showMenu()}
+setInterval(updateSanctumPass,250);
 function resize(){dpr=Math.min(2,devicePixelRatio||1);w=innerWidth;h=innerHeight;c.width=w*dpr;c.height=h*dpr;x.setTransform(dpr,0,0,dpr,0,0)}
+const FISH_ASSET_VERSION='20260718-remaster';
+function fishSceneNames(id){let names=SC.filter(sc=>sc.fish.includes(id)).map(sc=>sc.name);return names.length?names.join('、'):'当前场景未投放'}
+const DEX_CATEGORY_ORDER=['淡水鱼','热带鱼','海水鱼','熔岩鱼','深海鱼','远古鱼','极地鱼','神话鱼'];
+function dexCategoryRank(f){let rank=DEX_CATEGORY_ORDER.indexOf(f.category);return rank<0?DEX_CATEGORY_ORDER.length:rank}
+function dexRarityRank(f){return{common:0,rare:1,epic:2,legendary:3}[f.rarity]??0}
+function dexBaseCompare(a,b){return dexCategoryRank(a)-dexCategoryRank(b)||dexRarityRank(a)-dexRarityRank(b)||(a.maxWeight||0)-(b.maxWeight||0)||a.id-b.id}
+function sortedDexFish(){let fish=FISH_DATA.slice();if(dexSort==='id')return fish.sort((a,b)=>a.id-b.id);if(dexSort==='rarity')return fish.sort((a,b)=>dexRarityRank(b)-dexRarityRank(a)||dexCategoryRank(a)-dexCategoryRank(b)||(b.maxWeight||0)-(a.maxWeight||0)||a.id-b.id);if(dexSort==='discovered')return fish.sort((a,b)=>Number(Boolean(s.dex[b.id]))-Number(Boolean(s.dex[a.id]))||dexBaseCompare(a,b));if(dexSort==='weight')return fish.sort((a,b)=>(b.maxWeight||0)-(a.maxWeight||0)||dexRarityRank(b)-dexRarityRank(a)||a.id-b.id);return fish.sort(dexBaseCompare)}
+function renderFishSearch(kind,placeholder){let value=escapeText(fishSearch[kind]||'');return `<div class="fish-search-wrap"><span aria-hidden="true">🔎</span><input class="fish-search" type="search" value="${value}" placeholder="${placeholder}" aria-label="${placeholder}" oninput="R.searchFish('${kind}',this.value)"><span class="fish-search-count" id="${kind}SearchCount"></span></div>`}
+function renderDexSortTabs(){let sorts=[['category','🗂 分类'],['id','№ 编号'],['rarity','✦ 稀有度'],['discovered','✓ 已发现'],['weight','⚖ 最大体型']];return renderFishSearch('dex','搜索鱼名、分类或描述…')+sorts.map(([id,label])=>`<button class="r-btn ${dexSort===id?'primary':''}" onclick="R.sortDex('${id}')">${label}</button>`).join('')}
+function searchFish(kind,query){fishSearch[kind]=String(query??'');let needle=fishSearch[kind].trim().toLocaleLowerCase(),cards=[...document.querySelectorAll('#rContent>.r-card')],rarityNames={common:'普通',rare:'稀有',epic:'史诗',legendary:'传说'},shown=0;cards.forEach(card=>{let id=Number(card.dataset.fishId),f=FISH_DATA[id],text=f?[f.id,f.name,f.category,f.desc,rarityNames[f.rarity],fishSceneNames(f.id),isBossFish(f)?'boss 世界boss 鱼王':''].join(' ').toLocaleLowerCase():card.textContent.toLocaleLowerCase(),match=!needle||text.includes(needle);card.style.display=match?'':'none';if(match)shown++});let count=document.getElementById(`${kind}SearchCount`);if(count)count.textContent=`${shown} / ${cards.length}`}
+function sortDex(mode){dexSort=mode;refreshPanelFishImages()}
+function zoomFish(id){let f=FISH_DATA[id];if(!f)return;let zoom=document.getElementById('rFishZoom'),img=document.getElementById('rFishZoomImg'),name=document.getElementById('rFishZoomName');img.onerror=()=>fishFallback(img);img.src=`assets/fish/${f.id}.png?v=${FISH_ASSET_VERSION}`;name.className=`quality-${speciesQuality(f)}`;name.textContent=`${isBossFish(f)?'👑 BOSS · ':''}${Q[speciesQuality(f)]} · ${f.name}`;zoom.classList.add('on')}
+function closeFishZoom(){let zoom=document.getElementById('rFishZoom');if(!zoom)return;zoom.classList.remove('on');let img=document.getElementById('rFishZoomImg');img.onerror=null;img.removeAttribute('src')}
+function refreshPanelFishImages(){
+  let title=document.getElementById('rPanelTitle').textContent,isDex=title.startsWith('鱼类图鉴'),isAquarium=title.startsWith('我的水族馆'),box=document.getElementById('rContent');
+  box.classList.toggle('dex-grid',isDex);
+  if(!isDex&&!isAquarium)return;
+  document.querySelectorAll('#rContent img[src^="assets/fish/"]').forEach(img=>{let base=img.getAttribute('src').split('?')[0],latest=`${base}?v=${FISH_ASSET_VERSION}`;if(img.getAttribute('src')!==latest)img.setAttribute('src',latest)});
+  if(isDex){
+    let cards=[...document.querySelectorAll('#rContent>.r-card')],fishById=new Map(FISH_DATA.map(f=>[f.id,f])),orderById=new Map(sortedDexFish().map((f,index)=>[f.id,index]));
+    document.getElementById('rTabs').innerHTML=renderDexSortTabs();
+    document.querySelectorAll('#rContent .r-card>img+h3').forEach(h=>{if(!h.textContent.startsWith('名称：'))h.textContent='名称：'+h.textContent});
+    cards.forEach((card,index)=>{let id=Number(card.dataset.fishId);if(!Number.isFinite(id)){id=FISH_DATA[index]?.id??index;card.dataset.fishId=id}let fish=fishById.get(id),img=card.querySelector(':scope>img'),heading=card.querySelector(':scope>h3');card.dataset.category=fish?.category||'其他';card.style.order=orderById.get(id)??FISH_DATA.length;if(heading&&fish){let label=`名称：${isBossFish(fish)?'👑 BOSS · ':''}${fish.name}`;if(heading.textContent!==label)heading.textContent=label}if(img){img.classList.add('fish-zoomable');img.onclick=()=>zoomFish(id);img.title='点击查看大图'}if(card.querySelector('.dex-map'))return;let p=document.createElement('p');p.className='dex-map';p.textContent='🗺 可钓地图：'+fishSceneNames(id);card.appendChild(p)});
+  }else{
+    document.getElementById('rTabs').innerHTML=renderFishSearch('aquarium','搜索水族馆中的鱼…');
+    [...document.querySelectorAll('#rContent>.r-card')].forEach((card,index)=>{let item=s.aquarium[index],id=item?.id;if(id===undefined)return;card.dataset.fishId=id;let img=card.querySelector('img');if(img){img.classList.add('fish-zoomable');img.onclick=()=>zoomFish(id);img.title='点击查看大图'}});
+  }
+  searchFish(isDex?'dex':'aquarium',fishSearch[isDex?'dex':'aquarium']);
+}
+function clarifyDexRarityLabels(){document.querySelectorAll('#rContent>.r-card p[class^="quality-"]').forEach(p=>{if(p.textContent.startsWith('品质：'))p.textContent=p.textContent.replace('品质：','物种稀有度：')})}
+function formatSanctumTime(ms){let total=Math.max(0,Math.ceil(ms/1000)),minutes=Math.floor(total/60),seconds=total%60;return `${minutes}:${String(seconds).padStart(2,'0')}`}
+function updateSanctumMapCard(){let cards=[...document.querySelectorAll('#rContent>.r-scene')],card=cards.find(card=>card.querySelector('h3')?.textContent.includes('天命秘境'));if(!card)return;card.classList.add('sanctum-card');let ps=card.querySelectorAll('p'),remaining=Number(s.sanctumUntil||0)-Date.now(),active=remaining>0,status=active?`🎟 通行证剩余 ${formatSanctumTime(remaining)} · 有效期内免费返回`:`💰 入场费 ${SANCTUM_ENTRY_FEE.toLocaleString()} 金币 · 限钓 ${formatSanctumTime(SANCTUM_DURATION_MS)}`,boost=`传说鱼权重 ×${SANCTUM_LEGENDARY_BOOST} · Boss 权重 ×${SANCTUM_BOSS_BOOST}`;if(ps[0]&&ps[0].textContent!==status)ps[0].textContent=status;if(ps[1]&&ps[1].textContent!==boost)ps[1].textContent=boost;let title=document.getElementById('rPanelTitle');if(title.textContent!=='六大垂钓场景')title.textContent='六大垂钓场景'}
+function updateSanctumPass(){let pill=document.getElementById('rSanctumPass'),clock=document.getElementById('rSanctumTime');if(!pill||!clock)return;let until=Number(s.sanctumUntil||0),remaining=until-Date.now();if(until&&remaining<=0){s.sanctumUntil=0;if(s.scene==='sanctum'){fishing=null;s.scene='aurora';p={x:0,z:4,dir:1};near='';document.getElementById('rFight').classList.remove('on');toast('天命秘境通行证已到期，已返回极光冰原');update()}save();remaining=0}let active=remaining>0;pill.style.display=active?'block':'none';if(active)clock.textContent=formatSanctumTime(remaining);updateSanctumMapCard()}
+function refreshSceneBlurbs(){let blurbs={verdant:'适合新手的生机湖岸',coral:'沉浸式海底珊瑚世界',volcano:'炽热熔流中的强韧鱼种',abyss:'发光生物与远古遗迹',aurora:'极光下的终极巨物'};document.querySelectorAll('#rContent>.r-scene').forEach(card=>{let scene=SC.find(s=>card.querySelector('h3')?.textContent.includes(s.name));if(!scene||scene.id==='sanctum')return;let p=card.querySelectorAll('p')[1],text=blurbs[scene.id];if(p&&text&&p.textContent!==text)p.textContent=text});updateSanctumMapCard()}
+function refreshBaitStats(){if(document.getElementById('rPanelTitle').textContent!=='湖岸鱼市')return;document.querySelectorAll('#rContent>.r-card').forEach((card,index)=>{if(card.querySelector('.bait-stats')||!BA[index])return;let b=BA[index],p=document.createElement('p');p.className='bait-stats';p.textContent=`稀有诱鱼 +${Math.round(b.luck*100)}% · 大体型 +${Math.round(b.size*100)}% · 挣脱削弱 ${Math.round(b.power*65)}%`;card.querySelectorAll('p')[1]?.before(p)})}
+new MutationObserver(()=>{refreshPanelFishImages();clarifyDexRarityLabels();refreshSceneBlurbs();refreshBaitStats()}).observe(document.getElementById('rContent'),{childList:true,subtree:true});
+let legendAlertTimer;
+function showHookAlert(fishName,boss=false){let alert=document.getElementById('rLegendAlert'),heading=document.getElementById('rLegendAlertHeading'),text=document.getElementById('rLegendAlertText');if(!alert||!heading||!text)return;alert.classList.toggle('boss',boss);heading.textContent=boss?'👑 世界 Boss 上钩！':'🌟 传说鱼上钩！';text.textContent=boss?`${fishName} 降临！3 秒保护期后开始终极挑战！`:`${fishName} 已上钩，准备迎接传说级挑战！`;alert.classList.remove('on');void alert.offsetWidth;alert.classList.add('on');clearTimeout(legendAlertTimer);legendAlertTimer=setTimeout(()=>alert.classList.remove('on'),3000)}
+function showLegendAlert(fishName){showHookAlert(fishName,false)}
+function showBossAlert(fishName){showHookAlert(fishName,true)}
+new MutationObserver(()=>{let label=document.getElementById('fightName').textContent;if(label.startsWith('👑 BOSS · 传说 · '))showBossAlert(label.replace(/^👑 BOSS · 传说 · /,'').split('（')[0]);else if(label.startsWith('传说 · '))showLegendAlert(label.replace(/^传说 · /,'').split('（')[0])}).observe(document.getElementById('fightName'),{childList:true});
 function scene(){return SC.find(a=>a.id===s.scene)||SC[0]}function rod(){return RODS.find(a=>a.id===s.rod)||RODS[0]}function bait(){return BA.find(a=>a.id===s.bait)||BA[0]}
 function loop(ms){let dt=Math.min(.035,(ms-last)/1000||.016);last=ms;t+=dt;move(dt);draw();tickFish(dt);requestAnimationFrame(loop)}
-function move(dt){if(fishing||document.getElementById('rPanel').classList.contains('on'))return;let dx=(keys.d||keys.arrowright?1:0)-(keys.a||keys.arrowleft?1:0),dz=(keys.s||keys.arrowdown?1:0)-(keys.w||keys.arrowup?1:0);let l=Math.hypot(dx,dz)||1;p.x=Math.max(-9,Math.min(9,p.x+dx/l*5*dt));p.z=Math.max(-1,Math.min(9,p.z+dz/l*5*dt));if(dx)p.dir=Math.sign(dx);let spots=[['market',-6,3],['workshop',6,3],['water',0,-.5]];near='';for(let a of spots)if(Math.hypot(p.x-a[1],p.z-a[2])<2.2)near=a[0];document.getElementById('rTip').textContent=near==='market'?'按 E 进入鱼市':near==='workshop'?'按 E 进入工坊':near==='water'?'已到钓位，按空格抛竿':fishing?'正在钓鱼':'WASD / 方向键移动，靠近建筑后按 E'}
-function draw(){let sc=scene(),hor=h*.45;let g=x.createLinearGradient(0,0,0,hor);g.addColorStop(0,sc.sky);g.addColorStop(1,sc.far);x.fillStyle=g;x.fillRect(0,0,w,hor);drawAtmos(sc,hor);x.fillStyle=sc.ground;x.beginPath();x.moveTo(0,hor);x.lineTo(w,hor);x.lineTo(w,h);x.lineTo(0,h);x.fill();let wg=x.createLinearGradient(0,hor,0,h);wg.addColorStop(0,sc.water);wg.addColorStop(1,'#061c29');x.fillStyle=wg;x.beginPath();x.moveTo(w*.17,hor);x.lineTo(w*.83,hor);x.lineTo(w*.62,h);x.lineTo(w*.38,h);x.fill();for(let i=0;i<15;i++){let yy=hor+(i/15)*(h-hor),ww=(yy-hor)/(h-hor)*w*.22;x.strokeStyle=`rgba(190,255,246,${.05+i*.006})`;x.beginPath();x.moveTo(w/2-ww+Math.sin(t*2+i)*10,yy);x.lineTo(w/2+ww,yy);x.stroke()}building(-6,3,'鱼市','MARKET','#d99a42');building(6,3,'工坊','WORKSHOP','#4d7b91');avatar();if(fishing)drawLine()}
+function move(dt){if(fishing||document.getElementById('rPanel').classList.contains('on'))return;let dx=(keys.d||keys.arrowright?1:0)-(keys.a||keys.arrowleft?1:0),dz=(keys.s||keys.arrowdown?1:0)-(keys.w||keys.arrowup?1:0);let l=Math.hypot(dx,dz)||1;p.x=Math.max(-9,Math.min(9,p.x+dx/l*5*dt));p.z=Math.max(-1,Math.min(9,p.z+dz/l*5*dt));if(dx)p.dir=Math.sign(dx);let _mv=(dx||dz)?1:0;p.moving=_mv;if(_mv)p.walkT=(p.walkT||0)+dt*9;let spots=[['market',-6,3],['workshop',6,3],['water',0,-.5]];near='';for(let a of spots)if(Math.hypot(p.x-a[1],p.z-a[2])<2.2)near=a[0];document.getElementById('rTip').textContent=near==='market'?'按 E 进入鱼市':near==='workshop'?'按 E 进入工坊':near==='water'?'已到钓位，按空格抛竿':fishing?'正在钓鱼':'WASD / 方向键移动，靠近建筑后按 E'}
+if(!CanvasRenderingContext2D.prototype.roundRect){CanvasRenderingContext2D.prototype.roundRect=function(a,b,cw,ch,r){r=Math.min(r,cw/2,ch/2);this.moveTo(a+r,b);this.arcTo(a+cw,b,a+cw,b+ch,r);this.arcTo(a+cw,b+ch,a,b+ch,r);this.arcTo(a,b+ch,a,b,r);this.arcTo(a,b,a+cw,b,r);this.closePath();return this};}
+function hexA(hex,a){let n=parseInt(hex.slice(1),16);return `rgba(${n>>16&255},${n>>8&255},${n&255},${a})`}
+function shade(hex,f){let n=parseInt(hex.slice(1),16),r=n>>16&255,g=n>>8&255,b=n&255,m=f<0?0:255,k=Math.abs(f);let t2=v=>Math.max(0,Math.min(255,v+(m-v)*k))|0;return `rgb(${t2(r)},${t2(g)},${t2(b)})`}
+function rr(a,b,cw,ch,r){x.beginPath();x.roundRect(a,b,cw,ch,r)}
+function waterPath(hor){x.beginPath();x.moveTo(w*.17,hor);x.lineTo(w*.83,hor);x.lineTo(w*.62,h);x.lineTo(w*.38,h);x.closePath()}
+function draw(){let sc=scene(),hor=Math.round(h*.45);drawSky(sc,hor);drawFarScenery(sc,hor);drawGround(sc,hor);drawGroundDeco(sc,hor);drawWater(sc,hor);drawWaterDeco(sc,hor);drawDock(sc,hor);building(-6,3,'鱼市','MARKET','#d99a42','market');building(6,3,'工坊','WORKSHOP','#4d7b91','workshop');drawAmbient(sc,hor);avatar();if(fishing)drawLine();drawVignette(sc,hor)}
+function bankPos(u,side,off,hor){let y=hor+u*(h-hor),xL=w*.17+u*(w*.38-w*.17),xR=w*.83+u*(w*.62-w*.83),sc2=.42+u*.95,edge=side<0?xL:xR;return{x:edge+side*off*sc2,y,scale:sc2}}
+function drawGroundDeco(sc,hor){let id=sc.id;for(let i=0;i<28;i++){let u=(i*0.61803)%1,side=i%2?1:-1,off=9+(i*37%30),pos=bankPos(u,side,off,hor);if(id==='verdant')drawGrassTuft(pos.x,pos.y,pos.scale,sc);else if(id==='coral')drawPebble(pos.x,pos.y,pos.scale,sc);else if(id==='volcano'){if(i%3==0)drawLavaRock(pos.x,pos.y,pos.scale*.8,sc)}else if(id==='aurora')drawSnowMound(pos.x,pos.y,pos.scale,sc);else if(id==='abyss'){if(i%3==0)drawRune(pos.x,pos.y,pos.scale,sc)}}let hero=[[.18,-1,16],[.46,-1,20],[.76,-1,28],[.22,1,16],[.52,1,22],[.8,1,30]];for(let hp of hero){let pos=bankPos(hp[0],hp[1],hp[2],hor);if(id==='verdant')drawTree(pos.x,pos.y,pos.scale,sc);else if(id==='volcano')drawLavaRock(pos.x,pos.y,pos.scale*1.5,sc);else if(id==='coral')drawCoral(pos.x,pos.y,pos.scale,sc);else if(id==='abyss')drawPillar(pos.x,pos.y,pos.scale,sc);else if(id==='aurora')drawSnowPine(pos.x,pos.y,pos.scale,sc)}}
+function drawGrassTuft(px,py,s,sc){x.strokeStyle=shade(sc.ground,.3);x.lineWidth=1.6*s;x.lineCap='round';for(let b=-2;b<=2;b++){let bx=px+b*3*s;x.beginPath();x.moveTo(bx,py);x.quadraticCurveTo(bx+b*2*s,py-9*s,bx+b*3*s+Math.sin(t*1.2+px+b)*1.5,py-15*s);x.stroke()}}
+function drawTree(px,py,s,sc){x.fillStyle='rgba(0,0,0,.22)';x.beginPath();x.ellipse(px,py,17*s,5*s,0,0,7);x.fill();x.fillStyle='#4a3423';x.fillRect(px-3*s,py-24*s,6*s,24*s);let g=x.createRadialGradient(px-7*s,py-38*s,2,px,py-33*s,25*s);g.addColorStop(0,shade(sc.ground,.44));g.addColorStop(1,shade(sc.ground,.02));x.fillStyle=g;let cl=[[0,-9],[-12,2],[12,2],[0,4]];for(let a of cl){x.beginPath();x.arc(px+a[0]*s,py-33*s+a[1]*s,14*s,0,7);x.fill()}x.fillStyle=hexA('#ffffff',.13);x.beginPath();x.arc(px-6*s,py-42*s,7*s,0,7);x.fill()}
+function drawLavaRock(px,py,s,sc){x.fillStyle='rgba(0,0,0,.28)';x.beginPath();x.ellipse(px,py,16*s,4*s,0,0,7);x.fill();x.fillStyle='#241d1a';x.beginPath();x.moveTo(px-15*s,py);x.lineTo(px-9*s,py-15*s);x.lineTo(px+2*s,py-20*s);x.lineTo(px+13*s,py-9*s);x.lineTo(px+15*s,py);x.closePath();x.fill();x.fillStyle='rgba(255,255,255,.05)';x.beginPath();x.moveTo(px-9*s,py-15*s);x.lineTo(px+2*s,py-20*s);x.lineTo(px-3*s,py-8*s);x.closePath();x.fill();x.strokeStyle=hexA('#ff6a21',.55+.25*Math.sin(t*3+px));x.lineWidth=1.6*s;x.lineCap='round';x.beginPath();x.moveTo(px-6*s,py-3*s);x.lineTo(px-2*s,py-11*s);x.lineTo(px+5*s,py-7*s);x.stroke()}
+function drawPebble(px,py,s,sc){x.fillStyle=shade(sc.ground,.12);x.beginPath();x.ellipse(px,py-2*s,6*s,4*s,0,0,7);x.fill();x.fillStyle=hexA('#ffffff',.14);x.beginPath();x.ellipse(px-1*s,py-3*s,3*s,1.4*s,0,0,7);x.fill()}
+function drawCoral(px,py,s,sc){let cols=['#ff7f9e','#ffb154','#6fe0cf','#c78bff'];x.fillStyle='rgba(0,0,0,.2)';x.beginPath();x.ellipse(px,py,15*s,4*s,0,0,7);x.fill();for(let b=0;b<4;b++){let col=cols[(Math.floor(px)+b)%cols.length],o=(b-1.5),bx=px+o*7*s;x.strokeStyle=col;x.lineWidth=5*s;x.lineCap='round';x.beginPath();x.moveTo(bx,py);x.quadraticCurveTo(bx+o*4*s,py-16*s,bx+o*8*s,py-27*s);x.stroke();x.fillStyle=col;x.beginPath();x.arc(bx+o*8*s,py-28*s,3*s,0,7);x.fill()}}
+function drawPillar(px,py,s,sc){x.fillStyle='rgba(0,0,0,.25)';x.beginPath();x.ellipse(px,py,13*s,4*s,0,0,7);x.fill();let hh=(28+(Math.floor(px)%22))*s,cw=13*s,g=x.createLinearGradient(px-cw/2,0,px+cw/2,0);g.addColorStop(0,'#333a49');g.addColorStop(.5,'#4c5568');g.addColorStop(1,'#262c38');x.fillStyle=g;x.fillRect(px-cw/2,py-hh,cw,hh);x.strokeStyle='rgba(0,0,0,.28)';x.lineWidth=1;for(let f=-1;f<=1;f++){x.beginPath();x.moveTo(px+f*3.5*s,py-hh);x.lineTo(px+f*3.5*s,py);x.stroke()}x.fillStyle='#525c70';x.fillRect(px-cw/2-2*s,py-hh-5*s,cw+4*s,6*s);x.fillStyle=hexA(sc.accent,.5+.35*Math.sin(t*2+px));x.beginPath();x.arc(px,py-hh*.55,2.6*s,0,7);x.fill()}
+function drawRune(px,py,s,sc){x.strokeStyle=hexA(sc.accent,.3+.3*Math.sin(t*2.5+px));x.lineWidth=1.5*s;x.lineCap='round';x.beginPath();x.moveTo(px-4*s,py);x.lineTo(px,py-6*s);x.lineTo(px+4*s,py);x.moveTo(px,py-6*s);x.lineTo(px,py-1*s);x.stroke()}
+function drawSnowMound(px,py,s,sc){x.fillStyle=hexA('#ffffff',.55);x.beginPath();x.ellipse(px,py,11*s,4*s,0,0,7);x.fill();x.fillStyle=hexA('#cfe6f1',.6);x.beginPath();x.ellipse(px+2*s,py+1.4*s,6*s,2.4*s,0,0,7);x.fill()}
+function drawSnowPine(px,py,s,sc){x.fillStyle='rgba(0,0,0,.2)';x.beginPath();x.ellipse(px,py,13*s,4*s,0,0,7);x.fill();x.fillStyle='#3a2a1c';x.fillRect(px-2.5*s,py-11*s,5*s,11*s);for(let L=0;L<3;L++){let ly=py-8*s-L*12*s,lw=(17-L*4)*s;x.fillStyle='#265842';x.beginPath();x.moveTo(px-lw,ly);x.lineTo(px,ly-16*s);x.lineTo(px+lw,ly);x.closePath();x.fill();x.fillStyle=hexA('#ffffff',.8);x.beginPath();x.moveTo(px-lw,ly);x.lineTo(px,ly-16*s);x.lineTo(px-lw*.35,ly-6*s);x.closePath();x.fill()}}
+function drawWaterDeco(sc,hor){x.save();waterPath(hor);x.clip();let id=sc.id;if(id==='verdant'){let pads=[[.42,.6],[.57,.7],[.48,.85],[.61,.54]];for(let pd of pads){let s=.5+pd[1],px=w*pd[0]+Math.sin(t*.6+pd[0]*10)*4,py=hor+(h-hor)*pd[1];x.fillStyle='#2e7d4f';x.beginPath();x.ellipse(px,py,15*s,7*s,0,.35,7);x.fill();x.fillStyle='#3f9d64';x.beginPath();x.ellipse(px,py,15*s,7*s,0,-.2,.35);x.fill();x.fillStyle='#ff6f9d';x.beginPath();x.arc(px-4*s,py-2*s,2.6*s,0,7);x.fill()}}else if(id==='volcano'){for(let i=0;i<12;i++){let px=w*.5+Math.sin(i*2.3)*w*.15,py=hor+(h-hor)*(((i*97+t*30)%100)/100),s=.5+(py-hor)/(h-hor),g=x.createRadialGradient(px,py,1,px,py,11*s);g.addColorStop(0,'#ffe08a');g.addColorStop(.5,'#ff5a1e');g.addColorStop(1,hexA('#ff5a1e',0));x.fillStyle=g;x.beginPath();x.arc(px,py,11*s,0,7);x.fill()}}else if(id==='coral'){for(let i=0;i<20;i++){let px=w*.5+Math.sin(i*1.7)*w*.17,py=h-((i*57+t*55)%Math.max(1,h-hor)),s=.4+(py-hor)/(h-hor);x.strokeStyle=hexA('#e6ffff',.45);x.lineWidth=1;x.beginPath();x.arc(px,py,2.4*s,0,7);x.stroke()}}else if(id==='abyss'){for(let i=0;i<24;i++){let px=(i*127.3+Math.sin(t+i)*20)%w,py=hor+((i*83.7+t*10)%Math.max(1,h-hor));x.fillStyle=hexA(sc.accent,Math.max(0,.35+.4*Math.sin(t*2+i)));x.beginPath();x.arc(px,py,1.6,0,7);x.fill()}}else if(id==='aurora'){let floes=[[.44,.58],[.58,.72],[.5,.88],[.63,.5]];for(let fl of floes){let s=.55+fl[1],px=w*fl[0]+Math.sin(t*.5+fl[0]*8)*5,py=hor+(h-hor)*fl[1];x.fillStyle=hexA('#eef7fb',.92);x.beginPath();x.moveTo(px-14*s,py);x.lineTo(px-6*s,py-6*s);x.lineTo(px+8*s,py-5*s);x.lineTo(px+15*s,py+1*s);x.lineTo(px+4*s,py+5*s);x.closePath();x.fill();x.fillStyle=hexA('#b9d7e5',.7);x.beginPath();x.moveTo(px-14*s,py);x.lineTo(px+15*s,py+1*s);x.lineTo(px+4*s,py+5*s);x.closePath();x.fill()}}x.restore()}
+function drawVignette(sc,hor){let g=x.createRadialGradient(w/2,h*.56,h*.32,w/2,h*.56,h*.9);g.addColorStop(0,'rgba(0,0,0,0)');g.addColorStop(1,'rgba(0,0,0,.3)');x.fillStyle=g;x.fillRect(0,0,w,h)}
+function drawSky(sc,hor){let g=x.createLinearGradient(0,0,0,hor);g.addColorStop(0,shade(sc.sky,.14));g.addColorStop(.6,sc.sky);g.addColorStop(1,shade(sc.far,.06));x.fillStyle=g;x.fillRect(0,0,w,hor);let sx=w*.8,sy=hor*.3,R=Math.max(30,hor*.11);let gl=x.createRadialGradient(sx,sy,0,sx,sy,R*4.6);gl.addColorStop(0,'rgba(255,252,235,.5)');gl.addColorStop(.35,hexA(sc.accent,.26));gl.addColorStop(1,hexA(sc.accent,0));x.fillStyle=gl;x.fillRect(0,0,w,hor);let sd=x.createRadialGradient(sx-R*.3,sy-R*.3,2,sx,sy,R);sd.addColorStop(0,'#fffdf4');sd.addColorStop(.7,'#fff0c4');sd.addColorStop(1,hexA(sc.accent,.7));x.fillStyle=sd;x.beginPath();x.arc(sx,sy,R,0,7);x.fill();drawClouds(sc,hor);drawAtmos(sc,hor);drawBirds(sc,hor)}
+function drawClouds(sc,hor){if(sc.id==='abyss')return;let al=sc.id==='volcano'?.3:.42;for(let i=0;i<3;i++){let cxp=((i*467+t*(6+i*2))%(w+280))-140,cyp=hor*(.16+i*.15),sz=42+i*16;x.fillStyle=hexA('#ffffff',al-i*.06);for(let k=0;k<4;k++){x.beginPath();x.ellipse(cxp+k*sz*.55,cyp+Math.sin(k*1.7)*sz*.12,sz*.55,sz*.32,0,0,7);x.fill()}}}
+function drawBirds(sc,hor){if(sc.id==='abyss'||sc.id==='volcano')return;x.strokeStyle='rgba(35,45,55,.45)';x.lineWidth=1.8;x.lineCap='round';for(let i=0;i<4;i++){let bx=((i*260+t*24)%(w+90))-45,by=hor*(.22+(i%2)*.13)+Math.sin(t*.6+i)*5,fl=Math.sin(t*6+i)*3+4;x.beginPath();x.moveTo(bx-7,by+fl);x.quadraticCurveTo(bx,by-1,bx,by);x.quadraticCurveTo(bx,by-1,bx+7,by+fl);x.stroke()}}
+function drawFarScenery(sc,hor){if(sc.id==='volcano')return drawFarVolcano(sc,hor);if(sc.id==='abyss')return drawFarRuins(sc,hor);if(sc.id==='aurora')return drawFarIce(sc,hor);if(sc.id==='coral')return drawFarCoral(sc,hor);drawFarHills(sc,hor)}
+function drawFarHills(sc,hor){for(let l=0;l<2;l++){x.fillStyle=l?shade(sc.far,-.14):shade(sc.far,-.02);x.globalAlpha=l?.85:.5;let baseY=hor+2,amp=l?30:18;x.beginPath();x.moveTo(0,baseY);for(let i=0;i<=w;i+=22){let hh=amp*(.5+.5*Math.sin(i*.004+l*3.1))*(.55+((i*13+l*97)%40)/40*.55);x.lineTo(i,baseY-hh)}x.lineTo(w,baseY);x.closePath();x.fill()}x.globalAlpha=1;x.fillStyle=shade(sc.far,-.22);x.globalAlpha=.6;for(let i=0;i<11;i++){let tx=(i*127+35)%w,ty=hor-3-((i*53)%9);x.beginPath();x.moveTo(tx-6,ty);x.lineTo(tx,ty-17);x.lineTo(tx+6,ty);x.closePath();x.fill()}x.globalAlpha=1}
+function drawFarVolcano(sc,hor){x.fillStyle=shade(sc.far,-.2);x.globalAlpha=.9;x.beginPath();x.moveTo(0,hor);for(let i=0;i<=w;i+=20)x.lineTo(i,hor-6-Math.abs(Math.sin(i*.005))*18);x.lineTo(w,hor);x.closePath();x.fill();x.globalAlpha=1;let cones=[[w*.26,72],[w*.6,112]];for(let c of cones){let cx=c[0],hh=c[1],by=hor,topw=hh*.2;x.fillStyle=shade(sc.far,-.4);x.beginPath();x.moveTo(cx-hh*.62,by);x.lineTo(cx-topw,by-hh);x.lineTo(cx+topw,by-hh);x.lineTo(cx+hh*.62,by);x.closePath();x.fill();x.fillStyle='rgba(0,0,0,.24)';x.beginPath();x.moveTo(cx,by-hh);x.lineTo(cx+topw,by-hh);x.lineTo(cx+hh*.62,by);x.lineTo(cx,by);x.closePath();x.fill();let cg=x.createRadialGradient(cx,by-hh,1,cx,by-hh,topw*2.4);cg.addColorStop(0,'#ffe07a');cg.addColorStop(.4,hexA('#ff5a1e',.8));cg.addColorStop(1,hexA('#ff5a1e',0));x.fillStyle=cg;x.beginPath();x.ellipse(cx,by-hh,topw*2.2,topw*1.2,0,0,7);x.fill();x.strokeStyle=hexA('#ff7a2a',.7);x.lineWidth=2.4;x.lineCap='round';x.beginPath();x.moveTo(cx,by-hh);x.quadraticCurveTo(cx+topw*1.4,by-hh*.5,cx+topw*.7,by);x.stroke()}}
+function drawFarRuins(sc,hor){x.fillStyle=shade(sc.far,-.06);x.globalAlpha=.85;x.beginPath();x.moveTo(0,hor);for(let i=0;i<=w;i+=26)x.lineTo(i,hor-5-Math.abs(Math.sin(i*.004))*14);x.lineTo(w,hor);x.closePath();x.fill();x.globalAlpha=1;let cols=[[w*.16,54,14],[w*.28,40,12],[w*.5,86,20],[w*.72,66,16],[w*.85,46,13]];for(let c of cols){let cx=c[0],hh=c[1],cw=c[2];x.fillStyle=shade(sc.far,.06);x.fillRect(cx-cw/2,hor-hh,cw,hh);x.fillStyle='rgba(0,0,0,.3)';x.fillRect(cx+cw*.15,hor-hh,cw*.35,hh);x.fillStyle=shade(sc.far,.14);x.fillRect(cx-cw/2-2,hor-hh-4,cw+4,5);x.strokeStyle=hexA(sc.accent,.35+.3*Math.sin(t*1.6+cx));x.lineWidth=2;x.beginPath();x.moveTo(cx,hor-hh+10);x.lineTo(cx,hor-6);x.stroke()}}
+function drawFarIce(sc,hor){for(let l=0;l<2;l++){x.fillStyle=l?'#b6d3e2':'#dcecf3';x.globalAlpha=l?.92:.72;let peaks=5,step=w/peaks;x.beginPath();x.moveTo(0,hor);for(let i=0;i<=peaks;i++){let px=i*step,ph=(l?58:36)*(.45+.55*Math.abs(Math.sin(i*1.9+l*1.3)));x.lineTo(px-step*.5,hor);x.lineTo(px,hor-ph)}x.lineTo(w,hor);x.closePath();x.fill();x.fillStyle=hexA('#ffffff',.5);x.globalAlpha=l?.5:.4;for(let i=0;i<=peaks;i++){let px=i*step,ph=(l?58:36)*(.45+.55*Math.abs(Math.sin(i*1.9+l*1.3)));x.beginPath();x.moveTo(px,hor-ph);x.lineTo(px-step*.5,hor);x.lineTo(px-step*.16,hor);x.closePath();x.fill()}}x.globalAlpha=1}
+function drawFarCoral(sc,hor){x.save();x.globalCompositeOperation='lighter';for(let i=0;i<6;i++){let rx=w*.8+(i-3)*46;x.fillStyle=hexA(sc.accent,.045);x.beginPath();x.moveTo(rx,0);x.lineTo(rx-26,hor);x.lineTo(rx+26,hor);x.closePath();x.fill()}x.restore();x.fillStyle=shade(sc.far,-.06);x.globalAlpha=.8;x.beginPath();x.moveTo(0,hor);for(let i=0;i<=w;i+=24)x.lineTo(i,hor-12-Math.abs(Math.sin(i*.006+1))*24);x.lineTo(w,hor);x.closePath();x.fill();x.globalAlpha=1;let cc=['#ff7f9e','#ffb154','#6fe0cf'];for(let i=0;i<7;i++){let cx=(i*181+60)%w,col=cc[i%3];x.strokeStyle=hexA(col,.5);x.lineWidth=4;x.lineCap='round';x.beginPath();x.moveTo(cx,hor);x.quadraticCurveTo(cx+8,hor-14,cx+3,hor-24);x.stroke()}}
+function drawGround(sc,hor){let g=x.createLinearGradient(0,hor,0,h);g.addColorStop(0,shade(sc.ground,.16));g.addColorStop(1,shade(sc.ground,-.42));x.fillStyle=g;x.fillRect(0,hor,w,h-hor);for(let i=0;i<80;i++){let px=(i*137.5)%w,py=hor+((i*97.3)%(h-hor)),d=(py-hor)/(h-hor);x.fillStyle=hexA(shade(sc.ground,i%2?.24:-.28),.12+d*.12);x.beginPath();x.ellipse(px,py,2.5+d*4.5,1.2+d*2.2,0,0,7);x.fill()}}
+function drawWater(sc,hor){x.save();waterPath(hor);x.clip();let wg=x.createLinearGradient(0,hor,0,h);wg.addColorStop(0,shade(sc.water,.2));wg.addColorStop(.5,sc.water);wg.addColorStop(1,'#04141f');x.fillStyle=wg;x.fillRect(0,hor,w,h-hor);let sx=w*.8;for(let i=0;i<9;i++){let yy=hor+i/9*(h-hor),wob=Math.sin(t*3+i*1.3)*16;x.fillStyle=hexA('#ffffff',.14-i*.013);x.beginPath();x.ellipse(sx+wob*.5,yy,42-i*2,3.4,0,0,7);x.fill()}for(let i=0;i<18;i++){let yy=hor+(i/18)*(h-hor);x.strokeStyle=hexA(sc.accent,.05+i*.006);x.lineWidth=1+i*.05;x.beginPath();for(let xx=0;xx<=w;xx+=22)x.lineTo(xx,yy+Math.sin(xx*.03+t*2+i)*2.6);x.stroke()}x.restore();x.strokeStyle=hexA('#eafff9',.5);x.lineWidth=2.2;x.beginPath();for(let xx=w*.17;xx<=w*.83;xx+=10)x.lineTo(xx,hor+Math.sin(xx*.09+t*3)*2);x.stroke()}
+function drawDock(sc,hor){let P={verdant:['#513622','#7d5636','#c79a68','#3f2a19','#6b4a2e'],volcano:['#1c1512','#3a2a23','#ff8a3a','#241a15','#ff6a21'],coral:['#5b4a3c','#8a7460','#c9b79e','#463a2e','#7d6a54'],abyss:['#232a38','#3c465a','#7686ad','#1a2029','#6d7bb0'],aurora:['#7fb0cc','#c2e0ee','#f0fbff','#5f92ad','#e6f6ff']}[sc.id]||['#513622','#7d5636','#c79a68','#3f2a19','#6b4a2e'];let edges=[[w*.17,hor,w*.38,h],[w*.83,hor,w*.62,h]];for(let e of edges){x.strokeStyle=P[0];x.lineWidth=12;x.lineCap='round';x.beginPath();x.moveTo(e[0],e[1]);x.lineTo(e[2],e[3]);x.stroke();x.strokeStyle=P[1];x.lineWidth=6;x.beginPath();x.moveTo(e[0],e[1]);x.lineTo(e[2],e[3]);x.stroke();x.strokeStyle=hexA(P[2],.55);x.lineWidth=1.5;x.beginPath();x.moveTo(e[0],e[1]-3);x.lineTo(e[2],e[3]-3);x.stroke();for(let k=1;k<=4;k++){let f=k/4,px=e[0]+(e[2]-e[0])*f,py=e[1]+(e[3]-e[1])*f,ph=8+k*7;x.strokeStyle=P[3];x.lineWidth=3+k*1.4;x.lineCap='round';x.beginPath();x.moveTo(px,py);x.lineTo(px,py-ph);x.stroke();x.fillStyle=P[4];x.beginPath();x.arc(px,py-ph,2+k*.7,0,7);x.fill()}}}
+function drawReeds(bx,by,sc){x.lineCap='round';for(let i=0;i<5;i++){let rx=bx+(i-2)*9,sway=Math.sin(t*1.4+i*1.1)*7;x.strokeStyle=shade(sc.ground,-.12);x.lineWidth=3;x.beginPath();x.moveTo(rx,by);x.quadraticCurveTo(rx+sway*.5,by-28,rx+sway,by-56);x.stroke();x.fillStyle=shade(sc.accent,-.08);x.beginPath();x.ellipse(rx+sway,by-58,2.6,7,sway*.03,0,7);x.fill()}}
+function drawAmbient(sc,hor){drawReeds(w*.35,h*.99,sc);drawReeds(w*.65,h*.99,sc);if(sc.id==='abyss'||sc.id==='aurora'){for(let i=0;i<20;i++){let fx=(i*127.3)%w,fy=hor+((i*83.7)%Math.max(1,(h-hor))),a=.25+.35*Math.sin(t*2+i*1.7);x.fillStyle=hexA(sc.accent,Math.max(0,a));x.beginPath();x.arc(fx,fy,1.5,0,7);x.fill()}}}
 function proj(wx,wz){let z=(wz+3)/13,scale=.48+z*.8;return{x:w/2+wx*55*scale,y:h*.43+z*h*.55,scale}}
-function building(wx,wz,name,en,color){let q=proj(wx,wz),bw=125*q.scale,bh=105*q.scale;x.fillStyle='#0005';x.beginPath();x.ellipse(q.x,q.y+8,bw*.65,14*q.scale,0,0,7);x.fill();x.fillStyle=color;x.fillRect(q.x-bw/2,q.y-bh,bw,bh);x.fillStyle='#172b34';x.beginPath();x.moveTo(q.x-bw*.62,q.y-bh);x.lineTo(q.x,q.y-bh-55*q.scale);x.lineTo(q.x+bw*.62,q.y-bh);x.fill();x.fillStyle='#f4d98c';x.font=`900 ${15*q.scale}px sans-serif`;x.textAlign='center';x.fillText(name,q.x,q.y-bh*.42);x.font=`${9*q.scale}px sans-serif`;x.fillText(en,q.x,q.y-bh*.25)}
-function avatar(){let q=proj(p.x,p.z),bob=Math.sin(t*7)*2;x.fillStyle='#0006';x.beginPath();x.ellipse(q.x,q.y,25*q.scale,8*q.scale,0,0,7);x.fill();x.save();x.translate(q.x,q.y-25*q.scale+bob);x.scale(p.dir*q.scale,q.scale);x.fillStyle='#183b4a';x.fillRect(-15,-42,30,40);x.fillStyle='#f0b48f';x.beginPath();x.arc(0,-52,13,0,7);x.fill();x.fillStyle='#edc84c';x.beginPath();x.ellipse(0,-62,19,7,0,0,7);x.fill();x.strokeStyle='#f5e3b8';x.lineWidth=4;x.beginPath();x.moveTo(12,-30);x.lineTo(31,-8);x.stroke();x.restore()}
-function drawAtmos(sc,hor){if(sc.id==='volcano'){x.fillStyle='#ff6a2144';for(let i=0;i<28;i++){let xx=(i*83+t*20)%w,yy=hor-(i*47+t*34)%hor;x.beginPath();x.arc(xx,yy,2+i%3,0,7);x.fill()}}else if(sc.id==='coral'||sc.id==='abyss'){x.fillStyle='#a7fff522';for(let i=0;i<35;i++){let xx=(i*107+Math.sin(t+i)*40)%w,yy=(i*61-t*20)%h;x.beginPath();x.arc(xx,yy,2+i%5,0,7);x.fill()}}else if(sc.id==='aurora'){let a=x.createLinearGradient(0,0,w,hor);a.addColorStop(0,'#43ffc500');a.addColorStop(.5,'#50ffc955');a.addColorStop(1,'#b65fff00');x.fillStyle=a;x.beginPath();x.moveTo(0,80);for(let i=0;i<=w;i+=40)x.lineTo(i,100+Math.sin(i/100+t)*35);x.lineTo(w,0);x.lineTo(0,0);x.fill()}else{x.fillStyle='#fff9';x.beginPath();x.arc(w*.8,h*.14,38,0,7);x.fill()}}
-function drawLine(){x.strokeStyle='#e8fff5aa';x.lineWidth=1;x.beginPath();let q=proj(p.x,p.z);x.moveTo(q.x+15,q.y-50);x.quadraticCurveTo(w*.55,h*.35,w*.5,h*.54);x.stroke()}
+function building(wx,wz,name,en,color,type){let q=proj(wx,wz),s0=q.scale,bw=125*s0,bh=105*s0,cx=q.x,base=q.y;x.fillStyle='rgba(0,0,0,.28)';x.beginPath();x.ellipse(cx,base+8*s0,bw*.72,15*s0,0,0,7);x.fill();let wall=x.createLinearGradient(cx-bw/2,0,cx+bw/2,0);wall.addColorStop(0,shade(color,.14));wall.addColorStop(.55,color);wall.addColorStop(1,shade(color,-.3));x.fillStyle=wall;rr(cx-bw/2,base-bh,bw,bh,4*s0);x.fill();x.strokeStyle='rgba(0,0,0,.08)';x.lineWidth=1;for(let i=1;i<4;i++){x.beginPath();x.moveTo(cx-bw/2,base-bh*i/4);x.lineTo(cx+bw/2,base-bh*i/4);x.stroke()}let ry=base-bh,rpk=ry-58*s0,ov=bw*.66;x.fillStyle=shade(color,-.5);x.beginPath();x.moveTo(cx-ov,ry);x.lineTo(cx,rpk);x.lineTo(cx+ov,ry);x.closePath();x.fill();x.fillStyle='rgba(0,0,0,.2)';x.beginPath();x.moveTo(cx,rpk);x.lineTo(cx+ov,ry);x.lineTo(cx,ry);x.closePath();x.fill();x.strokeStyle='rgba(255,255,255,.16)';x.lineWidth=2*s0;x.beginPath();x.moveTo(cx-ov,ry);x.lineTo(cx,rpk);x.stroke();x.strokeStyle=shade(color,-.55);x.lineWidth=3*s0;x.beginPath();x.moveTo(cx-ov,ry);x.lineTo(cx+ov,ry);x.stroke();if(type==='workshop'){let chx=cx-ov*.5,chy=rpk+(ry-rpk)*.45;x.fillStyle=shade(color,-.58);x.fillRect(chx-5*s0,rpk+6*s0,10*s0,(chy-rpk));for(let i=0;i<3;i++){let sy2=rpk+2*s0-i*11*s0-((t*16)%13)*s0;x.fillStyle=hexA('#d8dde0',.22-i*.05);x.beginPath();x.arc(chx+Math.sin(t*1.2+i)*4,sy2,4*s0+i,0,7);x.fill()}}let dw=30*s0,dh=44*s0;x.fillStyle=shade(color,-.48);rr(cx-dw/2,base-dh,dw,dh,dw*.42);x.fill();x.strokeStyle=shade(color,-.6);x.lineWidth=1.5*s0;x.stroke();x.fillStyle='rgba(255,224,150,.95)';x.beginPath();x.arc(cx+dw*.28,base-dh*.5,2.2*s0,0,7);x.fill();let ww=22*s0;for(let sgn of[-1,1]){let wxp=cx+sgn*bw*.28,wyp=base-bh*.62,gl=x.createRadialGradient(wxp,wyp-ww*.15,1,wxp,wyp,ww);gl.addColorStop(0,'#fff0c0');gl.addColorStop(1,'#c8922f');x.fillStyle=gl;rr(wxp-ww/2,wyp-ww/2,ww,ww,3*s0);x.fill();x.strokeStyle='rgba(50,32,16,.75)';x.lineWidth=1.6*s0;x.strokeRect(wxp-ww/2,wyp-ww/2,ww,ww);x.beginPath();x.moveTo(wxp,wyp-ww/2);x.lineTo(wxp,wyp+ww/2);x.moveTo(wxp-ww/2,wyp);x.lineTo(wxp+ww/2,wyp);x.stroke()}if(type==='market'){let ay=base-dh-4*s0;for(let i=0;i<5;i++){x.fillStyle=i%2?'#efe7d4':'#cf5745';x.beginPath();x.moveTo(cx-dw*.9+i*dw*.36,ay);x.lineTo(cx-dw*.9+(i+1)*dw*.36,ay);x.lineTo(cx-dw*.9+(i+.5)*dw*.36,ay+9*s0);x.closePath();x.fill()}x.fillStyle='#8a5a2f';x.fillRect(cx-dw,ay-4*s0,dw*2,4*s0)}let sbw=bw*.72,sbh=23*s0,sby=ry+7*s0;x.fillStyle='#3a2818';rr(cx-sbw/2,sby,sbw,sbh,4*s0);x.fill();x.strokeStyle='#5a3f26';x.lineWidth=1.5*s0;x.stroke();x.fillStyle='#7d5636';x.fillRect(cx-sbw*.32,sby-5*s0,3*s0,6*s0);x.fillRect(cx+sbw*.32-3*s0,sby-5*s0,3*s0,6*s0);x.fillStyle='#f4d98c';x.textAlign='center';x.textBaseline='middle';x.font=`900 ${14*s0}px sans-serif`;x.fillText(name,cx,sby+sbh*.4);x.fillStyle='#c9b48a';x.font=`${8*s0}px sans-serif`;x.fillText(en,cx,sby+sbh*.76);x.textBaseline='alphabetic'}
+function avatar(){let q=proj(p.x,p.z),s0=q.scale,mv=p.moving,wt=p.walkT||0,bob=mv?Math.abs(Math.sin(wt))*3:Math.sin(t*3)*1.4,cx=q.x,base=q.y;x.fillStyle='rgba(0,0,0,.3)';x.beginPath();x.ellipse(cx,base,26*s0,8*s0,0,0,7);x.fill();x.save();x.translate(cx,base+bob);x.scale(p.dir*s0,s0);let legSw=mv?Math.sin(wt)*9:0;x.strokeStyle='#2a2f3a';x.lineWidth=7;x.lineCap='round';x.beginPath();x.moveTo(-6,-40);x.lineTo(-6+legSw,-3);x.stroke();x.beginPath();x.moveTo(6,-40);x.lineTo(6-legSw,-3);x.stroke();x.strokeStyle='#141a22';x.lineWidth=4;x.beginPath();x.moveTo(-6+legSw,-3);x.lineTo(-2+legSw,-1);x.moveTo(6-legSw,-3);x.lineTo(10-legSw,-1);x.stroke();x.strokeStyle='#20516a';x.lineWidth=6;x.lineCap='round';x.beginPath();x.moveTo(-11,-64);x.lineTo(-15,-44);x.stroke();let jg=x.createLinearGradient(-15,0,15,0);jg.addColorStop(0,'#2f7089');jg.addColorStop(.5,'#20556a');jg.addColorStop(1,'#143b4a');x.fillStyle=jg;rr(-15,-70,30,34,7);x.fill();x.fillStyle='rgba(255,255,255,.09)';rr(-15,-70,9,34,7);x.fill();x.fillStyle='#143b4a';x.fillRect(-15,-53,30,3);x.strokeStyle='#0f2c38';x.lineWidth=1.4;x.beginPath();x.moveTo(0,-70);x.lineTo(0,-38);x.stroke();x.strokeStyle='#20516a';x.lineWidth=6;x.beginPath();x.moveTo(12,-64);x.lineTo(20,-52);x.stroke();x.fillStyle='#e8b48f';x.beginPath();x.arc(20,-52,3.4,0,7);x.fill();x.fillStyle='#e0a884';x.fillRect(-4,-78,8,9);let hg=x.createRadialGradient(-3,-90,2,0,-86,13);hg.addColorStop(0,'#ffd6ae');hg.addColorStop(1,'#dd9a71');x.fillStyle=hg;x.beginPath();x.arc(0,-86,12,0,7);x.fill();x.fillStyle='#3a2a1c';x.beginPath();x.arc(-3,-89,12,Math.PI*.78,Math.PI*1.55);x.fill();x.fillStyle='#241a11';x.beginPath();x.arc(4.5,-86,1.4,0,7);x.fill();x.strokeStyle='#c98a63';x.lineWidth=1;x.beginPath();x.arc(7.5,-83,2,Math.PI*1.15,Math.PI*1.75);x.stroke();x.fillStyle='#caa24d';x.beginPath();x.ellipse(0,-93,20,6,0,0,7);x.fill();x.fillStyle='#d8b25a';x.beginPath();x.ellipse(0,-97,11,9,0,Math.PI,0);x.fill();x.fillStyle='#b28a3a';x.fillRect(-11,-95,22,2.4);x.strokeStyle='#caa46a';x.lineWidth=2.6;x.lineCap='round';x.beginPath();x.moveTo(18,-54);x.quadraticCurveTo(42,-66,54,-38);x.stroke();x.fillStyle='#333a44';x.beginPath();x.arc(23,-51,3.2,0,7);x.fill();x.fillStyle='#c9d2da';x.beginPath();x.arc(23,-51,1.2,0,7);x.fill();x.restore()}
+function drawAtmos(sc,hor){if(sc.id==='volcano'){x.fillStyle='#ff6a2144';for(let i=0;i<28;i++){let xx=(i*83+t*20)%w,yy=hor-(i*47+t*34)%hor;x.beginPath();x.arc(xx,yy,2+i%3,0,7);x.fill()}}else if(sc.id==='coral'||sc.id==='abyss'){x.fillStyle='#a7fff522';for(let i=0;i<35;i++){let xx=(i*107+Math.sin(t+i)*40)%w,yy=(i*61-t*20)%h;x.beginPath();x.arc(xx,yy,2+i%5,0,7);x.fill()}}else if(sc.id==='aurora'){let a=x.createLinearGradient(0,0,w,hor);a.addColorStop(0,'#43ffc500');a.addColorStop(.5,'#50ffc955');a.addColorStop(1,'#b65fff00');x.fillStyle=a;x.beginPath();x.moveTo(0,80);for(let i=0;i<=w;i+=40)x.lineTo(i,100+Math.sin(i/100+t)*35);x.lineTo(w,0);x.lineTo(0,0);x.fill()}}
+function drawLine(){let q=proj(p.x,p.z),s0=q.scale,tx=q.x+p.dir*54*s0,ty=q.y-38*s0,bxp=w*.5,byp=h*.5+Math.sin(t*2.5)*2;x.strokeStyle='rgba(232,255,245,.7)';x.lineWidth=1.3;x.beginPath();x.moveTo(tx,ty);x.quadraticCurveTo((tx+bxp)/2,ty-30,bxp,byp);x.stroke();x.fillStyle='rgba(255,255,255,.25)';x.beginPath();x.ellipse(bxp,byp+6,9,3,0,0,7);x.fill();x.fillStyle='#e8503c';x.beginPath();x.arc(bxp,byp,4.2,Math.PI,0);x.fill();x.fillStyle='#f4f4f4';x.beginPath();x.arc(bxp,byp,4.2,0,Math.PI);x.fill();x.strokeStyle='#b83a2a';x.lineWidth=1;x.beginPath();x.moveTo(bxp-4.2,byp);x.lineTo(bxp+4.2,byp);x.stroke()}
 function interact(){if(near==='market')open('market');else if(near==='workshop')open('workshop');else if(near==='water')cast()}
 function cast(){if(fishing){toast('正在钓鱼中');return}if(near!=='water'){toast('请先移动到中央水边钓位');return}let b=bait();if((s.baits[b.id]||0)<1){toast('饵料不足，请到鱼市购买');return}s.baits[b.id]--;fishing={phase:'wait',wait:1.2+Math.random()*2.1};toast('抛竿成功，等待鱼咬钩…');update();save()}
-function chooseFish(){let pool=scene().fish.map(id=>FISH_DATA[id]).filter(Boolean),b=bait();let luck=Math.random()+b.luck;let choices=pool.filter(f=>luck>(f.rarity==='legendary'?.93:f.rarity==='epic'?.76:f.rarity==='rare'?.42:0));if(!choices.length)choices=pool.filter(f=>f.rarity==='common');return choices[Math.floor(Math.random()*choices.length)]||pool[0]}
-function tickFish(dt){if(!fishing)return;if(fishing.phase==='wait'){fishing.wait-=dt;if(fishing.wait<=0){let f=chooseFish(),b=bait(),weight=speciesWeight(f,b),q=f.rarity==='legendary'?5:f.rarity==='epic'?4:f.rarity==='rare'?3:(Math.random()<.22?2:1);let ratio=(weight-f.minWeight)/(f.maxWeight-f.minWeight||1);fishing={phase:'fight',fish:f,weight,quality:q,hp:55+f.power*.16+ratio*95,escape:18,sizeRatio:ratio,lastClick:performance.now(),clicks:[],maxHp:55+f.power*.16+ratio*95};document.getElementById('rFight').classList.add('on');document.getElementById('fightName').textContent=`${Q[q]} · ${f.name}（${weight.toFixed(weight<1?2:1)} kg）`;toast('咬钩了！快速点击！')}}else{let now=performance.now();fishing.clicks=fishing.clicks.filter(v=>now-v<1000);let cps=fishing.clicks.length,fishForce=(8+fishing.fish.power*.08+fishing.sizeRatio*22)*(1-(bait().power||0)),playerForce=cps*7.5+rod().power*.28,net=fishForce-playerForce;fishing.escape=Math.max(0,Math.min(100,fishing.escape+net*dt));if(now-fishing.lastClick>800)fishing.hp=Math.min(fishing.maxHp,fishing.hp+dt*fishing.maxHp*.07);document.getElementById('fishHp').style.width=(fishing.hp/fishing.maxHp*100)+'%';document.getElementById('lineHp').style.width=fishing.escape+'%';document.getElementById('fightClicks').textContent=`点击 ${cps}/s · 压制 ${Math.round(playerForce)} / 挣脱 ${Math.round(fishForce)}`;document.getElementById('escapeTip').textContent=net>0?'⚠ 鱼正在挣脱！点击再快一些或更换强力鱼竿':'✓ 已压制鱼的挣脱，继续快速点击';if(fishing.escape>=100)fail('鱼的挣脱力压过了你的点击速度和鱼竿力量，逃走了！')}}
-function reel(e){if(!fishing||fishing.phase!=='fight')return;e&&e.stopPropagation();let now=performance.now(),fast=now-fishing.lastClick<240?1.28:1;fishing.lastClick=now;fishing.clicks.push(now);fishing.hp-=rod().power*.13*fast;if(fishing.hp<=0)catchFish()}
-function catchFish(){let z=fishing,f=z.fish,sc=score(z.weight,z.quality),price=Math.max(2,Math.round(f.basePrice*z.weight*(.45+z.quality*.24)));let item={uid:Date.now(),id:f.id,weight:+z.weight.toFixed(3),quality:z.quality,score:sc,price};s.bag.push(item);s.caught++;let d=s.dex[f.id]||{count:0,maxWeight:0,bestScore:0};d.count++;d.maxWeight=Math.max(d.maxWeight,item.weight);d.bestScore=Math.max(d.bestScore,sc);s.dex[f.id]=d;let gain=Math.max(12,Math.round(sc/10));s.totalXp+=gain;s.level=xpLevel(s.totalXp);fishing=null;document.getElementById('rFight').classList.remove('on');save();document.getElementById('rCatchImg').src=`assets/fish/${f.id}.png`;document.getElementById('rCatchName').className=`quality-${item.quality}`;document.getElementById('rCatchName').textContent=`${Q[item.quality]} · ${f.name}`;document.getElementById('rCatchInfo').textContent=`${item.weight} kg · 评分 ${sc} · +${gain} 经验 · 估价 ${price} 金币`;document.getElementById('rCatch').classList.add('on');update()}
+function chooseFish(){let pool=scene().fish.map(id=>FISH_DATA[id]).filter(Boolean),luck=Number(bait().luck)||0,total=pool.reduce((sum,f)=>sum+speciesSpawnWeight(f,luck),0),roll=Math.random()*total;for(let f of pool){roll-=speciesSpawnWeight(f,luck);if(roll<=0)return f}return pool[0]}
+function tickFish(dt){
+  if(!fishing)return;
+  if(fishing.phase==='wait'){
+    fishing.wait-=dt;
+    if(fishing.wait<=0){
+      let f=chooseFish(),b=bait(),weight=speciesWeight(f,b),q=rollQuality(f,b),now=performance.now(),boss=isBossFish(f);
+      let ratio=(weight-f.minWeight)/(f.maxWeight-f.minWeight||1),maxHp=fishFightHp(f,ratio,q);
+      fishing={phase:'fight',fish:f,weight,quality:q,hp:maxHp,escape:18,sizeRatio:ratio,lastClick:now,clicks:[],maxHp,graceUntil:f.rarity==='legendary'?now+3000:0};
+      document.getElementById('rFight').classList.add('on');
+      document.getElementById('fightName').textContent=`${boss?'👑 BOSS · ':''}${Q[q]} · ${f.name}（${weight.toFixed(weight<1?2:1)} kg）`;
+      toast(boss?'世界 Boss 上钩，3 秒后开始终极挑战！':f.rarity==='legendary'?'传说鱼上钩，3 秒后正式开始！':'咬钩了！快速点击！');
+    }
+  }else{
+    let now=performance.now(),graceLeft=(fishing.graceUntil||0)-now;
+    if(graceLeft>0){
+      fishing.clicks=[];fishing.lastClick=now;
+      document.getElementById('fishHp').style.width=(fishing.hp/fishing.maxHp*100)+'%';
+      document.getElementById('lineHp').style.width=fishing.escape+'%';
+      document.getElementById('fightClicks').textContent=`准备倒计时 ${Math.ceil(graceLeft/1000)} 秒`;
+      document.getElementById('escapeTip').textContent='🛡 保护准备期：鱼不会挣脱或回血，3 秒后正式开始';
+      return;
+    }
+    fishing.graceUntil=0;
+    fishing.clicks=fishing.clicks.filter(v=>now-v<1000);
+    let cps=fishing.clicks.length,currentRod=rod(),rawFishForce=(14+fishing.fish.power*.13+fishing.sizeRatio*36)*eliteForceMultiplier(fishing.quality)*speciesForceMultiplier(fishing.fish)*(1-(bait().power||0)*.65)*FIGHT_TEMPO*FISH_FORCE_DIFFICULTY,fishForce=isBossFish(fishing.fish)?Math.min(rawFishForce,bossForceCap(fishing.fish)):rawFishForce,playerForce=(cps*7.5+currentRod.power*.18+Math.sqrt(currentRod.line)*2.2)*FIGHT_TEMPO*PLAYER_SUPPRESSION_MULTIPLIER,net=fishForce-playerForce;
+    fishing.escape=Math.max(0,Math.min(100,fishing.escape+net*dt));
+    if(now-fishing.lastClick>800)fishing.hp=Math.min(fishing.maxHp,fishing.hp+dt*fishing.maxHp*.07*FIGHT_TEMPO);
+    document.getElementById('fishHp').style.width=(fishing.hp/fishing.maxHp*100)+'%';
+    document.getElementById('lineHp').style.width=fishing.escape+'%';
+    document.getElementById('fightClicks').textContent=`点击 ${cps}/s · 压制 ${Math.round(playerForce)} / 挣脱 ${Math.round(fishForce)}`;
+    document.getElementById('escapeTip').textContent=net>0?'⚠ 鱼正在挣脱！点击再快一些或更换强力鱼竿':'✓ 已压制鱼的挣脱，继续快速点击';
+    if(fishing.escape>=100)fail('鱼的挣脱力压过了你的点击速度和鱼竿力量，逃走了！');
+  }
+}
+function reel(e){if(!fishing||fishing.phase!=='fight')return;e&&e.stopPropagation();let now=performance.now();if(now<(fishing.graceUntil||0))return;let fast=now-fishing.lastClick<240?1.28:1;fishing.lastClick=now;fishing.clicks.push(now);fishing.hp-=rod().power*.13*fast*FIGHT_TEMPO;if(fishing.hp<=0)catchFish()}
+function catchFish(){let z=fishing,f=z.fish,boss=isBossFish(f),sc=score(z.weight,z.quality),price=fishPrice(f,z.weight,z.quality);let item={uid:Date.now(),id:f.id,weight:+z.weight.toFixed(3),quality:z.quality,score:sc,price};s.bag.push(item);s.caught++;let d=s.dex[f.id]||{count:0,maxWeight:0,bestScore:0};d.count++;d.maxWeight=Math.max(d.maxWeight,item.weight);d.bestScore=Math.max(d.bestScore,sc);s.dex[f.id]=d;let gain=Math.max(15,Math.round(sc/7))*(boss?5:1);s.totalXp+=gain;s.level=xpLevel(s.totalXp);fishing=null;document.getElementById('rFight').classList.remove('on');save();document.querySelector('#rCatch .catch-heading').textContent=boss?'👑 BOSS 捕获成功':'钓获成功';document.getElementById('rCatchImg').src=`assets/fish/${f.id}.png`;document.getElementById('rCatchName').className=`quality-${item.quality}`;document.getElementById('rCatchName').textContent=`${boss?'👑 BOSS · ':''}${Q[item.quality]} · ${f.name}`;document.getElementById('rCatchInfo').textContent=`${item.weight} kg · 评分 ${sc} · +${gain} 经验 · 估价 ${price} 金币`;document.getElementById('rCatch').classList.add('on');update()}
 function closeCatch(){document.getElementById('rCatch').classList.remove('on');document.getElementById('rCatchImg').removeAttribute('src')}
 function fail(msg){fishing=null;document.getElementById('rFight').classList.remove('on');toast(msg);update()}
-function open(type){let pan=document.getElementById('rPanel'),title=document.getElementById('rPanelTitle'),tabs=document.getElementById('rTabs'),box=document.getElementById('rContent');pan.classList.add('on');tabs.innerHTML='';box.className='r-content';if(type==='map'){title.textContent='五大垂钓场景';box.innerHTML=SC.map((a,i)=>`<div class="r-card r-scene ${s.totalXp<a.xp?'locked':''}" onclick="R.travel('${a.id}')"><div class="bg" style="background:linear-gradient(135deg,${a.sky},${a.water})"></div><h3>${a.icon} ${a.name}</h3><p>${s.totalXp>=a.xp?'已解锁 · 点击前往':`🔒 需要累计 ${a.xp} 经验（还差 ${a.xp-s.totalXp}）`}</p><p>${['适合新手的生机湖岸','炽热熔流中的强韧鱼种','沉浸式海底珊瑚世界','发光生物与远古遗迹','极光下的终极巨物'][i]}</p></div>`).join('')}else if(type==='bag'){title.textContent=`背包 · ${s.bag.length} 条鱼`;box.innerHTML=s.bag.length?s.bag.map(item=>fishCard(item,true)).join(''):'<p>背包是空的，去水边钓鱼吧。</p>'}else if(type==='market'){title.textContent='湖岸鱼市';tabs.innerHTML='<button class="r-btn" onclick="R.open(\'bag\')">出售背包鱼</button><button class="r-btn" onclick="R.sellAll()">一键出售全部</button>';box.innerHTML=BA.map(b=>`<div class="r-card"><h3>${b.name}</h3><p>${b.desc}</p><p>库存：${s.baits[b.id]||0}</p><button class="r-btn" onclick="R.buyBait('${b.id}')">💰 ${b.price} / 个</button><button class="r-btn primary" onclick="R.equipBait('${b.id}')">装备</button></div>`).join('')}else if(type==='workshop'){title.textContent='鱼竿工坊';box.innerHTML=RODS.map(r=>`<div class="r-card"><h3>${s.rod===r.id?'✓ ':''}${r.name}</h3><p>${r.desc}</p><p>力量 ${r.power} · 鱼线 ${r.line}</p><button class="r-btn ${s.ownedRods.includes(r.id)?'primary':''}" onclick="R.rodAction('${r.id}')">${s.ownedRods.includes(r.id)?'装备':`💰 ${r.price}`}</button></div>`).join('')}else if(type==='dex'){title.textContent=`鱼类图鉴 · 已发现 ${Object.keys(s.dex).length}/${FISH_DATA.length}`;box.innerHTML=FISH_DATA.map(f=>{let d=s.dex[f.id];return `<div class="r-card">${d?`<img src="assets/fish/${f.id}.png"><h3>${f.name}</h3><p>${f.desc}</p><p>钓获 ${d.count} 次 · 最大 ${d.maxWeight.toFixed(2)}kg · 最高 ${d.bestScore||0}分</p>`:`<div style="height:90px;display:grid;place-items:center;font-size:48px;filter:brightness(0)">🐟</div><h3>${f.name}</h3><p class="quality-${rarityQ(f.rarity)}">品质：${Q[rarityQ(f.rarity)]}</p><p>尚未钓获，外形与详细资料未知</p>`}</div>`}).join('')}else if(type==='aquarium'){title.textContent=`我的水族馆 · 总评分 ${s.aquarium.reduce((a,b)=>a+b.score,0)}`;box.className='r-content aquarium-bg';box.innerHTML=s.aquarium.length?s.aquarium.map((item,i)=>`<div class="r-card swimmer" style="animation-delay:${-i*.7}s">${fishCard(item,false)}<button class="r-btn" onclick="R.removeAqua(${item.uid})">取回背包</button></div>`).join(''):'<p>水族馆里还没有鱼。可从背包选择鱼放入。</p>'}update()}
-function rarityQ(r){return r==='legendary'?5:r==='epic'?4:r==='rare'?3:1}function fishCard(a,actions){let f=FISH_DATA[a.id]||{name:'未知鱼',desc:''},old=s.aquarium.filter(v=>v.id===a.id).sort((u,v)=>u.weight-v.weight)[0],canReplace=old&&a.weight>old.weight;return `<div class="r-card"><img src="assets/fish/${a.id}.png" alt="${f.name}"><h3 class="quality-${a.quality}">${Q[a.quality]} · ${f.name}</h3><p>${a.weight} kg · 评分 ${a.score} · 售价 💰${a.price}</p>${actions?`<button class="r-btn" onclick="R.sell(${a.uid})">出售</button><button class="r-btn primary" onclick="R.toAqua(${a.uid})">放入水族馆</button><button class="r-btn" ${canReplace?'':`disabled title="${old?'重量没有超过水族馆中的同种鱼':'水族馆中还没有此品种'}"`} onclick="R.replaceAqua(${a.uid})">${canReplace?`替换水族馆中的 ${old.weight} kg`:'不可替换'}</button>`:''}</div>`}
-function close(){document.getElementById('rPanel').classList.remove('on')}function travel(id){let a=SC.find(v=>v.id===id);if(s.totalXp<a.xp){toast('经验不足，场景尚未解锁');return}s.scene=id;p={x:0,z:4,dir:1};close();toast(`已前往 ${a.name}`);update();save()}
+function open(type){if(type==='settings'){renderSettings();return}let pan=document.getElementById('rPanel'),title=document.getElementById('rPanelTitle'),tabs=document.getElementById('rTabs'),box=document.getElementById('rContent');pan.classList.add('on');tabs.innerHTML='';box.className='r-content';if(type==='map'){title.textContent='五大垂钓场景';box.innerHTML=SC.map((a,i)=>`<div class="r-card r-scene ${s.totalXp<a.xp?'locked':''}" onclick="R.travel('${a.id}')"><div class="bg" style="background:linear-gradient(135deg,${a.sky},${a.water})"></div><h3>${a.icon} ${a.name}</h3><p>${s.totalXp>=a.xp?'已解锁 · 点击前往':`🔒 需要累计 ${a.xp} 经验（还差 ${a.xp-s.totalXp}）`}</p><p>${['适合新手的生机湖岸','炽热熔流中的强韧鱼种','沉浸式海底珊瑚世界','发光生物与远古遗迹','极光下的终极巨物'][i]}</p></div>`).join('')}else if(type==='bag'){title.textContent=`背包 · ${s.bag.length} 条鱼`;box.innerHTML=s.bag.length?s.bag.map(item=>fishCard(item,true)).join(''):'<p>背包是空的，去水边钓鱼吧。</p>'}else if(type==='market'){title.textContent='湖岸鱼市';tabs.innerHTML='<button class="r-btn" onclick="R.open(\'bag\')">出售背包鱼</button><button class="r-btn" onclick="R.sellAll()">一键出售全部</button>';box.innerHTML=BA.map(b=>`<div class="r-card"><h3>${b.name}</h3><p>${b.desc}</p><p>库存：${s.baits[b.id]||0}</p><button class="r-btn" onclick="R.buyBait('${b.id}')">💰 ${b.price} / 个</button><button class="r-btn" onclick="R.buyBait('${b.id}',10)">📦 买 10 个 · 💰${b.price*10}</button><button class="r-btn primary" onclick="R.equipBait('${b.id}')">装备</button></div>`).join('')}else if(type==='workshop'){title.textContent='鱼竿工坊';box.innerHTML=RODS.map(r=>`<div class="r-card"><h3>${s.rod===r.id?'✓ ':''}${r.name}</h3><p>${r.desc}</p><p>力量 ${r.power} · 鱼线 ${r.line}</p><button class="r-btn ${s.ownedRods.includes(r.id)?'primary':''}" onclick="R.rodAction('${r.id}')">${s.ownedRods.includes(r.id)?'装备':`💰 ${r.price}`}</button></div>`).join('')}else if(type==='dex'){title.textContent=`鱼类图鉴 · 已发现 ${Object.keys(s.dex).length}/${FISH_DATA.length}`;box.innerHTML=FISH_DATA.map(f=>{let d=s.dex[f.id];return `<div class="r-card">${d?`<img src="assets/fish/${f.id}.png" onerror="fishFallback(this)"><h3>${f.name}</h3><p>${f.desc}</p><p>钓获 ${d.count} 次 · 最大 ${d.maxWeight.toFixed(2)}kg · 最高 ${d.bestScore||0}分</p>`:`<div style="height:90px;display:grid;place-items:center;font-size:48px;filter:brightness(0)">🐟</div><h3>${f.name}</h3><p class="quality-${rarityQ(f.rarity)}">品质：${Q[rarityQ(f.rarity)]}</p><p>尚未钓获，外形与详细资料未知</p>`}</div>`}).join('')}else if(type==='aquarium'){title.textContent=`我的水族馆 · 总评分 ${s.aquarium.reduce((a,b)=>a+b.score,0)}`;box.className='r-content aquarium-bg';box.innerHTML=s.aquarium.length?s.aquarium.map((item,i)=>`<div class="r-card swimmer" style="animation-delay:${-i*.7}s">${fishCard(item,false)}<button class="r-btn" onclick="R.removeAqua(${item.uid})">取回背包</button></div>`).join(''):'<p>水族馆里还没有鱼。可从背包选择鱼放入。</p>'}update()}
+function openSanctum(){open('map');requestAnimationFrame(()=>{let card=[...document.querySelectorAll('#rContent>.r-scene')].find(card=>card.textContent.includes('天命秘境'));if(!card)return;card.scrollIntoView({behavior:'smooth',block:'center'});card.classList.remove('sanctum-focus');void card.offsetWidth;card.classList.add('sanctum-focus');setTimeout(()=>card.classList.remove('sanctum-focus'),2200)})}
+window.fishFallback=function(img){img.onerror=null;img.src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='90'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='0' y2='1'%3E%3Cstop offset='0' stop-color='%231d4f60'/%3E%3Cstop offset='1' stop-color='%230d2531'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='140' height='90' rx='12' fill='url(%23g)'/%3E%3Ctext x='70' y='50' font-size='34' text-anchor='middle'%3E%F0%9F%90%9F%3C/text%3E%3Ctext x='70' y='75' font-size='11' text-anchor='middle' fill='%237fb8c8'%3E%E5%9B%BE%E9%89%B4%E5%BE%85%E7%94%9F%E6%88%90%3C/text%3E%3C/svg%3E";}
+function rarityQ(r){return r==='legendary'?5:r==='epic'?4:r==='rare'?3:1}function fishCard(a,actions){let f=FISH_DATA[a.id]||{name:'未知鱼',desc:''},same=s.aquarium.filter(v=>v.id===a.id),old=same.slice().sort((u,v)=>u.weight-v.weight)[0],canReplace=old&&a.weight>old.weight;return `<div class="r-card"><img src="assets/fish/${a.id}.png" alt="${f.name}" onerror="fishFallback(this)"><h3 class="quality-${a.quality}">${isBossFish(f)?'👑 BOSS · ':''}${Q[a.quality]} · ${f.name}</h3><p>${a.weight} kg · 评分 ${a.score} · 售价 💰${a.price}${actions?`<br>🐠 水族馆同种：${same.length} 条`:''}</p>${actions?`<button class="r-btn" onclick="R.sell(${a.uid})">出售</button><button class="r-btn primary" onclick="R.toAqua(${a.uid})">放入水族馆</button><button class="r-btn" ${canReplace?'':`disabled title="${old?'重量没有超过水族馆中的同种鱼':'水族馆中还没有此品种'}"`} onclick="R.replaceAqua(${a.uid})">${canReplace?`替换水族馆中的 ${old.weight} kg`:'不可替换'}</button>`:''}</div>`}
+function close(){closeFishZoom();document.getElementById('rPanel').classList.remove('on')}function travel(id){let a=SC.find(v=>v.id===id);if(!a)return;if(s.totalXp<a.xp){toast(`经验不足，需要累计 ${a.xp} 经验`);return}if(id==='sanctum'&&!sanctumPassActive()){if(s.gold<SANCTUM_ENTRY_FEE){toast(`金币不足，天命秘境入场费为 ${SANCTUM_ENTRY_FEE.toLocaleString()}`);return}if(!confirm(`支付 ${SANCTUM_ENTRY_FEE.toLocaleString()} 金币进入天命秘境？\n通行证持续 ${formatSanctumTime(SANCTUM_DURATION_MS)}，离开后仍会计时。`))return;s.gold-=SANCTUM_ENTRY_FEE;s.sanctumUntil=Date.now()+SANCTUM_DURATION_MS;toast(`天命秘境通行证已开启，限钓 ${formatSanctumTime(SANCTUM_DURATION_MS)}！`)}else if(id==='sanctum'){toast(`通行证有效，剩余 ${formatSanctumTime(s.sanctumUntil-Date.now())}`)}s.scene=id;p={x:0,z:4,dir:1};close();update();updateSanctumPass();save()}
 function renderMenu(){let slots=Object.values(readSlots()).sort((a,b)=>b.savedAt-a.savedAt),box=document.getElementById('rSaveList');box.innerHTML=slots.length?slots.map((a,i)=>{let v=normalize(a.data),sc=SC.find(q=>q.id===v.scene)||SC[0],dt=new Date(a.savedAt),name=escapeText(v.saveName||`存档 ${i+1}`);return `<div class="save-row"><div class="save-row-info"><b>${sc.icon} ${name} · 等级 ${v.level}</b><p>💰 ${v.gold} · 🎣 ${v.caught||0} 条 · ${sc.name} · ${dt.toLocaleString()}</p></div><button class="r-btn primary" onclick="R.loadSlot('${v.slotId}')">继续游戏</button><button class="r-btn" onclick="R.renameSlot('${v.slotId}')">重命名</button><button class="r-btn" onclick="R.deleteSlot('${v.slotId}')">删除</button></div>`}).join(''):'<div class="save-empty">还没有存档，点击下方按钮开始新游戏</div>'}
 function showMenu(){renderMenu();document.getElementById('rSaveMenu').classList.add('on')}
 function backMenu(){save();fishing=null;document.getElementById('rFight').classList.remove('on');document.getElementById('rCatch').classList.remove('on');close();showMenu()}
@@ -4285,12 +4685,13 @@ function loadSlot(id){let a=readSlots()[id];if(!a){toast('存档不存在');rend
 function deleteSlot(id){if(!confirm('确定删除这个存档吗？此操作无法撤销。'))return;let slots=readSlots();delete slots[id];localStorage.setItem('fishingRemasterSlots',JSON.stringify(slots));if(localStorage.getItem('fishingActiveSlot')===id)localStorage.removeItem('fishingActiveSlot');renderMenu()}
 function renameSlot(id){let slots=readSlots(),entry=slots[id];if(!entry)return;let old=entry.data.saveName||'未命名存档',name=prompt('输入新的存档名称：',old);if(name===null)return;name=name.trim().slice(0,24);if(!name){toast('存档名称不能为空');return}entry.data.saveName=name;entry.savedAt=Date.now();slots[id]=entry;localStorage.setItem('fishingRemasterSlots',JSON.stringify(slots));if(s.slotId===id)s.saveName=name;renderMenu();toast('存档已重命名')}
 function escapeText(v){return String(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
-function sell(uid){let i=s.bag.findIndex(a=>a.uid===uid);if(i<0)return;let a=s.bag.splice(i,1)[0];s.gold+=a.price;toast(`出售成功，获得 ${a.price} 金币`);save();open('bag')}function sellAll(){let sum=s.bag.reduce((a,b)=>a+b.price,0);s.gold+=sum;s.bag=[];toast(`全部出售，获得 ${sum} 金币`);save();open('market')}function buyBait(id){let b=BA.find(a=>a.id===id);if(s.gold<b.price){toast('金币不足');return}s.gold-=b.price;s.baits[id]=(s.baits[id]||0)+1;save();open('market')}function equipBait(id){if(!(s.baits[id]>0)){toast('该饵料没有库存');return}s.bait=id;toast(`已装备 ${BA.find(a=>a.id===id).name}`);update();save();open('market')}
+function sell(uid){let i=s.bag.findIndex(a=>a.uid===uid);if(i<0)return;let a=s.bag.splice(i,1)[0];s.gold+=a.price;toast(`出售成功，获得 ${a.price} 金币`);save();open('bag')}function sellAll(){if(!s.bag.length){toast('背包中没有可出售的鱼');return}let sum=s.bag.reduce((a,b)=>a+b.price,0);if(settings.confirmSellAll&&!confirm(`确定出售背包中的 ${s.bag.length} 条鱼吗？\n预计获得 ${sum.toLocaleString()} 金币。`))return;s.gold+=sum;s.bag=[];toast(`全部出售，获得 ${sum} 金币`);save();open('market')}function buyBait(id,count=1){let b=BA.find(a=>a.id===id);if(!b)return;count=Math.max(1,Math.floor(Number(count)||1));let cost=b.price*count;if(s.gold<cost){toast(`金币不足，购买 ${count} 个需要 ${cost} 金币`);return}s.gold-=cost;s.baits[id]=(s.baits[id]||0)+count;toast(`已购买 ${b.name} ×${count}，花费 ${cost} 金币`);save();open('market')}function equipBait(id){if(!(s.baits[id]>0)){toast('该饵料没有库存');return}s.bait=id;toast(`已装备 ${BA.find(a=>a.id===id).name}`);update();save();open('market')}
 function rodAction(id){let r=RODS.find(a=>a.id===id);if(s.ownedRods.includes(id)){s.rod=id;toast(`已装备 ${r.name}`)}else{if(s.gold<r.price){toast('金币不足');return}s.gold-=r.price;s.ownedRods.push(id);s.rod=id;toast(`购买并装备 ${r.name}`)}save();open('workshop')}
-function toAqua(uid){let i=s.bag.findIndex(a=>a.uid===uid);if(i<0)return;s.aquarium.push(s.bag.splice(i,1)[0]);save();open('bag')}function removeAqua(uid){let i=s.aquarium.findIndex(a=>a.uid===uid);if(i<0)return;s.bag.push(s.aquarium.splice(i,1)[0]);save();open('aquarium')}
-function replaceAqua(uid){let bi=s.bag.findIndex(a=>a.uid===uid);if(bi<0)return;let item=s.bag[bi],candidates=s.aquarium.map((a,i)=>({a,i})).filter(v=>v.a.id===item.id).sort((u,v)=>u.a.weight-v.a.weight);if(!candidates.length){toast('水族馆中还没有这个品种，无法替换');return}let target=candidates[0];if(item.weight<=target.a.weight){toast('背包中的鱼必须比水族馆中的同种鱼更重');return}s.bag[bi]=target.a;s.aquarium[target.i]=item;toast(`替换成功：${item.weight} kg 的鱼已进入水族馆`);save();open('bag')}
+function cycleBait(){if(fishing){toast('钓鱼过程中不能更换饵料');return}let available=BA.filter(b=>(s.baits[b.id]||0)>0);if(!available.length){toast('没有可用饵料，请前往鱼市购买');return}let current=available.findIndex(b=>b.id===s.bait),next=available[(current+1+available.length)%available.length];if(available.length===1&&next.id===s.bait){toast(`目前只有 ${next.name} 有库存`);return}s.bait=next.id;update();save();toast(`已切换为 ${next.name} × ${s.baits[next.id]}`)}
+function toAqua(uid){let i=s.bag.findIndex(a=>a.uid===uid);if(i<0)return;s.aquarium.push(s.bag.splice(i,1)[0]);sortAquarium();save();open('bag')}function removeAqua(uid){let i=s.aquarium.findIndex(a=>a.uid===uid);if(i<0)return;s.bag.push(s.aquarium.splice(i,1)[0]);save();open('aquarium')}
+function replaceAqua(uid){let bi=s.bag.findIndex(a=>a.uid===uid);if(bi<0)return;let item=s.bag[bi],candidates=s.aquarium.map((a,i)=>({a,i})).filter(v=>v.a.id===item.id).sort((u,v)=>u.a.weight-v.a.weight);if(!candidates.length){toast('水族馆中还没有这个品种，无法替换');return}let target=candidates[0];if(item.weight<=target.a.weight){toast('背包中的鱼必须比水族馆中的同种鱼更重');return}s.bag[bi]=target.a;s.aquarium[target.i]=item;sortAquarium();toast(`替换成功：${item.weight} kg 的鱼已进入水族馆`);save();open('bag')}
 let toastTimer;function toast(msg){let e=document.getElementById('rToast');if(!e)return;e.textContent=msg;e.classList.add('on');clearTimeout(toastTimer);toastTimer=setTimeout(()=>e.classList.remove('on'),2600)}function update(){document.getElementById('rGold').textContent=s.gold;document.getElementById('rLevel').textContent=s.level;let a=levelStart(s.level),b=levelEnd(s.level);document.getElementById('rExp').style.width=((s.totalXp-a)/(b-a)*100)+'%';document.getElementById('rRod').textContent=rod().name;document.getElementById('rBait').textContent=`${bait().name} × ${s.baits[s.bait]||0}`;document.getElementById('rPlace').textContent=`${scene().icon} ${scene().name} · ${near==='market'?'鱼市':near==='workshop'?'工坊':'钓鱼码头'}`}
-return{init,open,close,closeCatch,backMenu,newGame,loadSlot,deleteSlot,renameSlot,cast,reel,travel,sell,sellAll,buyBait,equipBait,rodAction,toAqua,removeAqua,replaceAqua};})();
+return{init,open,openSanctum,sortDex,searchFish,zoomFish,closeFishZoom,showLegendAlert,showBossAlert,setSetting,resetSettings,toggleFullscreen,close,closeCatch,backMenu,newGame,loadSlot,deleteSlot,renameSlot,cast,reel,travel,sell,sellAll,buyBait,equipBait,rodAction,cycleBait,toAqua,removeAqua,replaceAqua};})();
 window.onload=R.init;
 </script>
 </body>
