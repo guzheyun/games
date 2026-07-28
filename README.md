@@ -18,3 +18,22 @@
 第一人称3D靶场射击训练（Three.js），含反射弧测试和排行榜。
 
 - 打开 `shooting/index.html` 即可游玩
+
+### 凌空羽毛球 `/badminton/`
+2D 羽毛球对战，含三档机器人、高级球拍与一次性技能商店、三种手动发球、21 分三局两胜规则，以及服务器权威的局域网真人匹配。
+
+- 安装依赖：`pip install -r badminton/requirements.txt`
+- 启动服务：`cd badminton && python server.py`
+- 本机访问：`http://localhost:8082`
+- 局域网访问：`http://服务器局域网IP:8082`
+- 默认网页端口为 `8082`，WebSocket 端口为 `8766`；部署时需同时放行这两个 TCP 端口
+
+### 绒夜八球 `/billiards/`
+
+中式八球游戏，含三档机器人、黑八指定袋、力度与母球旋转、高级球杆市场，以及服务器权威的局域网真人匹配和胜场记录。
+
+- 安装依赖：`pip install -r billiards/requirements.txt`
+- 启动服务：`cd billiards && python server.py`
+- 本机访问：`http://localhost:8080`
+- 局域网访问：`http://服务器局域网IP:8080`（同时放行 TCP 端口 `8080` 与 `8765`）
+- 可用环境变量：`HTTP_PORT`、`WS_PORT`

@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+  <title>凌空 · 2D 羽毛球</title><link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22><text y=%22.9em%22 font-size=%2290%22>🏸</text></svg>"><link rel="stylesheet" href="style.css">
+</head>
+<body>
+<section id="home" class="screen active">
+  <header class="topbar">
+    <div class="brand"><span class="brand-mark"></span><div><b>凌空 BADMINTON</b><small>CHASE THE FLIGHT</small></div></div>
+    <div class="profile-pill"><input id="playerName" maxlength="12" value="球手" aria-label="球员昵称"><span class="stat">真人胜场<strong id="wins">0</strong></span><span class="stat" title="机器人获胜 +180；真人获胜 +450；完成真人对战 +120">球币<strong id="coins" class="coin">800</strong></span></div>
+  </header>
+  <main class="hero">
+    <div class="hero-left">
+      <div class="eyebrow">2D BADMINTON</div><h1>追逐<br><span class="stroke">每一次</span><br>凌空</h1>
+      <p class="hero-copy">前后移动、起跳、抓住最佳击球点。掌握 <b>高远球、吊球与杀球</b>，在 21 分制的三局两胜中控制整片球场。</p>
+    </div>
+    <div class="mode-cards">
+      <article class="mode" id="botMode"><span class="mode-icon">◫</span><span class="tag">SOLO</span><h3>机器人对战</h3><p>三档难度，磨炼移动、预判与击球时机。</p></article>
+      <article class="mode" id="onlineMode"><span class="mode-icon">⌁</span><span class="tag"><i class="online-dot"></i>LAN</span><h3>真人匹配</h3><p>服务器权威判定，局域网内公平竞技。</p></article>
+      <article class="mode wide" data-open="shop"><div><span class="mode-icon">⌁</span><h3>装备中心</h3><p>更强球拍提升球速，但不会改变球的预定落点。</p></div><button class="secondary">进入商店 →</button></article>
+    </div>
+  </main>
+  <footer class="bottom-nav"><span>V 1.1 · SERVER AUTHORITATIVE</span><div class="tips"><b>A / D</b> 移动 <b>W</b> 跳跃 <b>H J K</b> 击球 <b>R</b> 一次性技能</div></footer>
+</section>
+
+<section id="match" class="screen">
+  <header class="match-top">
+    <div class="player-box"><span class="avatar">我</span><div><div class="pname" id="p1name">球手</div><div class="gear" id="p1gear">青竹 · 速度 100%</div></div></div>
+    <div class="scoreboard"><div><div class="score-num" id="score1">0</div><div class="game-pips" id="games1"><i></i><i></i></div></div><div class="versus">MATCH <b id="gameNo">第 1 局</b></div><div><div class="score-num" id="score2">0</div><div class="game-pips" id="games2"><i></i><i></i></div></div></div>
+    <div class="player-box right"><div><div class="pname" id="p2name">机器人</div><div class="gear" id="p2gear">标准球拍</div></div><span class="avatar red">对</span></div>
+  </header>
+  <div class="court-wrap"><canvas id="gameCanvas"></canvas>
+    <div class="toast hidden" id="toast"></div><div class="rally-banner hidden" id="banner"><div><strong></strong><small></small></div></div>
+    <div class="match-controls"><div class="key-help"><b>A</b><b>D</b> 移动　<b>W</b> 跳跃</div><div class="skill-bar">
+      <div class="skill ready"><kbd>H</kbd><strong>平抽</strong><small>快速压制</small></div>
+      <div class="skill ready"><kbd>J</kbd><strong>高远球</strong><small>拉开空间</small></div>
+      <div class="skill ready"><kbd>K</kbd><strong>技巧球</strong><small>空中杀球 / 网前吊球</small></div>
+      <div class="skill special" id="specialSkill"><kbd>R</kbd><strong>未装备</strong><small>在装备中心购买</small></div>
+    </div></div>
+    <div class="match-actions"><button class="ghost" id="soundBtn">声音 开</button><button class="ghost" id="leaveBtn">退出比赛</button></div>
+  </div>
+</section>
+
+<div class="modal-wrap hidden" id="difficultyModal"><div class="modal"><div class="modal-head"><div><h2>选择对手</h2><p>不同机器人拥有不同的预判速度和击球质量</p></div><button class="close">×</button></div><div class="difficulty-grid">
+  <div class="difficulty" data-level="rookie"><strong>新秀机器人</strong><p>反应稍慢，回球偶有失误，适合熟悉操作。</p><div class="bars"><i class="on"></i><i></i><i></i></div></div>
+  <div class="difficulty selected" data-level="pro"><strong>职业机器人</strong><p>跑位积极、攻守均衡，会抓住空档发动杀球。</p><div class="bars"><i class="on"></i><i class="on"></i><i></i></div></div>
+  <div class="difficulty" data-level="legend"><strong>传奇机器人</strong><p>极快预判与精准落点，任何回球都必须认真。</p><div class="bars"><i class="on"></i><i class="on"></i><i class="on"></i></div></div>
+  </div><div class="actions" style="justify-content:flex-end"><button class="primary" id="startBot">进入赛场</button></div></div></div>
+
+<div class="modal-wrap hidden" id="shopModal"><div class="modal"><div class="modal-head"><div><h2>装备中心</h2><p>力量提高球速和对手接球难度；所有击球的目标落点保持一致</p><p class="earn-note">球币获取：机器人获胜 <b>+180</b>　真人获胜 <b>+450</b>　完成真人对战 <b>+120</b></p></div><button class="close">×</button></div><h3 class="shop-title">球拍</h3><div class="racket-grid" id="racketGrid"></div><h3 class="shop-title">一次性比赛技能 <small>装备一个，按 R 使用；每场限用一次，比赛结束自动消耗</small></h3><div class="skill-shop-grid" id="skillShopGrid"></div></div></div>
+<div class="modal-wrap hidden" id="queueModal"><div class="modal" style="max-width:480px"><div class="modal-head"><div><h2>真人匹配</h2><p id="serverText">正在连接局域网服务器</p></div><button class="close" id="cancelQueue">×</button></div><div class="queue-box"><div class="spinner"></div><h3 id="queueTitle">寻找附近的球手...</h3><p style="color:var(--muted);font-size:12px">请让另一位玩家打开相同服务器地址并选择“真人匹配”</p></div></div></div>
+<div class="modal-wrap hidden" id="resultModal"><div class="modal" style="max-width:520px"><div class="result"><div class="trophy">🏆</div><h2 id="resultTitle">比赛胜利</h2><p id="resultText"></p><div class="actions" style="justify-content:center"><button class="primary" id="playAgain">再来一场</button><button class="secondary" id="backHome">返回首页</button></div></div></div></div>
+<script src="game.js"></script>
+</body></html>
