@@ -16,6 +16,13 @@ ROOT = Path(__file__).resolve().parent
 DB_PATH = ROOT / "players.json"
 R, LEFT, RIGHT, TOP, BOTTOM = 12.5, 105.0, 995.0, 85.0, 515.0
 POCKET_R = 27.0
+# A 9 ft pool table has a 2.54 m playing length. Convert real-world values to
+# the same fixed simulation coordinates used by the browser physics.
+TABLE_LENGTH_METERS = 2.54
+PIXELS_PER_METER = (RIGHT - LEFT) / TABLE_LENGTH_METERS
+MIN_CUE_SPEED_MPS, MAX_CUE_SPEED_MPS = .65, 4.0
+BALL_RESTITUTION, CUSHION_RESTITUTION = .93, .72
+ROLLING_DECELERATION = .22 * PIXELS_PER_METER
 POCKETS = [(LEFT, TOP), (550, TOP - 3), (RIGHT, TOP), (LEFT, BOTTOM), (550, BOTTOM + 3), (RIGHT, BOTTOM)]
 CUES = {
     "ash": {"name": "白蜡木练习杆", "price": 0, "accuracy": 1.0},
@@ -81,6 +88,11 @@ def pocket_near(x, y):
     return -1
 
 
+def escaped_pocket(x, y):
+    if LEFT-R <= x <= RIGHT+R and TOP-R <= y <= BOTTOM+R: return -1
+    return min(range(len(POCKETS)), key=lambda i: (x-POCKETS[i][0])**2 + (y-POCKETS[i][1])**2)
+
+
 def opening_h(x): return abs(x-LEFT)<37 or abs(x-550)<34 or abs(x-RIGHT)<37
 def opening_v(y): return abs(y-TOP)<37 or abs(y-BOTTOM)<37
 
@@ -90,7 +102,7 @@ class Physics:
     def cue(self): return self.balls[0]
     def moving(self): return any(not b["p"] and b["vx"]**2+b["vy"]**2 > .12 for b in self.balls)
     def shoot(self, angle, power, sx, sy):
-        c = self.cue(); speed = 330 + power * 1050
+        c = self.cue(); speed = PIXELS_PER_METER * (MIN_CUE_SPEED_MPS + power * (MAX_CUE_SPEED_MPS - MIN_CUE_SPEED_MPS))
         c["vx"], c["vy"], c["sx"], c["sy"] = math.cos(angle)*speed, math.sin(angle)*speed, sx, sy
         self.event = {"firstHit": None, "pocketed": [], "pocketedAt": [], "railAfterContact": False, "rails": 0, "railBalls": set(), "scratch": False, "elapsed": 0.0}
         self.active = True
@@ -113,28 +125,30 @@ class Physics:
                 a["x"]-=nx*over*.5;a["y"]-=ny*over*.5;b["x"]+=nx*over*.5;b["y"]+=ny*over*.5
                 rel=(b["vx"]-a["vx"])*nx+(b["vy"]-a["vy"])*ny
                 if rel >= 0: continue
-                impulse=-(1+.965)*rel*.5
+                impulse=-(1+BALL_RESTITUTION)*rel*.5
                 a["vx"]-=impulse*nx;a["vy"]-=impulse*ny;b["vx"]+=impulse*nx;b["vy"]+=impulse*ny
                 if (a["id"]==0 or b["id"]==0) and e["firstHit"] is None: e["firstHit"] = b["id"] if a["id"]==0 else a["id"]
                 cue = a if a["id"]==0 else (b if b["id"]==0 else None)
                 if cue:
-                    obj=b if cue is a else a;tx,ty=-ny,nx;follow,side=cue["sy"]*115,cue["sx"]*42
-                    cue["vx"]+=nx*follow+tx*side;cue["vy"]+=ny*follow+ty*side;obj["vx"]-=nx*follow*.08;obj["vy"]-=ny*follow*.08
+                    obj=b if cue is a else a;tx,ty=-ny,nx;follow,side=cue["sy"]*72,cue["sx"]*30
+                    cue["vx"]+=nx*follow+tx*side;cue["vy"]+=ny*follow+ty*side;obj["vx"]-=nx*follow*.04;obj["vy"]-=ny*follow*.04
                     cue["sy"]*=.48;cue["sx"]*=.6
         for b in self.balls:
             if b["p"]: continue
-            if pocket_near(b["x"],b["y"]) >= 0:
-                pocket=pocket_near(b["x"],b["y"]);b["p"]=True;b["vx"]=b["vy"]=0;e["pocketed"].append(b["id"]);e["pocketedAt"].append([b["id"],pocket]);e["scratch"] |= b["id"]==0;continue
+            pocket=pocket_near(b["x"],b["y"])
+            if pocket < 0: pocket=escaped_pocket(b["x"],b["y"])
+            if pocket >= 0:
+                b["p"]=True;b["vx"]=b["vy"]=0;e["pocketed"].append(b["id"]);e["pocketedAt"].append([b["id"],pocket]);e["scratch"] |= b["id"]==0;continue
             rail=False
-            if b["x"]-R<LEFT and not opening_v(b["y"]):b["x"]=LEFT+R;b["vx"]=abs(b["vx"])*.88;b["vy"]+=b["vx"]*b["sx"]*.055;rail=True
-            elif b["x"]+R>RIGHT and not opening_v(b["y"]):b["x"]=RIGHT-R;b["vx"]=-abs(b["vx"])*.88;b["vy"]-=b["vx"]*b["sx"]*.055;rail=True
-            if b["y"]-R<TOP and not opening_h(b["x"]):b["y"]=TOP+R;b["vy"]=abs(b["vy"])*.88;b["vx"]-=b["vy"]*b["sx"]*.055;rail=True
-            elif b["y"]+R>BOTTOM and not opening_h(b["x"]):b["y"]=BOTTOM-R;b["vy"]=-abs(b["vy"])*.88;b["vx"]+=b["vy"]*b["sx"]*.055;rail=True
+            if b["x"]-R<LEFT and not opening_v(b["y"]):b["x"]=LEFT+R;b["vx"]=abs(b["vx"])*CUSHION_RESTITUTION;b["vy"]+=b["vx"]*b["sx"]*.055;rail=True
+            elif b["x"]+R>RIGHT and not opening_v(b["y"]):b["x"]=RIGHT-R;b["vx"]=-abs(b["vx"])*CUSHION_RESTITUTION;b["vy"]-=b["vx"]*b["sx"]*.055;rail=True
+            if b["y"]-R<TOP and not opening_h(b["x"]):b["y"]=TOP+R;b["vy"]=abs(b["vy"])*CUSHION_RESTITUTION;b["vx"]-=b["vy"]*b["sx"]*.055;rail=True
+            elif b["y"]+R>BOTTOM and not opening_h(b["x"]):b["y"]=BOTTOM-R;b["vy"]=-abs(b["vy"])*CUSHION_RESTITUTION;b["vx"]+=b["vy"]*b["sx"]*.055;rail=True
             if rail:
                 e["rails"]+=1;e["railBalls"].add(b["id"]);e["railAfterContact"] |= e["firstHit"] is not None;b["sx"]*=.72
             speed=math.hypot(b["vx"],b["vy"])
             if speed:
-                ns=max(0,speed-82*dt);f=ns/speed;b["vx"]*=f;b["vy"]*=f
+                ns=max(0,speed-ROLLING_DECELERATION*dt);f=ns/speed;b["vx"]*=f;b["vy"]*=f
                 if ns<4:b["vx"]=b["vy"]=0
         if e["elapsed"]>22 or not self.moving():
             for b in self.balls:b["vx"]=b["vy"]=0

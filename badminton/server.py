@@ -29,6 +29,11 @@ SKILLS = {
     "meteor": {"name": "雷霆重杀", "price": 850},
     "feather": {"name": "幻羽吊球", "price": 650},
 }
+PERMANENT_SKILLS = {
+    "gale": {"name": "疾风救球", "price": 1600, "cooldown": 7.0, "shot": "clear", "power": 1.08, "range": 2.2},
+    "cyclone": {"name": "旋刃平抽", "price": 2400, "cooldown": 9.0, "shot": "drive", "power": 1.20, "range": 1.55},
+    "starfall": {"name": "星陨扣杀", "price": 3600, "cooldown": 12.0, "shot": "smash", "power": 1.27, "range": 1.4},
+}
 profiles, clients, queue, rooms = {}, {}, [], {}
 
 
@@ -41,6 +46,7 @@ def load_profiles():
     for p in profiles.values():
         p.setdefault("skillInventory", {})
         p.setdefault("equippedSkill", None)
+        p.setdefault("permanentSkills", [])
 
 
 def save_profiles():
@@ -56,7 +62,7 @@ def clean_name(value):
 
 def public_profile(token):
     p = profiles[token]
-    return {k: p[k] for k in ("name", "wins", "coins", "inventory", "equipped", "skillInventory", "equippedSkill")}
+    return {k: p[k] for k in ("name", "wins", "coins", "inventory", "equipped", "skillInventory", "equippedSkill", "permanentSkills")}
 
 
 async def send(ws, data):
@@ -76,6 +82,8 @@ class Match:
         self.last_action = [0.0, 0.0]
         self.skills = [profiles[t].get("equippedSkill") for t in self.tokens]
         self.skill_used = [False, False]
+        self.permanent_skills = [list(profiles[t].get("permanentSkills", [])) for t in self.tokens]
+        self.permanent_cooldowns = [{skill: 0.0 for skill in owned} for owned in self.permanent_skills]
         for i, token in enumerate(self.tokens):
             skill = self.skills[i]
             if skill:
@@ -128,7 +136,11 @@ class Match:
                             "vx": round(s["vx"], 2), "vy": round(s["vy"], 2), "last": s["last"]},
                 "scores": self.scores, "games": self.games, "gameNo": self.game_no,
                 "server": self.server, "phase": self.phase, "serveReady": self.timer <= 0,
-                "skills": self.skills, "skillUsed": self.skill_used}
+                "skills": self.skills, "skillUsed": self.skill_used,
+                "permanentSkills": self.permanent_skills,
+                "permanentCooldowns": [{skill: round(max(0.0, ready_at - time.monotonic()), 1)
+                                         for skill, ready_at in cooldowns.items()}
+                                        for cooldowns in self.permanent_cooldowns]}
         if kind == "match":
             data["players"] = [{"name": self.names[i], "racket": self.players[i]["racket"]} for i in range(2)]
         return data
@@ -240,6 +252,21 @@ class Match:
         if not config or not self.hit(side, *config):
             return False
         self.skill_used[side] = True
+        return True
+
+    def use_permanent_skill(self, side, skill_id):
+        skill = PERMANENT_SKILLS.get(skill_id)
+        if not skill or skill_id not in self.permanent_skills[side]:
+            return False
+        now = time.monotonic()
+        if self.permanent_cooldowns[side].get(skill_id, 0.0) > now:
+            return False
+        if self.phase != "play" or self.shuttle["last"] == side:
+            return False
+        base = RACKETS.get(self.players[side]["racket"], RACKETS["bamboo"])["power"]
+        if not self.hit(side, skill["shot"], base * skill["power"], skill["range"]):
+            return False
+        self.permanent_cooldowns[side][skill_id] = now + skill["cooldown"]
         return True
 
     async def point(self, winner, reason):
@@ -370,7 +397,7 @@ async def handler(ws):
                 if token not in profiles:
                     profiles[token] = {"name": clean_name(data.get("name")), "wins": 0, "coins": 800,
                                        "inventory": ["bamboo"], "equipped": "bamboo",
-                                       "skillInventory": {}, "equippedSkill": None}
+                                       "skillInventory": {}, "equippedSkill": None, "permanentSkills": []}
                     save_profiles()
                 old = clients.get(token)
                 if old and old is not ws:
@@ -422,6 +449,14 @@ async def handler(ws):
                     p["equippedSkill"] = skill
                     save_profiles()
                 await send(ws, {"type": "profile", "token": token, "profile": public_profile(token)})
+            elif kind == "buy-permanent-skill":
+                skill, p = data.get("skill"), profiles[token]
+                owned = p.setdefault("permanentSkills", [])
+                if skill in PERMANENT_SKILLS and skill not in owned and p["coins"] >= PERMANENT_SKILLS[skill]["price"]:
+                    p["coins"] -= PERMANENT_SKILLS[skill]["price"]
+                    owned.append(skill)
+                    save_profiles()
+                await send(ws, {"type": "profile", "token": token, "profile": public_profile(token)})
             elif kind == "consume-skill":
                 skill, p = data.get("skill"), profiles[token]
                 inv = p.setdefault("skillInventory", {})
@@ -446,6 +481,10 @@ async def handler(ws):
                 elif kind == "special":
                     if match.use_special(side):
                         await match.broadcast({"type": "notice", "text": f"{match.names[side]} 使用了 {SKILLS[match.skills[side]]['name']}"})
+                elif kind == "permanent-skill":
+                    skill = data.get("skill")
+                    if match.use_permanent_skill(side, skill):
+                        await match.broadcast({"type": "notice", "text": f"{match.names[side]} 使用了 {PERMANENT_SKILLS[skill]['name']}"})
                 elif kind == "forfeit":
                     await match.finish(1 - side, "对手认输")
     except websockets.ConnectionClosed:

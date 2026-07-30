@@ -20,7 +20,7 @@
 - 打开 `shooting/index.html` 即可游玩
 
 ### 凌空羽毛球 `/badminton/`
-2D 羽毛球对战，含三档机器人、高级球拍与一次性技能商店、三种手动发球、21 分三局两胜规则，以及服务器权威的局域网真人匹配。
+2D 羽毛球对战，含三档机器人、高级球拍、一次性技能与永久技能商店、三种手动发球、21 分三局两胜规则，以及服务器权威的局域网真人匹配。
 
 - 安装依赖：`pip install -r badminton/requirements.txt`
 - 启动服务：`cd badminton && python server.py`
@@ -30,7 +30,7 @@
 
 ### 绒夜八球 `/billiards/`
 
-中式八球游戏，含三档机器人、黑八指定袋、力度与母球旋转、高级球杆市场，以及服务器权威的局域网真人匹配和胜场记录。
+中式八球与斯诺克游戏，含三档机器人、指定袋、斯诺克计分、自动存档、力度与母球旋转、高级球杆市场，以及服务器权威的局域网真人匹配和胜场记录。
 
 - 安装依赖：`pip install -r billiards/requirements.txt`
 - 启动服务：`cd billiards && python server.py`

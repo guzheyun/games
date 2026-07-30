@@ -21,7 +21,7 @@
       <article class="mode wide" data-open="shop"><div><span class="mode-icon">⌁</span><h3>装备中心</h3><p>更强球拍提升球速，但不会改变球的预定落点。</p></div><button class="secondary">进入商店 →</button></article>
     </div>
   </main>
-  <footer class="bottom-nav"><span>V 1.1 · SERVER AUTHORITATIVE</span><div class="tips"><b>A / D</b> 移动 <b>W</b> 跳跃 <b>H J K</b> 击球 <b>R</b> 一次性技能</div></footer>
+  <footer class="bottom-nav"><span>V 1.2 · SERVER AUTHORITATIVE</span><div class="tips"><b>A / D</b> 移动 <b>W</b> 跳跃 <b>H J K</b> 击球 <b>R</b> 一次性技能 <b>Y U I</b> 永久技能</div></footer>
 </section>
 
 <section id="match" class="screen">
@@ -37,6 +37,9 @@
       <div class="skill ready"><kbd>J</kbd><strong>高远球</strong><small>拉开空间</small></div>
       <div class="skill ready"><kbd>K</kbd><strong>技巧球</strong><small>空中杀球 / 网前吊球</small></div>
       <div class="skill special" id="specialSkill"><kbd>R</kbd><strong>未装备</strong><small>在装备中心购买</small></div>
+      <div class="skill permanent" id="permanent-gale"><kbd>Y</kbd><strong>未解锁</strong><small>前往装备中心</small></div>
+      <div class="skill permanent" id="permanent-cyclone"><kbd>U</kbd><strong>未解锁</strong><small>前往装备中心</small></div>
+      <div class="skill permanent" id="permanent-starfall"><kbd>I</kbd><strong>未解锁</strong><small>前往装备中心</small></div>
     </div></div>
     <div class="match-actions"><button class="ghost" id="soundBtn">声音 开</button><button class="ghost" id="leaveBtn">退出比赛</button></div>
   </div>
@@ -48,7 +51,7 @@
   <div class="difficulty" data-level="legend"><strong>传奇机器人</strong><p>极快预判与精准落点，任何回球都必须认真。</p><div class="bars"><i class="on"></i><i class="on"></i><i class="on"></i></div></div>
   </div><div class="actions" style="justify-content:flex-end"><button class="primary" id="startBot">进入赛场</button></div></div></div>
 
-<div class="modal-wrap hidden" id="shopModal"><div class="modal"><div class="modal-head"><div><h2>装备中心</h2><p>力量提高球速和对手接球难度；所有击球的目标落点保持一致</p><p class="earn-note">球币获取：机器人获胜 <b>+180</b>　真人获胜 <b>+450</b>　完成真人对战 <b>+120</b></p></div><button class="close">×</button></div><h3 class="shop-title">球拍</h3><div class="racket-grid" id="racketGrid"></div><h3 class="shop-title">一次性比赛技能 <small>装备一个，按 R 使用；每场限用一次，比赛结束自动消耗</small></h3><div class="skill-shop-grid" id="skillShopGrid"></div></div></div>
+<div class="modal-wrap hidden" id="shopModal"><div class="modal"><div class="modal-head"><div><h2>装备中心</h2><p>力量提高球速和对手接球难度；所有击球的目标落点保持一致</p><p class="earn-note">球币获取：机器人获胜 <b>+180</b>　真人获胜 <b>+450</b>　完成真人对战 <b>+120</b></p></div><button class="close">×</button></div><h3 class="shop-title">球拍</h3><div class="racket-grid" id="racketGrid"></div><h3 class="shop-title">永久比赛技能 <small>购买一次永久解锁；分别按 Y / U / I 使用，冷却结束后可再次施放</small></h3><div class="skill-shop-grid" id="permanentSkillGrid"></div><h3 class="shop-title">一次性比赛技能 <small>装备一个，按 R 使用；每场限用一次，比赛结束自动消耗</small></h3><div class="skill-shop-grid" id="skillShopGrid"></div></div></div>
 <div class="modal-wrap hidden" id="queueModal"><div class="modal" style="max-width:480px"><div class="modal-head"><div><h2>真人匹配</h2><p id="serverText">正在连接局域网服务器</p></div><button class="close" id="cancelQueue">×</button></div><div class="queue-box"><div class="spinner"></div><h3 id="queueTitle">寻找附近的球手...</h3><p style="color:var(--muted);font-size:12px">请让另一位玩家打开相同服务器地址并选择“真人匹配”</p></div></div></div>
 <div class="modal-wrap hidden" id="resultModal"><div class="modal" style="max-width:520px"><div class="result"><div class="trophy">🏆</div><h2 id="resultTitle">比赛胜利</h2><p id="resultText"></p><div class="actions" style="justify-content:center"><button class="primary" id="playAgain">再来一场</button><button class="secondary" id="backHome">返回首页</button></div></div></div></div>
 <script src="game.js"></script>
