@@ -1,11 +1,8 @@
 node_modules/
 **/__pycache__/
-billiards/players.json
 badminton/players.json
 badminton/_render_check/
 badminton-flat-court.png
-billiards/server*.log
-billiards-*.png
 *.log
 fishing/assets/gen*.log
 fishing/assets/hands.backup.png
