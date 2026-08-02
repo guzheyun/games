@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#f5f0e8">
+  <title>魔尺工坊 · Twist & Link</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <a class="brand" href="../" aria-label="返回游戏大厅">
+        <span class="brand-mark"><i></i><i></i><i></i></span>
+        <span><b>魔尺工坊</b><small>TWIST &amp; LINK</small></span>
+      </a>
+      <div class="top-actions">
+        <button class="icon-button" id="undoBtn" title="撤销 (Ctrl+Z)" aria-label="撤销">↶</button>
+        <button class="icon-button" id="redoBtn" title="重做 (Ctrl+Y)" aria-label="重做">↷</button>
+        <button class="soft-button" id="helpBtn"><span>?</span> 玩法</button>
+        <button class="primary-button" id="newRulerBtn"><span>＋</span> 新魔尺</button>
+      </div>
+    </header>
+
+    <main>
+      <aside class="left-panel panel">
+        <section class="panel-section intro">
+          <p class="eyebrow">YOUR WORKBENCH</p>
+          <h1>把想象<br>一节节拼起来</h1>
+          <p>旋转、延长，再把不同的魔尺接成独一无二的造型。</p>
+        </section>
+
+        <section class="panel-section stats-grid" aria-label="工坊统计">
+          <div><strong id="rulerCount">1</strong><span>魔尺</span></div>
+          <div><strong id="pieceCount">24</strong><span>总阶数</span></div>
+          <div><strong id="joinCount">0</strong><span>已拼接</span></div>
+        </section>
+
+        <section class="panel-section selected-card">
+          <div class="section-heading">
+            <span>当前魔尺</span>
+            <i id="selectedSwatch" style="background:#72e21d"></i>
+          </div>
+          <div id="selectionEmpty" class="selection-empty">点击画布中的魔尺开始编辑</div>
+          <div id="selectionTools">
+            <div class="piece-readout"><b id="selectedName">魔尺1</b><span><em id="selectedPieces">24</em> 阶</span></div>
+            <div class="end-editor">
+              <div>
+                <label><i class="end-dot start"></i> 左端</label>
+                <span><button data-action="remove-start" aria-label="左端减少一阶">−</button><button data-action="add-start" aria-label="左端增加一阶">＋</button></span>
+              </div>
+              <div>
+                <label><i class="end-dot end"></i> 右端</label>
+                <span><button data-action="remove-end" aria-label="右端减少一阶">−</button><button data-action="add-end" aria-label="右端增加一阶">＋</button></span>
+              </div>
+            </div>
+            <button class="delete-button" id="deleteBtn">删除这条魔尺</button>
+          </div>
+        </section>
+
+        <section class="tip-card">
+          <span>小技巧</span>
+          <p>像视频里一样，一手固定前段、另一手翻动三角块。切到移动模式后可拖动整条魔尺进行拼接。</p>
+        </section>
+      </aside>
+
+      <section class="workspace-wrap">
+        <div class="workspace-toolbar">
+          <div class="edit-modes" aria-label="操作模式">
+            <button class="active" data-mode="twist"><i></i>扭转</button>
+            <button data-mode="move"><i></i>移动 / 拼接</button>
+          </div>
+          <div class="zoom-tools">
+            <button id="zoomOut" aria-label="缩小">−</button>
+            <span id="zoomLabel">100%</span>
+            <button id="zoomIn" aria-label="放大">＋</button>
+            <button id="fitBtn" title="适应画布" aria-label="适应画布">⌗</button>
+          </div>
+        </div>
+        <div id="workspace" class="workspace" tabindex="0" aria-label="魔尺创作画布">
+          <canvas id="threeCanvas" aria-label="三维魔尺创作区域"></canvas>
+          <div class="gesture-cue" id="gestureCue"><b>抓住一个三角块</b><span>每次拖动固定旋转 90°</span></div>
+          <div class="empty-state" id="emptyState">
+            <span class="empty-snake">◢◣◢</span>
+            <h2>画布空空的</h2>
+            <p>添加一条魔尺，开始你的第一个造型。</p>
+            <button id="emptyNewBtn">＋ 新魔尺</button>
+          </div>
+          <div class="toast" id="toast" role="status"></div>
+        </div>
+        <div class="statusbar">
+          <span><kbd>A</kbd> 左段 · <kbd>D</kbd> 右段 · <kbd>Shift</kbd> 反向</span>
+          <span><i class="mouse-icon"></i> 拖动空白旋转 · Shift / 右键拖动平移</span>
+          <span><kbd>M</kbd> 移动 / 拼接模式</span>
+          <span><kbd>Delete</kbd> 删除</span>
+          <span><kbd>Ctrl</kbd> + <kbd>Z</kbd> 撤销</span>
+        </div>
+      </section>
+
+      <aside class="right-panel panel">
+        <section class="panel-section template-section">
+          <div class="section-heading"><h2>造型模板</h2><span>24 阶</span></div>
+          <button class="template-button" id="gunTemplateBtn" title="将当前魔尺变成枪造型">
+            <svg viewBox="0 0 88 52" aria-hidden="true">
+              <path d="M8 10h70v17H47l-7 19H25l5-19H8z"></path>
+              <path d="M48 27h-9l-3 10h8"></path>
+            </svg>
+            <span><b>枪</b><small>应用到当前魔尺</small></span>
+            <i>→</i>
+          </button>
+        </section>
+        <section class="panel-section palette-section">
+          <div class="section-heading"><h2>配色盒</h2><span>选择新魔尺颜色</span></div>
+          <div class="palette" id="palette" role="radiogroup" aria-label="魔尺配色">
+            <button class="active" data-palette="classic" style="--c1:#72e21d;--c2:#f4f5f0" title="经典绿白" aria-label="经典绿白配色"></button>
+            <button data-palette="rainbow" style="background:conic-gradient(#ff5b22,#ffd900,#39d927,#08c6df,#0868b9,#7d3fc0,#ef174d,#ff5b22)" title="彩虹" aria-label="彩虹配色"></button>
+            <button data-palette="coral" style="--c1:#ef6a5b;--c2:#ffd7b8" title="珊瑚" aria-label="珊瑚配色"></button>
+            <button data-palette="ocean" style="--c1:#397ebc;--c2:#b8e1e8" title="海洋" aria-label="海洋配色"></button>
+            <button data-palette="lime" style="--c1:#6f9c55;--c2:#dfeaa8" title="青柠" aria-label="青柠配色"></button>
+            <button data-palette="plum" style="--c1:#825a91;--c2:#e4c5dc" title="梅子" aria-label="梅子配色"></button>
+            <button data-palette="mono" style="--c1:#3e4148;--c2:#d9d4c9" title="黑白" aria-label="黑白配色"></button>
+          </div>
+        </section>
+
+        <p class="autosave-note"><i></i> 作品已自动保存在此浏览器</p>
+      </aside>
+    </main>
+  </div>
+
+  <div class="modal-backdrop" id="helpModal" aria-hidden="true">
+    <div class="help-modal" role="dialog" aria-modal="true" aria-labelledby="helpTitle">
+      <button class="modal-close" id="closeHelp" aria-label="关闭">×</button>
+      <p class="eyebrow">HOW TO PLAY</p>
+      <h2 id="helpTitle">三步玩转魔尺</h2>
+      <div class="help-steps">
+        <div><span>01</span><b>从两端增减</b><p>选中魔尺，用左侧的 ＋/− 自由改变两端阶数。</p></div>
+        <div><span>02</span><b>两侧都能旋转</b><p>选中块保持固定；A 旋转左段，D 旋转右段，按住 Shift 可让对应一段反向旋转。</p></div>
+        <div><span>03</span><b>把它们接起来</b><p>切到“移动 / 拼接”，拖动整条魔尺，让两个端点靠近后松手。</p></div>
+      </div>
+      <button class="primary-button" id="startPlaying">开始创作</button>
+    </div>
+  </div>
+
+  <script type="module" src="game.js"></script>
+</body>
+</html>
