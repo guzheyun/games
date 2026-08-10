@@ -245,6 +245,8 @@ button:active{transform:translateY(0) scale(.985)}
 #hitmarker:before{border-width:2px 0}
 #hitmarker:after{border-width:0 2px}
 #damage-numbers{position:absolute;inset:0;overflow:hidden;pointer-events:none}
+.workbench-readout{position:absolute;z-index:2;width:142px;box-sizing:border-box;padding:6px 8px;transform:translate(-50%,-50%);border:1px solid rgba(169,255,55,.72);background:rgba(5,15,10,.92);box-shadow:0 0 14px rgba(169,255,55,.16);text-align:center;pointer-events:none}
+.workbench-readout small,.workbench-readout span{display:block;color:#81928a;font-size:7px;letter-spacing:.7px}.workbench-readout b{display:block;margin:2px 0;color:var(--green);font:800 16px var(--font-display)}
 .damage-number{position:absolute;left:0;top:0;min-width:34px;text-align:center;color:#fff4bd;font:900 22px/1 var(--font-display);letter-spacing:.5px;text-shadow:0 2px 2px #000,0 0 7px rgba(255,180,40,.8);will-change:transform,opacity}
 .damage-number.critical{color:#ff6557;font-size:27px;text-shadow:0 2px 2px #000,0 0 9px rgba(255,55,40,.9)}
 .objective{position:absolute;top:84px;left:50%;transform:translateX(-50%);font-size:10px;letter-spacing:2.5px;text-align:center;color:#a3b1b6;text-shadow:0 2px 4px #000}
