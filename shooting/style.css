@@ -295,6 +295,7 @@ button:active{transform:translateY(0) scale(.985)}
 #range-status{position:absolute;z-index:5;right:26px;top:50px;padding:9px 12px;border-right:2px solid var(--green);background:rgba(6,11,15,.72);color:#b2c0c6;font:600 10px var(--font-display);letter-spacing:1.5px;text-shadow:0 1px 3px #000;backdrop-filter:blur(6px)}
 #range-status b{color:var(--green);font-weight:700}
 #range-status em{color:var(--amber);font-style:normal}
+#view-status{position:absolute;right:26px;top:80px;padding:6px 10px;border-right:2px solid #66d4ff;background:rgba(6,11,15,.7);color:#a9c2cc;font-size:9px;letter-spacing:1px;text-shadow:0 1px 3px #000}
 
 /* ══ 覆盖层 ══════════════════════════════════════════════════════ */
 .overlay{position:absolute;inset:0;z-index:20;display:grid;place-items:center;background:rgba(3,7,10,.76);backdrop-filter:blur(12px);animation:pageIn .22s ease-out}

@@ -14,7 +14,7 @@ import websockets
 
 rooms = {}
 clients = {}
-SERVER_VERSION = 4
+SERVER_VERSION = 5
 ROOM_LIMITS = {"1v1": 2, "1v2": 3, "2v2": 4, "5v5": 10}
 TEAM_CAPS = {"1v1": 1, "1v2": 2, "2v2": 2, "5v5": 5}
 
@@ -39,6 +39,7 @@ def room_view(room):
         "type": "room",
         "code": room["code"],
         "mode": room["mode"],
+        "view": room.get("view", "third"),
         "host": room["host"],
         "players": [
             {"id": pid, "name": p["name"], "team": p["team"]}
@@ -111,9 +112,10 @@ async def handler(ws):
                 player_name = str(msg.get("name") or owner).strip()[:12]
                 room_code = fixed_room_code(owner)
                 mode = msg.get("mode") if msg.get("mode") in ROOM_LIMITS else "1v1"
+                view = msg.get("view") if msg.get("view") in ("first", "third") else "third"
                 room = rooms.get(room_code)
                 if not room or room.get("owner") != owner:
-                    room = {"code": room_code, "owner": owner, "mode": mode, "host": pid, "players": {}, "created": time.time()}
+                    room = {"code": room_code, "owner": owner, "mode": mode, "view": view, "host": pid, "players": {}, "created": time.time()}
                     rooms[room_code] = room
                 else:
                     old_task = room.get("match", {}).get("task")
@@ -121,6 +123,7 @@ async def handler(ws):
                         old_task.cancel()
                     room.pop("match", None)
                     room["mode"] = mode
+                    room["view"] = view
                     room["host"] = pid
                     for old_pid, player in list(room["players"].items()):
                         if old_pid != pid and player["name"].strip().lower() == owner:
@@ -179,7 +182,7 @@ async def handler(ws):
                             "ended": False,
                         }
                         room["match"]["task"] = asyncio.create_task(finish_match(room["code"], match_id, starts_in + duration))
-                        await broadcast(room, {"type": "start", "mode": room["mode"], "map": random.randrange(4), "seed": random.randrange(1_000_000), "startsIn": starts_in, "duration": duration})
+                        await broadcast(room, {"type": "start", "mode": room["mode"], "view": room.get("view", "third"), "map": random.randrange(4), "seed": random.randrange(1_000_000), "startsIn": starts_in, "duration": duration})
                 elif kind in ("state", "shot", "throw", "hit", "death", "leave_match", "score_request"):
                     msg["from"] = pid
                     match = room.get("match")
