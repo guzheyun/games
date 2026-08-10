@@ -539,13 +539,13 @@ export function buildOperator(team,opts={}){
     if(!o.isMesh)return;
     o.castShadow=castShadow;o.receiveShadow=true;
     if(o.userData.zone)parts.push(o);
-    const x=o.position.x,y=o.position.y,ax=Math.abs(x),kind=y<1.04&&ax>.05?'leg':y>1.07&&y<1.53&&ax>.155?'arm':'core';
-    rig.push({mesh:o,kind,side:x<0?-1:1,section:kind==='leg'?(y<.25?'foot':y<.69?'lower':'upper'):'',position:o.position.clone(),rotation:o.rotation.clone()});
+    const x=o.position.x,y=o.position.y,ax=Math.abs(x),kind=y<1.04&&ax>.05?'leg':y>1.07&&y<1.53&&ax>.155?'arm':'core',section=kind==='leg'?(y<.25?'foot':y<.69?'lower':'upper'):kind==='arm'?(y>1.4?'shoulder':y>1.24?'upper':'hand'):'';
+    rig.push({mesh:o,kind,side:x<0?-1:1,section,position:o.position.clone(),rotation:o.rotation.clone()});
   });
   root.userData.operatorModel=model;root.userData.operatorRig=rig;
   return {root,model,parts,rig};
 }
-export function poseOperator(root,{stance='stand',moving=false,gait='walk',time=0,dt=1/60}={}){
+export function poseOperator(root,{stance='stand',moving=false,gait='walk',reload=0,time=0,dt=1/60}={}){
   const model=root?.userData.operatorModel,rig=root?.userData.operatorRig;if(!model||!rig)return;
   const prone=stance==='prone',crouch=stance==='crouch',run=moving&&gait==='run',stride=moving?(run?.78:.38):0,phase=time*(run?11:7.2),smooth=1-Math.exp(-Math.max(.001,dt)*14);
   const targetY=prone?.56:moving?(run?.035:.018)*Math.abs(Math.sin(phase*2)):0,targetZ=prone?.65:0,targetPitch=prone?-Math.PI/2:run?-.075:moving?-.025:0;
@@ -553,6 +553,11 @@ export function poseOperator(root,{stance='stand',moving=false,gait='walk',time=
   model.rotation.x+=Math.atan2(Math.sin(targetPitch-model.rotation.x),Math.cos(targetPitch-model.rotation.x))*smooth;model.rotation.y*=1-smooth;model.rotation.z*=1-smooth;
   for(const item of rig){
     const {mesh,position,rotation,kind,section,side}=item;let x=position.x,y=position.y,z=position.z,rx=rotation.x,ry=rotation.y,rz=rotation.z;
+    if(kind==='arm'&&section!=='shoulder'){
+      if(section==='upper'){x*=.82;z-=side<0?.065:.025}
+      else{x=side*.09;z+=side<0?-.13:.015}
+      y-=reload*.1;z+=reload*.055;rx+=reload*(side<0?.18:-.12);
+    }
     if(crouch){
       if(kind==='leg'){
         if(section==='upper'){y-=.21;z-=.1;rx+=.72}
