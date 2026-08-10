@@ -211,7 +211,7 @@ function buildCoverWall(theme,x,z,len,height,thick,axis,index,addSolid){
 // ── 立体地形：可逐级跳上的货箱阶梯、高架平台与检修走道 ────────────
 // 玩家抬腿 0.6m、起跳约 1.35m，所以高度梯度按 0.6 / 1.2 / 2.4 / 3.2 设计
 const DIR_VEC=[[1,0],[0,1],[-1,0],[0,-1]];
-function railing(theme,x,z,w,d,topY){
+function railing(theme,x,z,w,d,topY,ctx){
   const g=new THREE.Group(),bar=M(theme.wallAccent,.5,.35),post=M(theme.trim,.5,.5);
   const halfW=w/2,halfD=d/2;
   for(const [px,pz] of [[-halfW,-halfD],[halfW,-halfD],[-halfW,halfD],[halfW,halfD]])
@@ -220,6 +220,8 @@ function railing(theme,x,z,w,d,topY){
     g.add(bx(w,.06,.06,bar,x,hy,z-halfD));g.add(bx(w,.06,.06,bar,x,hy,z+halfD));
     g.add(bx(.06,.06,d,bar,x-halfW,hy,z));g.add(bx(.06,.06,d,bar,x+halfW,hy,z));
   }
+  ctx.addCollider(x,z-halfD,w,1,.12,'railing',topY);ctx.addCollider(x,z+halfD,w,1,.12,'railing',topY);
+  ctx.addCollider(x-halfW,z,.12,1,d,'railing',topY);ctx.addCollider(x+halfW,z,.12,1,d,'railing',topY);
   return g;
 }
 function crate(theme,x,z,w,h,d,ctx,tone){
@@ -237,9 +239,9 @@ function buildDeck(theme,x,z,dir,ctx){
   const [dx,dz]=DIR_VEC[dir],top=2.4,w=5.4,d=5.4;
   ctx.addSolid(x,z,w,.36,d,M(theme.covers[3],.7,.3),'terrain',top-.36);
   for(const sx of[-1,1])for(const sz of[-1,1])
-    ctx.worldGroup.add(bx(.24,top-.36,.24,M(theme.trim,.5,.55),x+sx*(w/2-.3),(top-.36)/2,z+sz*(d/2-.3)));
+    ctx.addSolid(x+sx*(w/2-.3),z+sz*(d/2-.3),.24,top-.36,.24,M(theme.trim,.5,.55),'pillar');
   ctx.worldGroup.add(bx(w,.12,d,M(theme.wall,.85),x,top-.44,z));
-  ctx.worldGroup.add(railing(theme,x,z,w,d,top));
+  ctx.worldGroup.add(railing(theme,x,z,w,d,top,ctx));
   // 上台阶：地面 → 0.6 → 1.2 → 平台
   crate(theme,x-dx*(w/2+.9),z-dz*(d/2+.9),dz?2.6:1.9,1.2,dz?1.9:2.6,ctx,theme.covers[1]);
   crate(theme,x-dx*(w/2+2.9),z-dz*(d/2+2.9),dz?2.4:1.8,.6,dz?1.8:2.4,ctx,theme.covers[0]);
@@ -251,9 +253,9 @@ function buildCatwalk(theme,x,z,dir,len,ctx){
   const n=Math.max(2,Math.round(len/5));
   for(let i=0;i<=n;i++){
     const t=-len/2+len*i/n;
-    ctx.worldGroup.add(bx(.26,top-.3,.26,M(theme.trim,.5,.55),x+(along?0:t),(top-.3)/2,z+(along?t:0)));
+    ctx.addSolid(x+(along?0:t),z+(along?t:0),.26,top-.3,.26,M(theme.trim,.5,.55),'pillar');
   }
-  ctx.worldGroup.add(railing(theme,x,z,w,d,top));
+  ctx.worldGroup.add(railing(theme,x,z,w,d,top,ctx));
   // 走道端头的两级登高货箱
   const sx=along?(x>0?-1:1):0,sz=along?0:(z>0?-1:1);
   const bx0=x+(along?sx*(wide/2+1.1):0),bz0=z+(along?0:sz*(wide/2+1.1));
@@ -399,6 +401,7 @@ function buildProps(map,theme,ctx){
         worldGroup.add(bx(.42,.05,.42,M(0x14181a,.85),cx,.03,pz));
         const ring=put(new THREE.TorusGeometry(.15,.03,6,12),M(0xf2f2f0,.7),cx,.36,pz);ring.rotation.x=Math.PI/2;worldGroup.add(ring);
       }
+      ctx.addCollider(px,pz,2.3,.72,.5,'prop');
     }else if(kind===4){ // 器材架
       const rack=M(theme.trim,.5,.6);
       for(const sx of[-.85,.85])worldGroup.add(bx(.1,2.1,.1,rack,px+sx,1.05,pz));

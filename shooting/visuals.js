@@ -534,13 +534,39 @@ function operatorTemplate(team){
 }
 export function prewarmOperatorTemplates(){operatorTemplate('blue');operatorTemplate('red')}
 export function buildOperator(team,opts={}){
-  const root=operatorTemplate(team).clone(true),parts=[],castShadow=opts.castShadow!==false;
-  root.traverse(o=>{
+  const model=operatorTemplate(team).clone(true),root=new THREE.Group(),parts=[],rig=[],castShadow=opts.castShadow!==false;
+  root.add(model);model.traverse(o=>{
     if(!o.isMesh)return;
     o.castShadow=castShadow;o.receiveShadow=true;
     if(o.userData.zone)parts.push(o);
+    const x=o.position.x,y=o.position.y,ax=Math.abs(x),kind=y<1.04&&ax>.05?'leg':y>1.07&&y<1.53&&ax>.155?'arm':'core';
+    rig.push({mesh:o,kind,side:x<0?-1:1,section:kind==='leg'?(y<.25?'foot':y<.69?'lower':'upper'):'',position:o.position.clone(),rotation:o.rotation.clone()});
   });
-  return {root,parts};
+  root.userData.operatorModel=model;root.userData.operatorRig=rig;
+  return {root,model,parts,rig};
+}
+export function poseOperator(root,{stance='stand',moving=false,gait='walk',time=0,dt=1/60}={}){
+  const model=root?.userData.operatorModel,rig=root?.userData.operatorRig;if(!model||!rig)return;
+  const prone=stance==='prone',crouch=stance==='crouch',run=moving&&gait==='run',stride=moving?(run?.78:.38):0,phase=time*(run?11:7.2),smooth=1-Math.exp(-Math.max(.001,dt)*14);
+  const targetY=prone?.56:moving?(run?.035:.018)*Math.abs(Math.sin(phase*2)):0,targetZ=prone?.65:0,targetPitch=prone?-Math.PI/2:run?-.075:moving?-.025:0;
+  model.scale.set(1,1,1);model.position.x+=(0-model.position.x)*smooth;model.position.y+=(targetY-model.position.y)*smooth;model.position.z+=(targetZ-model.position.z)*smooth;
+  model.rotation.x+=Math.atan2(Math.sin(targetPitch-model.rotation.x),Math.cos(targetPitch-model.rotation.x))*smooth;model.rotation.y*=1-smooth;model.rotation.z*=1-smooth;
+  for(const item of rig){
+    const {mesh,position,rotation,kind,section,side}=item;let x=position.x,y=position.y,z=position.z,rx=rotation.x,ry=rotation.y,rz=rotation.z;
+    if(crouch){
+      if(kind==='leg'){
+        if(section==='upper'){y-=.21;z-=.1;rx+=.72}
+        else if(section==='lower'){y-=.08;z-=.11;rx-=.5}
+        else{z-=.035;rx+=.08}
+      }else{y-=.3;z-=.025}
+    }else if(!prone&&moving){
+      const swing=Math.sin(phase+(side>0?Math.PI:0));
+      if(kind==='leg'){rx+=swing*stride;z-=swing*(run?.11:.055);y-=Math.abs(swing)*(run?.025:.012);if(section==='foot')rx-=swing*stride*.42}
+      else if(kind==='arm'){rx-=swing*(run?.1:.045);y+=Math.abs(swing)*.006}
+    }
+    mesh.position.x+=(x-mesh.position.x)*smooth;mesh.position.y+=(y-mesh.position.y)*smooth;mesh.position.z+=(z-mesh.position.z)*smooth;
+    mesh.rotation.x+=Math.atan2(Math.sin(rx-mesh.rotation.x),Math.cos(rx-mesh.rotation.x))*smooth;mesh.rotation.y+=Math.atan2(Math.sin(ry-mesh.rotation.y),Math.cos(ry-mesh.rotation.y))*smooth;mesh.rotation.z+=Math.atan2(Math.sin(rz-mesh.rotation.z),Math.cos(rz-mesh.rotation.z))*smooth;
+  }
 }
 
 // ── 投掷物：四种截然不同的外形 ───────────────────────────────────
