@@ -1,545 +1,121 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="zh-CN">
 <head>
-<meta charset="UTF-8">
-<title>靶场射击</title>
-<style>
-*{margin:0;padding:0;box-sizing:border-box}
-body{overflow:hidden;background:#05070d;font-family:'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif}
-canvas{display:block}
-#hud{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:10}
-#crosshair{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:28px;height:28px}
-#crosshair::before,#crosshair::after{content:'';position:absolute;background:rgba(120,255,235,.9);box-shadow:0 0 6px rgba(74,234,220,.9)}
-#crosshair::before{width:2px;height:28px;left:13px;top:0}
-#crosshair::after{width:28px;height:2px;top:13px;left:0}
-.hud-badge{position:absolute;padding:.35rem .9rem;border-radius:999px;font-weight:700;font-size:1.15rem;background:rgba(10,14,22,.55);backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,.08);box-shadow:0 4px 14px rgba(0,0,0,.35)}
-#score{top:18px;left:18px;color:#4aeadc}
-#timer{top:18px;right:18px;color:#f5c542}
-#reaction{position:absolute;top:56%;left:50%;transform:translateX(-50%);font-size:1.3rem;font-weight:700;color:#4aeadc;opacity:0;transition:opacity .15s;text-shadow:0 0 10px rgba(74,234,220,.6)}
-#avg-time{position:absolute;top:62px;left:18px;color:#9fb0c8;font-size:.95rem;text-shadow:0 1px 3px rgba(0,0,0,.5)}
-#difficulty-hud{position:absolute;top:62px;right:18px;color:#9fb0c8;font-size:.95rem;text-shadow:0 1px 3px rgba(0,0,0,.5)}
-#overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:radial-gradient(1200px 700px at 50% -10%,rgba(120,115,245,.25),transparent),linear-gradient(135deg,#0b0a1f,#1c1b3a 55%,#0e1226);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:20;color:#fff}
-.panel{background:rgba(18,20,34,.55);backdrop-filter:blur(14px);border:1px solid rgba(255,255,255,.08);border-radius:22px;padding:2.4rem 2.8rem;box-shadow:0 24px 60px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.06);text-align:center;max-width:min(92vw,540px)}
-#overlay h1{font-size:2.9rem;margin-bottom:.8rem;letter-spacing:2px;background:linear-gradient(135deg,#ff6ec4,#7873f5,#4aeadc);-webkit-background-clip:text;-webkit-text-fill-color:transparent;filter:drop-shadow(0 4px 18px rgba(120,115,245,.4))}
-#overlay p{font-size:1.05rem;color:#aab3c8;margin-bottom:.4rem}
-#overlay .hint{font-size:.85rem;color:#6b7391}
-#overlay button{padding:.85rem 1.4rem;font-size:1.05rem;border:1px solid rgba(120,115,245,.5);background:linear-gradient(180deg,rgba(120,115,245,.18),rgba(120,115,245,.06));color:#e8ebf7;border-radius:14px;cursor:pointer;pointer-events:auto;transition:transform .15s,box-shadow .3s,background .3s;font-weight:600}
-#overlay button:hover{background:linear-gradient(180deg,rgba(120,115,245,.4),rgba(120,115,245,.18));box-shadow:0 8px 24px rgba(120,115,245,.4);transform:translateY(-2px)}
-#overlay button:active{transform:translateY(0)}
-#overlay button.primary{border-color:rgba(74,234,220,.6);background:linear-gradient(180deg,rgba(74,234,220,.28),rgba(74,234,220,.1));color:#eafffb}
-#overlay button.primary:hover{box-shadow:0 8px 26px rgba(74,234,220,.45)}
-.menu-actions{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-top:1.4rem}
-.menu-actions .primary{grid-column:1 / -1}
-#difficulty-picker{margin-top:1.4rem}
-#difficulty-picker .difficulty-label{color:#9fb0c8;font-size:.95rem;margin-bottom:.6rem}
-#difficulty-picker .difficulty-options{display:flex;gap:.6rem;justify-content:center}
-#overlay .difficulty-btn{padding:.55rem 1.2rem;font-size:1rem;min-width:78px}
-#overlay .difficulty-btn.active{border-color:#4aeadc;background:rgba(74,234,220,.25);color:#fff;box-shadow:0 0 18px rgba(74,234,220,.35)}
-#overlay .difficulty-btn:disabled{opacity:.4;cursor:not-allowed;box-shadow:none;transform:none}
-#result{display:none}
-#result .final-score{font-size:4.2rem;font-weight:800;color:#4aeadc;margin:.6rem 0;text-shadow:0 0 30px rgba(74,234,220,.5)}
-#result .stats{font-size:.98rem;color:#aab3c8;margin:.5rem 0}
-#result .menu-actions{grid-template-columns:1fr}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+  <meta name="theme-color" content="#09100f">
+  <title>裂隙行动：战术前线</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='8' fill='%23050908'/%3E%3Cpath d='M12 14h25c10 0 16 5 16 14 0 7-4 11-10 13l10 10H39L26 38v13H12V14zm14 11v6h10c3 0 4-1 4-3s-1-3-4-3H26z' fill='%23a9ff37'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="./style.css">
 </head>
 <body>
-<div id="hud">
-  <div id="crosshair"></div>
-  <div id="score" class="hud-badge">得分: 0</div>
-  <div id="timer" class="hud-badge">60s</div>
-  <div id="reaction"></div>
-  <div id="avg-time"></div>
-  <div id="difficulty-hud">难度: 3×3</div>
-</div>
-<div id="overlay">
-  <div id="start-screen" class="panel">
-    <h1>靶场射击</h1>
-    <p>鼠标瞄准，左键射击发光靶球</p>
-    <p class="hint">锁定视角瞄准 | 左键射击 | 命中即刷新</p>
-    <div id="difficulty-picker">
-      <div class="difficulty-label">选择射击难度</div>
-      <div class="difficulty-options">
-        <button class="difficulty-btn active" data-size="3">3×3</button>
-        <button class="difficulty-btn" data-size="4">4×4</button>
-        <button class="difficulty-btn" data-size="5">5×5</button>
+  <div id="boot"><div class="boot-mark">R//F</div><div class="boot-line"><i></i></div><p>正在建立战术链路</p></div>
+
+  <div id="menu" class="screen hidden">
+    <header class="topbar">
+      <button class="brand nav-btn" data-page="home"><b>裂隙行动</b><span>RIFT // FRONT</span></button>
+      <nav>
+        <button class="nav-btn active" data-page="home">作战大厅</button>
+        <button class="nav-btn" data-page="arsenal">军械库</button>
+        <button class="nav-btn" data-page="guide">新手教程</button>
+        <button class="nav-btn" data-page="rooms">联机房间</button>
+        <button class="nav-btn" data-page="accounts">账户管理</button>
+        <button class="nav-btn" data-page="settings">声音设置</button>
+      </nav>
+      <div class="profile"><span class="rank">LV. 12</span><span class="callsign">未登录</span><button id="account-logout" type="button">切换账户</button></div>
+    </header>
+
+    <main id="home" class="page active">
+      <section class="hero-copy">
+        <div class="eyebrow"><span></span> 第 07 赛季 · 暗潮协议</div>
+        <h1>每一次呼吸<br><em>都决定胜负</em></h1>
+        <p>选择装备、集结小队，在随机生成的室内战场中击溃敌军。高低不一的掩体墙、姿态与每一发子弹都会改变战局。</p>
+        <div class="hero-actions"><button id="quick-start" class="primary">开始游戏 <span>→</span></button><button class="ghost nav-btn" data-page="guide">查看作战教程</button></div>
+        <div class="intel-row"><div><b>04</b><span>室内战场</span></div><div><b>30</b><span>真实枪械</span></div><div><b>5V5</b><span>最大编制</span></div></div>
+      </section>
+      <section class="mode-rail">
+        <div class="section-head"><span>选择行动</span><small>SELECT OPERATION</small></div>
+        <button class="mode-card selected" data-mode="2v2"><span class="mode-index">01</span><span class="mode-art urban"></span><span class="mode-info"><b>闪击 · 2V2</b><small>5 分钟 / 击败数决胜</small><i>推荐</i></span></button>
+        <button class="mode-card" data-mode="5v5"><span class="mode-index">02</span><span class="mode-art port"></span><span class="mode-info"><b>全面冲突 · 5V5</b><small>5 分钟 / 击败数决胜</small></span></button>
+        <button class="mode-card" data-mode="1v1"><span class="mode-index">03</span><span class="mode-art desert"></span><span class="mode-info"><b>对决 · 1V1</b><small>5 分钟 / 击败数决胜</small></span></button>
+        <button class="mode-card" data-mode="training"><span class="mode-index">04</span><span class="mode-art range"></span><span class="mode-info"><b>室内靶场</b><small>封闭靶馆 / 5 条靶道</small></span></button>
+        <div id="mode-note">投掷物：手雷×1 · 燃烧瓶×1 · 烟雾弹×1 · 闪光弹×1</div>
+      </section>
+    </main>
+
+    <main id="arsenal" class="page">
+      <section class="arsenal-side">
+        <div class="eyebrow"><span></span> LOADOUT // 军械配置</div><h2>选择你的武器</h2>
+        <div class="loadout-slots"><button id="slot1" class="slot active"><small>主武器 · 1</small><b>AK-12</b></button><button id="slot2" class="slot"><small>副武器 · 2</small><b>VECTOR</b></button></div>
+        <div id="weapon-filters" class="filters"><button class="active" data-filter="全部">全部</button><button data-filter="冲锋枪">冲锋枪</button><button data-filter="突击步枪">突击步枪</button><button data-filter="狙击步枪">狙击步枪</button><button data-filter="轻机枪">轻机枪</button></div>
+        <div id="weapon-list" class="weapon-list"></div>
+      </section>
+      <section id="weapon-detail" class="weapon-detail"></section>
+    </main>
+
+    <main id="guide" class="page scroll-page">
+      <div class="guide-wrap">
+        <div class="eyebrow"><span></span> FIELD MANUAL // 作战手册</div><h2>新手教程与游戏说明</h2><p class="lead">三分钟掌握移动、战斗、姿态与投掷物。进入战场后按 ESC 可随时查看。</p>
+        <div class="guide-grid">
+          <article><span class="guide-num">01</span><h3>移动与视角</h3><div class="keys"><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd></div><p>移动人物，移动鼠标环视与瞄准。<kbd>F</kbd> 跳跃，<kbd>G</kbd> 蹲下，<kbd>H</kbd> 趴下，<kbd>Shift</kbd> 冲刺。</p></article>
+          <article><span class="guide-num">02</span><h3>射击与换弹</h3><div class="mouse-icon">LMB</div><p>左键射击，按 <kbd>Q</kbd> 切换开镜；栓动狙击枪左键完成下一次拔栓。按 <kbd>E</kbd> 或鼠标右键换弹。</p></article>
+          <article><span class="guide-num">03</span><h3>快捷装备</h3><div class="keys six"><kbd>1</kbd><kbd>2</kbd><kbd>3</kbd><kbd>4</kbd><kbd>5</kbd><kbd>6</kbd></div><p>依次对应两把枪、手雷、燃烧瓶、烟雾弹、闪光弹。再次按当前数字收起装备，可少量提升移速。</p></article>
+          <article><span class="guide-num">04</span><h3>投掷物</h3><div class="nade-row"><i>爆</i><i>火</i><i>烟</i><i>闪</i></div><p>按住左键拔栓，松开投掷。手雷 7 秒后爆炸；烟雾弹与闪光弹 5 秒后生效；燃烧瓶触地燃烧。</p></article>
+          <article><span class="guide-num">05</span><h3>姿态战术</h3><div class="stance-demo"><i></i><i></i><i></i></div><p>蹲下会降低移速并显著收紧散布。趴下移速大幅降低，不额外减少散布，但能规避高处来弹且更隐蔽。</p></article>
+          <article><span class="guide-num">06</span><h3>模式补给</h3><ul><li><b>1V1：</b>手雷、燃烧瓶、烟雾弹、闪光弹各×1</li><li><b>2V2：</b>四类投掷物各×1</li><li><b>5V5：</b>手雷×2，其余各×1</li><li><b>靶场：</b>固定地图与五个并排靶标，全部投掷物无限</li></ul></article>
+          <article><span class="guide-num">07</span><h3>靶场工作台</h3><div class="keys"><kbd>E</kbd></div><p>靠近每条靶道的工作台按 <kbd>E</kbd>，可单独微调正前方靶标、切换无敌状态并自由选择枪械。</p></article>
+          <article><span class="guide-num">08</span><h3>脚步辨位</h3><div class="mouse-icon">AUDIO</div><p>自己、队友和对手移动时都会产生脚步声。远近和左右方向会影响音量与声道，可在声音设置中关闭或调整音量。</p></article>
+        </div>
+        <button class="primary nav-btn" data-page="home">已了解，返回大厅</button>
       </div>
+    </main>
+
+    <main id="rooms" class="page scroll-page">
+      <div class="rooms-wrap"><div class="eyebrow"><span></span> MULTIPLAYER // 联机作战</div><h2>自由组队房间</h2><p class="lead">最多 5V5。房主可分配红蓝队、选择模式并开始对局。</p>
+        <div class="room-layout">
+          <section class="room-panel"><h3>创建私人房间</h3><label>账户名称<input id="player-name" value="" maxlength="12" readonly></label><label>房间模式<select id="room-mode"><option value="1v2">三人自由分组 1V2</option><option value="1v1">双人联机 1V1</option><option value="2v2">小队战 2V2</option><option value="5v5">全面冲突 5V5</option></select></label><button id="create-room" class="primary">创建房间</button></section>
+          <section class="room-panel"><h3>加入战友房间</h3><label>六位房间码<input id="room-code" placeholder="例如 A7K2Q9" maxlength="6"></label><button id="join-room" class="ghost">连接房间</button><div id="network-status"><i></i> 本地作战服务待连接</div></section>
+          <section class="room-rules"><h3>联机规则</h3><p>同一局域网内运行随游戏提供的联机服务后，可通过房间码加入。玩家可自由切换红蓝阵营，人数达到模式要求后由房主部署。</p><div><span>红队 0 / 5</span><span>蓝队 0 / 5</span></div></section>
+        </div>
+      </div>
+    </main>
+
+    <main id="accounts" class="page scroll-page">
+      <div class="account-wrap"><div class="eyebrow"><span></span> ACCOUNT // 账户管理</div><h2>账户与比赛记录</h2><p class="lead">当前账户的装备、配件、设置和历史战绩相互独立；局中进度不会保存。</p><section class="account-card"><small>当前登录账户</small><b id="current-account">—</b><button id="account-logout-page" class="ghost">退出并切换账户</button></section><div id="account-summary"></div><div class="account-head"><h3>历史比赛</h3></div><div id="match-history"></div></div>
+    </main>
+
+    <main id="settings" class="page scroll-page">
+      <div class="settings-wrap"><div class="eyebrow"><span></span> AUDIO // 声音设置</div><h2>脚步声设置</h2><p class="lead">设置会保存到当前登录账户。</p><section class="audio-card"><label class="audio-toggle"><input id="footstep-enabled" type="checkbox"><span><b>启用脚步声</b><small>包括自己、队友和对手的移动声音</small></span></label><label class="audio-volume"><span>脚步声音量 <output id="footstep-volume-value">70%</output></span><input id="footstep-volume" type="range" min="0" max="100" step="1" value="70"></label><p>对手越近声音越清晰；左右声道会根据对手相对视角的方向变化。</p></section></div>
+    </main>
+  </div>
+
+  <div id="game" class="screen hidden">
+    <div id="vignette"></div><div id="damage-flash"></div><div id="flashbang"></div><div id="map-transition" class="hidden"><div><small>TACTICAL AREA SCAN</small><b id="map-transition-name">正在随机生成战区</b></div></div>
+    <div id="hud">
+      <div class="hud-top"><div id="map-label">港区 · B 区</div><div class="scoreboard"><b id="blue-score">0</b><span>—</span><b id="red-score">0</b><time id="round-time">05:00</time></div><div id="mode-label">闪击 2V2</div></div>
+      <div id="scope-overlay"><i></i></div><div id="killfeed"></div><div id="crosshair"><i></i><i></i><i></i><i></i><b></b></div><div id="hitmarker"></div><div id="damage-numbers" aria-hidden="true"></div><div id="damage-indicator" role="status" aria-live="polite"><i>▲</i><b></b></div>
+      <div class="objective"><span id="objective-text">击溃敌方小队</span><i><b id="objective-bar"></b></i></div>
+      <div id="range-status" class="hidden"></div>
+      <div class="hud-bottom">
+        <div class="vitals"><div class="health-icon">+</div><div><small>生命值</small><b id="health">100</b><i><span id="health-bar"></span></i></div><div class="armor"><small>护甲</small><b id="armor">50</b></div></div>
+        <div id="stance"><span class="active" data-stance="stand">站</span><span data-stance="crouch">蹲</span><span data-stance="prone">趴</span></div>
+        <div id="inventory"></div>
+        <div class="ammo"><small id="weapon-name">AK-12</small><div><b id="ammo">30</b><span>/ <i id="reserve">120</i></span></div><em id="firemode">全自动</em></div>
+      </div>
+      <div id="interaction"></div><div id="toast"></div><div id="cook"><span>已拔栓</span><b>7.0</b><i><em></em></i></div>
+      <div id="minimap"><canvas width="180" height="180"></canvas><span>N</span></div>
     </div>
-    <div class="menu-actions">
-      <button id="start-btn" class="primary">开始游戏</button>
-      <button id="reflex-btn">反射弧训练</button>
-      <button id="lb-btn">射击排行榜</button>
-      <button id="rx-lb-btn">反射弧排行榜</button>
-    </div>
+    <div id="workbench-panel" class="overlay hidden"><section class="workbench-card"><div class="eyebrow"><span></span> TARGET WORKBENCH</div><h2 id="workbench-title">靶标 1 工作台</h2><p>仅修改这台工作台正前方的靶标</p><label class="workbench-setting">靶标距离 <output id="target-distance-value">10 米</output><input id="target-distance" type="range" min="10" max="45" step="1" value="10"></label><label class="range-toggle"><input id="target-invincible" type="checkbox"><span>无敌靶</span><small>仅影响当前靶标</small></label><label class="range-toggle"><input id="workbench-infinite-mag" type="checkbox"><span>无限弹夹</span><small>按 R 快速切换 · 靶场内无需换弹</small></label><label class="workbench-setting">自由选择枪械<select id="workbench-weapon"></select></label><div id="workbench-attachments" class="attachment-loadout"></div><div class="workbench-guns"><button id="equip-range-slot1" class="ghost">装备到 1 号位</button><button id="equip-range-slot2" class="ghost">装备到 2 号位</button></div><button id="close-workbench" class="primary">完成设置</button></section></div>
+    <div id="reconnect-panel" class="overlay hidden"><section><div class="eyebrow"><span></span> CONTROL LINK LOST</div><h2>操作连接已断开</h2><p>切回游戏后需要重新获取鼠标控制。进度已暂停，不会丢失。</p><button id="reconnect-game" class="primary">重新连接并继续</button><button id="reconnect-home" class="ghost">返回大厅</button></section></div>
+    <div id="pause" class="overlay hidden"><section><div class="eyebrow"><span></span> OPERATION PAUSED</div><h2>行动暂停</h2><div class="pause-audio"><label><input id="pause-footstep-enabled" type="checkbox"> 脚步声</label><label><input id="pause-footstep-volume" type="range" min="0" max="100" step="1"><output id="pause-footstep-volume-value">70%</output></label></div><button id="resume" class="primary">继续行动</button><button id="pause-guide" class="ghost">控制说明</button><button id="leave-game" class="danger">撤离战场</button><div class="pause-help"><b>WASD</b> 移动 · <b>Q</b> 开镜 · <b>E / 鼠标右键</b> 换弹 · <b>E</b> 工作台 · <b>F/G/H</b> 跳/蹲/趴</div></section></div>
+    <div id="deploy" class="overlay"><section><div class="eyebrow"><span></span> READY // 作战准备</div><h2 id="deploy-title">港区封锁线</h2><p id="deploy-desc">小队将在随机出生点部署</p><div id="team-preview"></div><div id="range-settings" class="hidden"><div class="range-setting-head"><label for="range-distance">初始靶标距离</label><output id="range-distance-value" for="range-distance">10 米</output></div><input id="range-distance" type="range" min="10" max="45" step="5" value="10"><label class="range-toggle"><input id="range-invincible" type="checkbox"><span>无敌靶</span><small>进入后可在各工作台单独调整</small></label><label class="range-toggle"><input id="range-infinite-mag" type="checkbox"><span>无限弹夹</span><small>开启后无需换弹</small></label><p>共 5 个独立靶标 · 靶场模式会直接进入</p></div><button id="deploy-btn" class="primary">进入战场</button><button id="deploy-back" class="ghost">返回大厅</button></section></div>
+    <div id="result-screen" class="overlay hidden"><section><div class="eyebrow"><span></span> MISSION REPORT</div><h2 id="result-title">行动胜利</h2><div class="result-score"><b id="result-blue">0</b><span>—</span><b id="result-red">0</b></div><p id="result-note"></p><button id="play-again" class="primary">再来一局</button><button id="result-home" class="ghost">返回大厅</button></section></div>
   </div>
-  <div id="result" class="panel">
-    <h1>时间到！</h1>
-    <div class="final-score" id="final-score">0</div>
-    <p>最终得分</p>
-    <div class="stats" id="result-stats"></div>
-    <div class="menu-actions">
-      <button id="restart-btn" class="primary">再来一局</button>
-      <button id="result-lb-btn">最高分榜</button>
-      <button id="result-back-btn">返回主菜单</button>
-    </div>
-  </div>
-  <div id="leaderboard" class="panel" style="display:none">
-    <h1>最高分榜</h1>
-    <div id="lb-list" style="margin:1rem 0;font-size:1.1rem;line-height:2"></div>
-    <div class="menu-actions"><button id="lb-back-btn" class="primary">返回</button></div>
-  </div>
-</div>
-<div id="reflex-screen" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;z-index:30;cursor:pointer;user-select:none">
-  <div id="reflex-bg" style="width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#22aa44">
-    <div id="reflex-text" style="font-size:2.5rem;font-weight:bold;color:#fff;text-shadow:0 2px 8px rgba(0,0,0,.3)">等待变红后点击...</div>
-    <div id="reflex-sub" style="font-size:1rem;color:rgba(255,255,255,.7);margin-top:1rem"></div>
-    <div id="reflex-history" style="margin-top:2rem;font-size:1rem;color:rgba(255,255,255,.8);line-height:2"></div>
-    <button id="reflex-exit" style="position:absolute;top:20px;right:20px;padding:.5rem 1.5rem;font-size:1rem;border:2px solid rgba(255,255,255,.4);background:rgba(0,0,0,.2);color:#fff;border-radius:10px;cursor:pointer">退出</button>
-  </div>
-</div>
-<div id="rx-lb-screen" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;z-index:30;background:linear-gradient(135deg,#0f0c29,#302b63,#24243e);flex-direction:column;align-items:center;justify-content:center;color:#fff">
-  <h1 style="font-size:2.5rem;margin-bottom:1rem;background:linear-gradient(135deg,#ff6ec4,#7873f5,#4aeadc);-webkit-background-clip:text;-webkit-text-fill-color:transparent">反射弧排行榜</h1>
-  <div id="rx-lb-list" style="margin:1rem 0;font-size:1.2rem;line-height:2.2"></div>
-  <button id="rx-lb-back" style="padding:1rem 3rem;font-size:1.2rem;border:2px solid #7873f5;background:rgba(120,115,245,.1);color:#e0e0e0;border-radius:12px;cursor:pointer;margin-top:1rem">返回</button>
-</div>
 
-<script type="importmap">{"imports":{"three":"https://unpkg.com/three@0.160.0/build/three.module.js","three/addons/":"https://unpkg.com/three@0.160.0/examples/jsm/"}}</script>
-<script type="module">
-import*as THREE from'three';
-import{PointerLockControls}from'three/addons/controls/PointerLockControls.js';
+  <div id="attachment-picker" class="overlay hidden"><section class="attachment-card"><div class="eyebrow"><span></span> WEAPON ATTACHMENTS</div><h2 id="attachment-picker-title">选择配件</h2><div id="attachment-options"></div><button id="remove-attachment" class="danger">卸下该槽配件</button><button id="close-attachment-picker" class="ghost">返回</button></section></div>
+  <div id="account-login" class="overlay"><section class="account-login-card"><div class="eyebrow"><span></span> ACCOUNT LOGIN</div><h2>登录账户</h2><p>输入账户凭据后进入游戏。不同账户的装备、配件、设置和战绩互不影响。</p><form id="account-login-form"><label>用户名<input id="login-username" name="username" autocomplete="username" maxlength="20" required autofocus></label><label>密码<span class="password-input"><input id="login-password" name="password" type="password" autocomplete="current-password" maxlength="32" required><button id="toggle-password" type="button" aria-pressed="false">显示</button></span></label><div id="login-error" role="alert"></div><button class="primary" type="submit">登录游戏</button></form></section></div>
 
-const scene=new THREE.Scene();
-scene.background=new THREE.Color(0x0a0d16);
-scene.fog=new THREE.Fog(0x0a0d16,14,34);
-
-const camera=new THREE.PerspectiveCamera(75,innerWidth/innerHeight,0.1,100);
-camera.position.set(0,3,0);
-
-const renderer=new THREE.WebGLRenderer({
-  antialias:false,
-  powerPreference:'high-performance',
-  precision:'mediump'
-});
-renderer.setSize(innerWidth,innerHeight);
-// 固定 1 倍内部像素：高分屏下避免数百万像素的重复着色。
-renderer.setPixelRatio(1);
-renderer.shadowMap.enabled=false;
-renderer.toneMapping=THREE.NoToneMapping;
-document.body.appendChild(renderer.domElement);
-
-const controls=new PointerLockControls(camera,document.body);
-
-// Lighting
-scene.add(new THREE.AmbientLight(0x8892b8,0.7));
-const hemi=new THREE.HemisphereLight(0xbcd0ff,0x1a1e2a,0.8);scene.add(hemi);
-const dirL=new THREE.DirectionalLight(0xffffff,1.6);
-dirL.position.set(4,10,-2);dirL.castShadow=true;
-dirL.shadow.mapSize.set(1024,1024);
-dirL.shadow.camera.near=1;dirL.shadow.camera.far=40;
-dirL.shadow.camera.left=-12;dirL.shadow.camera.right=12;
-dirL.shadow.camera.top=12;dirL.shadow.camera.bottom=-4;
-dirL.shadow.bias=-0.0004;scene.add(dirL);
-const dirL2=new THREE.DirectionalLight(0x6f7bff,0.5);
-dirL2.position.set(-6,6,-10);scene.add(dirL2);
-// 靶墙聚光灯
-const spot=new THREE.SpotLight(0xfff2d6,120,26,Math.PI/5,0.5,1.2);
-spot.position.set(0,8,2);spot.target.position.set(0,3,-10.5);
-scene.add(spot);scene.add(spot.target);
-// 冷暖轮廓灯
-const rimA=new THREE.PointLight(0x4aeadc,18,20,2);rimA.position.set(-5,4,-6);scene.add(rimA);
-const rimB=new THREE.PointLight(0xff6ec4,16,20,2);rimB.position.set(5,4,-6);scene.add(rimB);
-
-// ===== 靶场环境 =====
-function buildRange(){
-  const g=new THREE.Group();
-  const floorMat=new THREE.MeshStandardMaterial({color:0x23283a,roughness:0.85,metalness:0.15});
-  const floor=new THREE.Mesh(new THREE.PlaneGeometry(18,30),floorMat);
-  floor.rotation.x=-Math.PI/2;floor.position.set(0,0,-6);floor.receiveShadow=true;g.add(floor);
-  // 地面网格线
-  const grid=new THREE.GridHelper(30,30,0x3d4a6b,0x2a3350);
-  grid.position.set(0,0.01,-6);g.add(grid);
-  // 射击线
-  const lineMat=new THREE.MeshStandardMaterial({color:0xf5c542,emissive:0x5a4300,roughness:0.6});
-  const line=new THREE.Mesh(new THREE.BoxGeometry(9,0.03,0.14),lineMat);
-  line.position.set(0,0.03,-1.5);g.add(line);
-  // 后墙
-  const wallMat=new THREE.MeshStandardMaterial({color:0x2c3346,roughness:0.95,metalness:0.05});
-  const back=new THREE.Mesh(new THREE.PlaneGeometry(18,12),wallMat);
-  back.position.set(0,6,-13);back.receiveShadow=true;g.add(back);
-  // 侧墙
-  const sideMat=new THREE.MeshStandardMaterial({color:0x262c3d,roughness:0.95,metalness:0.05});
-  const left=new THREE.Mesh(new THREE.PlaneGeometry(30,12),sideMat);
-  left.rotation.y=Math.PI/2;left.position.set(-9,6,-6);left.receiveShadow=true;g.add(left);
-  const right=new THREE.Mesh(new THREE.PlaneGeometry(30,12),sideMat);
-  right.rotation.y=-Math.PI/2;right.position.set(9,6,-6);right.receiveShadow=true;g.add(right);
-  // 天花板
-  const ceil=new THREE.Mesh(new THREE.PlaneGeometry(18,30),new THREE.MeshStandardMaterial({color:0x161b28,roughness:1}));
-  ceil.rotation.x=Math.PI/2;ceil.position.set(0,12,-6);g.add(ceil);
-  // 隔间立柱
-  const postMat=new THREE.MeshStandardMaterial({color:0x30384d,roughness:0.7,metalness:0.4});
-  for(const x of [-3,3]){
-    const post=new THREE.Mesh(new THREE.BoxGeometry(0.12,2.2,0.12),postMat);
-    post.position.set(x,1.1,-1.5);post.castShadow=true;g.add(post);
-  }
-  scene.add(g);
-}
-buildRange();
-
-// Balls
-const balls=[];
-const GRID_Z=-10.5;
-const allSlots=[];
-const usedSlots=new Set();
-let gridSize=Number(localStorage.getItem('shooting-grid-size'))||3;
-if(![3,4,5].includes(gridSize))gridSize=3;
-
-function rebuildGrid(){
-  allSlots.length=0;usedSlots.clear();
-  const xMin=-1.5,xMax=1.5,yMin=1.7,yMax=4.3;
-  for(let r=0;r<gridSize;r++)for(let c=0;c<gridSize;c++){
-    const x=gridSize===1?0:xMin+c*(xMax-xMin)/(gridSize-1);
-    const y=gridSize===1?3:yMin+r*(yMax-yMin)/(gridSize-1);
-    allSlots.push(new THREE.Vector3(x,y,GRID_Z));
-  }
-}
-rebuildGrid();
-
-function randomBallPos(excludeSlot){
-  const avail=[];
-  for(let i=0;i<allSlots.length;i++){if(!usedSlots.has(i)&&i!==excludeSlot)avail.push(i);}
-  if(avail.length===0)return{pos:allSlots[0].clone(),slot:0};
-  const idx=avail[Math.floor(Math.random()*avail.length)];
-  usedSlots.add(idx);
-  return{pos:allSlots[idx].clone(),slot:idx};
-}
-
-for(let i=0;i<3;i++){
-  const ball=new THREE.Mesh(
-    new THREE.SphereGeometry(0.28,16,12),
-    new THREE.MeshPhongMaterial({color:0x2299ff,emissive:0x114488,specular:0x88ccff,shininess:80})
-  );
-  // 更大的隐形碰撞球
-  const hitbox=new THREE.Mesh(
-    new THREE.SphereGeometry(0.44,8,8),
-    new THREE.MeshBasicMaterial({visible:false})
-  );
-  ball.add(hitbox);
-  const sp=randomBallPos();
-  ball.position.copy(sp.pos);
-  ball.userData.slot=sp.slot;
-  scene.add(ball);balls.push(ball);
-}
-
-// Pistol
-const gunGroup=new THREE.Group();
-const dm=new THREE.MeshStandardMaterial({color:0x1a1a1a,metalness:0.9,roughness:0.25});
-const gm=new THREE.MeshStandardMaterial({color:0x2a2a2a,metalness:0.85,roughness:0.3});
-const gp=new THREE.MeshStandardMaterial({color:0x111111,roughness:0.7,metalness:0.3});
-const sl=new THREE.Mesh(new THREE.BoxGeometry(0.06,0.08,0.42),dm);sl.position.set(0,0.04,0);gunGroup.add(sl);
-const bl=new THREE.Mesh(new THREE.CylinderGeometry(0.015,0.018,0.15,8),dm);bl.rotation.x=Math.PI/2;bl.position.set(0,0.02,-0.28);gunGroup.add(bl);
-const bh=new THREE.Mesh(new THREE.CylinderGeometry(0.012,0.012,0.02,8),new THREE.MeshBasicMaterial({color:0}));bh.rotation.x=Math.PI/2;bh.position.set(0,0.02,-0.35);gunGroup.add(bh);
-const fr=new THREE.Mesh(new THREE.BoxGeometry(0.055,0.06,0.3),gm);fr.position.set(0,-0.03,0.05);gunGroup.add(fr);
-const tg=new THREE.Mesh(new THREE.TorusGeometry(0.03,0.005,6,12,Math.PI),gm);tg.rotation.y=Math.PI/2;tg.rotation.z=Math.PI;tg.position.set(0,-0.06,-0.02);gunGroup.add(tg);
-const tr=new THREE.Mesh(new THREE.BoxGeometry(0.008,0.03,0.015),gm);tr.position.set(0,-0.045,-0.01);tr.rotation.x=0.3;gunGroup.add(tr);
-const gr=new THREE.Mesh(new THREE.BoxGeometry(0.052,0.16,0.07),gp);gr.position.set(0,-0.14,0.1);gr.rotation.x=0.2;gunGroup.add(gr);
-for(let i=0;i<4;i++){const ln=new THREE.Mesh(new THREE.BoxGeometry(0.054,0.003,0.072),new THREE.MeshBasicMaterial({color:0x222222}));ln.position.set(0,-0.08-i*0.025,0.1);ln.rotation.x=0.2;gunGroup.add(ln);}
-const fs=new THREE.Mesh(new THREE.BoxGeometry(0.015,0.025,0.01),gm);fs.position.set(0,0.1,-0.18);gunGroup.add(fs);
-const rs1=new THREE.Mesh(new THREE.BoxGeometry(0.01,0.02,0.01),gm);rs1.position.set(-0.015,0.09,0.1);gunGroup.add(rs1);
-const rs2=new THREE.Mesh(new THREE.BoxGeometry(0.01,0.02,0.01),gm);rs2.position.set(0.015,0.09,0.1);gunGroup.add(rs2);
-const dtm=new THREE.MeshBasicMaterial({color:0x44ff44});
-const fd=new THREE.Mesh(new THREE.SphereGeometry(0.004,6,6),dtm);fd.position.set(0,0.113,-0.18);gunGroup.add(fd);
-const rd1=new THREE.Mesh(new THREE.SphereGeometry(0.003,6,6),dtm);rd1.position.set(-0.015,0.1,0.1);gunGroup.add(rd1);
-const rd2=new THREE.Mesh(new THREE.SphereGeometry(0.003,6,6),dtm);rd2.position.set(0.015,0.1,0.1);gunGroup.add(rd2);
-const mb=new THREE.Mesh(new THREE.BoxGeometry(0.04,0.015,0.05),gm);mb.position.set(0,-0.22,0.1);gunGroup.add(mb);
-gunGroup.position.set(0.35,-0.35,-0.5);gunGroup.rotation.y=-0.1;
-camera.add(gunGroup);scene.add(camera);
-
-// Game state
-let score=0,timeLeft=60,gameRunning=false,gunRecoil=0;
-let lastHitTime=0,reactionTimes=[];
-const raycaster=new THREE.Raycaster();
-const difficultyButtons=[...document.querySelectorAll('.difficulty-btn')];
-
-function targetScale(){return({3:1.1,4:.9,5:.72})[gridSize];}
-function updateDifficultyUI(){
-  difficultyButtons.forEach(btn=>{
-    btn.classList.toggle('active',Number(btn.dataset.size)===gridSize);
-    btn.disabled=gameRunning;
-  });
-  document.getElementById('difficulty-hud').textContent='难度: '+gridSize+'×'+gridSize;
-}
-function setDifficulty(size){
-  if(gameRunning||![3,4,5].includes(size))return;
-  gridSize=size;localStorage.setItem('shooting-grid-size',gridSize);
-  rebuildGrid();
-  balls.forEach(b=>b.scale.setScalar(targetScale()));
-  usedSlots.clear();
-  balls.forEach(b=>{const sp=randomBallPos();b.position.copy(sp.pos);b.userData.slot=sp.slot;});
-  updateDifficultyUI();
-}
-difficultyButtons.forEach(btn=>btn.addEventListener('click',()=>setDifficulty(Number(btn.dataset.size))));
-balls.forEach(b=>b.scale.setScalar(targetScale()));
-updateDifficultyUI();
-
-function shoot(){
-  if(!gameRunning)return;
-  gunRecoil=1;
-  raycaster.setFromCamera(new THREE.Vector2(0,0),camera);
-  const hits=raycaster.intersectObjects(balls,true);
-  if(hits.length>0){
-    let ball=hits[0].object;
-    if(ball.parent&&balls.includes(ball.parent))ball=ball.parent;
-    score++;
-    document.getElementById('score').textContent='得分: '+score;
-
-    // Reaction time
-    const now=performance.now();
-    if(lastHitTime>0){
-      const rt=Math.round(now-lastHitTime);
-      reactionTimes.push(rt);
-      const el=document.getElementById('reaction');
-      el.textContent=rt+'ms';el.style.opacity='1';
-      setTimeout(()=>el.style.opacity='0',800);
-      const avg=Math.round(reactionTimes.reduce((a,b)=>a+b,0)/reactionTimes.length);
-      document.getElementById('avg-time').textContent='平均: '+avg+'ms';
-    }
-    lastHitTime=now;
-
-    // Respawn
-    ball.visible=false;
-    const oldSlot=ball.userData.slot;
-    usedSlots.delete(oldSlot);
-    const sp=randomBallPos(oldSlot);ball.position.copy(sp.pos);ball.userData.slot=sp.slot;ball.visible=true;
-  }
-}
-
-function startGame(){
-  score=0;timeLeft=60;gameRunning=true;lastHitTime=0;reactionTimes=[];
-  updateDifficultyUI();
-  document.getElementById('score').textContent='得分: 0';
-  document.getElementById('timer').textContent='60s';
-  document.getElementById('avg-time').textContent='';
-  document.getElementById('reaction').style.opacity='0';
-  document.getElementById('overlay').style.display='none';
-  document.getElementById('start-screen').style.display='block';
-  document.getElementById('result').style.display='none';
-  usedSlots.clear();
-  balls.forEach(b=>{const sp=randomBallPos();b.position.copy(sp.pos);b.userData.slot=sp.slot;b.visible=true;});
-  controls.lock();
-}
-document.getElementById('start-btn').addEventListener('click',startGame);
-document.getElementById('restart-btn').addEventListener('click',startGame);
-
-// 最高分榜 (localStorage)
-function getScores(){try{return JSON.parse(localStorage.getItem('shooting-scores')||'[]');}catch(e){return[];}}
-function saveScore(s,avg,best){
-  const list=getScores();
-  list.push({score:s,avg:avg,best:best,grid:gridSize,date:new Date().toLocaleDateString()});
-  list.sort((a,b)=>b.score-a.score);
-  if(list.length>10)list.length=10;
-  localStorage.setItem('shooting-scores',JSON.stringify(list));
-}
-function showLeaderboard(){
-  const list=getScores();
-  document.getElementById('start-screen').style.display='none';
-  document.getElementById('result').style.display='none';
-  document.getElementById('leaderboard').style.display='block';
-  document.getElementById('overlay').style.display='flex';
-  let html='';
-  if(list.length===0)html='<div style="color:#888">暂无记录</div>';
-  else list.forEach((r,i)=>{
-    html+=`<div style="color:${i<3?'#f5c542':'#aaa'}">${i+1}. ${r.score}分 | ${r.grid?r.grid+'×'+r.grid:'旧记录'} | 平均${r.avg}ms | 最快${r.best}ms <span style="color:#555;font-size:.8rem">${r.date}</span></div>`;
-  });
-  document.getElementById('lb-list').innerHTML=html;
-}
-document.getElementById('lb-btn').addEventListener('click',showLeaderboard);
-document.getElementById('result-lb-btn').addEventListener('click',showLeaderboard);
-document.getElementById('lb-back-btn').addEventListener('click',()=>{
-  document.getElementById('leaderboard').style.display='none';
-  document.getElementById('start-screen').style.display='block';
-});
-
-controls.addEventListener('lock',()=>{if(!gameRunning)startGame();lastHitTime=performance.now();});
-controls.addEventListener('unlock',()=>{
-  if(gameRunning){
-    document.getElementById('overlay').style.display='flex';
-    document.getElementById('start-screen').querySelector('p').textContent='点击继续游戏';
-  }
-});
-
-document.addEventListener('click',()=>{
-  if(controls.isLocked)shoot();
-  else if(gameRunning)controls.lock();
-});
-
-// Timer
-setInterval(()=>{
-  if(!gameRunning||!controls.isLocked)return;
-  timeLeft--;
-  document.getElementById('timer').textContent=timeLeft+'s';
-  if(timeLeft<=0){
-    gameRunning=false;controls.unlock();
-    updateDifficultyUI();
-    document.getElementById('final-score').textContent=score;
-    const avg=reactionTimes.length>0?Math.round(reactionTimes.reduce((a,b)=>a+b,0)/reactionTimes.length):'--';
-    const best=reactionTimes.length>0?Math.min(...reactionTimes):'--';
-    document.getElementById('result-stats').textContent='难度: '+gridSize+'×'+gridSize+' | 平均反应: '+avg+'ms | 最快: '+best+'ms';
-    saveScore(score,avg,best);
-    document.getElementById('start-screen').style.display='none';
-    document.getElementById('result').style.display='block';
-    document.getElementById('overlay').style.display='flex';
-  }
-},1000);
-
-addEventListener('resize',()=>{
-  camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);
-});
-
-const clock=new THREE.Clock();
-document.addEventListener('visibilitychange',()=>clock.getDelta());
-function animate(){
-  requestAnimationFrame(animate);
-  if(document.hidden)return;
-  const dt=clock.getDelta();
-  camera.position.y=3;
-  // 限制视角幅度
-  const euler=new THREE.Euler().setFromQuaternion(camera.quaternion,'YXZ');
-  euler.y=Math.max(-Math.PI/3,Math.min(Math.PI/3,euler.y));
-  euler.x=Math.max(-Math.PI/4,Math.min(Math.PI/4,euler.x));
-  camera.quaternion.setFromEuler(euler);
-  if(gunRecoil>0){gunRecoil=Math.max(0,gunRecoil-dt*8);gunGroup.rotation.x=-gunRecoil*0.3;gunGroup.position.y=-0.35+gunRecoil*0.05;gunGroup.position.z=-0.5-gunRecoil*0.05;}
-  balls.forEach(b=>{if(b.visible)b.rotation.y+=dt*0.5;});
-  renderer.render(scene,camera);
-}
-animate();
-
-// ===== 反射弧训练 =====
-let rxState='idle',rxTimer=null,rxRedTime=0,rxResults=[],rxRound=0;
-const RX_ROUNDS=5;
-const rxScreen=document.getElementById('reflex-screen');
-const rxBg=document.getElementById('reflex-bg');
-const rxText=document.getElementById('reflex-text');
-const rxSub=document.getElementById('reflex-sub');
-const rxHistory=document.getElementById('reflex-history');
-
-function rxStart(){
-  rxResults=[];rxRound=0;
-  document.getElementById('overlay').style.display='none';
-  document.getElementById('hud').style.display='none';
-  renderer.domElement.style.display='none';
-  rxScreen.style.display='block';
-  rxNextRound();
-}
-
-function rxNextRound(){
-  rxState='waiting';rxRound++;
-  rxBg.style.background='#22aa44';
-  rxText.textContent='等待变红后点击...';
-  rxSub.textContent='第 '+rxRound+'/'+RX_ROUNDS+' 轮';
-  rxUpdateHistory();
-  const delay=1500+Math.random()*3000;
-  rxTimer=setTimeout(()=>{
-    rxState='ready';rxRedTime=performance.now();
-    rxBg.style.background='#dd2222';
-    rxText.textContent='点击！';
-  },delay);
-}
-
-function rxClick(){
-  if(rxState==='waiting'){
-    clearTimeout(rxTimer);
-    rxState='idle';
-    rxBg.style.background='#cc8800';
-    rxText.textContent='太早了！';
-    rxSub.textContent='点击重试本轮';
-    rxState='tooEarly';
-  }else if(rxState==='tooEarly'){
-    rxNextRound();
-  }else if(rxState==='ready'){
-    const rt=Math.round(performance.now()-rxRedTime);
-    rxResults.push(rt);
-    rxState='idle';
-    rxBg.style.background='#2266cc';
-    rxText.textContent=rt+'ms';
-    rxSub.textContent=rxRound<RX_ROUNDS?'点击继续下一轮':'训练结束！点击查看结果';
-    rxUpdateHistory();
-    rxState=rxRound<RX_ROUNDS?'next':'done';
-  }else if(rxState==='next'){
-    rxNextRound();
-  }else if(rxState==='done'){
-    rxShowResult();
-  }
-}
-
-function rxUpdateHistory(){
-  let h='';
-  rxResults.forEach((r,i)=>h+=`<div>第${i+1}轮: ${r}ms</div>`);
-  rxHistory.innerHTML=h;
-}
-
-function rxShowResult(){
-  const avg=Math.round(rxResults.reduce((a,b)=>a+b,0)/rxResults.length);
-  const best=Math.min(...rxResults);
-  const worst=Math.max(...rxResults);
-  saveRxScore(avg,best,worst);
-  rxBg.style.background='#1a1a2e';
-  rxText.textContent='平均: '+avg+'ms';
-  rxSub.textContent='最快: '+best+'ms | 最慢: '+worst+'ms';
-  rxHistory.innerHTML+='<div style="margin-top:1rem;color:#4aeadc;font-size:1.2rem">点击返回主菜单</div>';
-  rxState='exit';
-}
-
-function rxExit(){
-  clearTimeout(rxTimer);
-  rxState='idle';
-  rxScreen.style.display='none';
-  renderer.domElement.style.display='block';
-  document.getElementById('hud').style.display='block';
-  document.getElementById('overlay').style.display='flex';
-  document.getElementById('start-screen').style.display='block';
-}
-
-rxScreen.addEventListener('click',e=>{if(e.target.id==='reflex-exit')rxExit();else if(rxState==='exit')rxExit();else rxClick();});
-document.getElementById('reflex-btn').addEventListener('click',rxStart);
-document.getElementById('reflex-exit').addEventListener('click',e=>{e.stopPropagation();rxExit();});
-
-// 返回主菜单按钮
-document.getElementById('result-back-btn').addEventListener('click',()=>{
-  gameRunning=false;
-  document.getElementById('result').style.display='none';
-  document.getElementById('start-screen').style.display='block';
-});
-
-// 反射弧排行榜
-function getRxScores(){try{return JSON.parse(localStorage.getItem('reflex-scores')||'[]');}catch(e){return[];}}
-function saveRxScore(avg,best,worst){
-  const list=getRxScores();
-  list.push({avg,best,worst,date:new Date().toLocaleDateString()});
-  list.sort((a,b)=>a.avg-b.avg);
-  if(list.length>10)list.length=10;
-  localStorage.setItem('reflex-scores',JSON.stringify(list));
-}
-function showRxLeaderboard(){
-  const list=getRxScores();
-  document.getElementById('overlay').style.display='none';
-  renderer.domElement.style.display='none';
-  document.getElementById('hud').style.display='none';
-  const s=document.getElementById('rx-lb-screen');
-  s.style.display='flex';
-  let html='';
-  if(list.length===0)html='<div style="color:#888">暂无记录</div>';
-  else list.forEach((r,i)=>{
-    html+=`<div style="color:${i<3?'#4aeadc':'#aaa'}">${i+1}. 平均${r.avg}ms | 最快${r.best}ms | 最慢${r.worst}ms <span style="color:#555;font-size:.8rem">${r.date}</span></div>`;
-  });
-  document.getElementById('rx-lb-list').innerHTML=html;
-}
-document.getElementById('rx-lb-btn').addEventListener('click',showRxLeaderboard);
-document.getElementById('rx-lb-back').addEventListener('click',()=>{
-  document.getElementById('rx-lb-screen').style.display='none';
-  renderer.domElement.style.display='block';
-  document.getElementById('hud').style.display='block';
-  document.getElementById('overlay').style.display='flex';
-  document.getElementById('start-screen').style.display='block';
-});
-</script>
+  <script type="importmap">{"imports":{"three":"https://unpkg.com/three@0.160.0/build/three.module.js","three/addons/":"https://unpkg.com/three@0.160.0/examples/jsm/"}}</script>
+  <script type="module" src="./game.js?v=half-weapon-damage-17"></script>
 </body>
 </html>
